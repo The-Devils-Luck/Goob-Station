@@ -79,6 +79,8 @@
       path: /Audio/_Goobstation/Voice/surprised.ogg
       params:
         variation: 0
+    SiliconDeathgasp:
+      collection: BorgDeathGasp
 
 - type: emoteSounds
   id: MaleShadowkin

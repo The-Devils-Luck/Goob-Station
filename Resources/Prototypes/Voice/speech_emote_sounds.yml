@@ -785,6 +785,8 @@
         variation: 0.125
     Surprised: # Goob
       path: /Audio/_Goobstation/Voice/surprised.ogg
+    SiliconDeathgasp:
+      collection: BorgDeathGasp
 
 - type: emoteSounds
   id: UnisexSiliconSyndicate
@@ -825,6 +827,8 @@
         variation: 0.125
     Surprised: # Goob
       path: /Audio/_Goobstation/Voice/surprised.ogg
+    SiliconDeathgasp:
+      collection: BorgDeathGasp
 
 - type: emoteSounds
   id: UnisexSiliconXenoborg

@@ -8,6 +8,8 @@ using System.Linq;
 using System;
 using Robust.Shared.Map;
 using Robust.Shared.Maths;
+using Robust.Shared.Audio;
+using Robust.Shared.Audio.Systems;
 
 namespace Content.Server.Silicons.IPC;
 
@@ -16,6 +18,7 @@ public sealed class ScreenSaverSystem : SharedScreenSaverSystem
     [Dependency] private readonly SharedActionsSystem _actions = default!;
     [Dependency] private readonly HumanoidAppearanceSystem _humanoid = default!;
     [Dependency] private readonly MarkingManager _markingManager = default!;
+    [Dependency] private readonly SharedAudioSystem _audio = default!;
 
     public override void Initialize()
     {
@@ -80,6 +83,7 @@ public sealed class ScreenSaverSystem : SharedScreenSaverSystem
         _humanoid.AddMarking(uid.Value, msg.MarkingId, color);
         
         component.CurrentScreen = msg.MarkingId;
+        _audio.PlayPvs(new SoundPathSpecifier("/Audio/Machines/terminal_prompt.ogg"), uid.Value);
         UpdateVisuals(uid.Value, component);
         Dirty(uid.Value, component);
     }

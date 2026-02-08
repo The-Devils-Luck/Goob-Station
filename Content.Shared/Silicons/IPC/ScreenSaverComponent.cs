@@ -17,4 +17,7 @@ public sealed partial class ScreenSaverComponent : Component
     
     [DataField("currentScreen"), AutoNetworkedField]
     public string? CurrentScreen;
+
+    [DataField("deathScreen"), AutoNetworkedField]
+    public string DeathScreen = "ScreenBsod";
 }

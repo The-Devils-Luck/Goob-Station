@@ -63,6 +63,10 @@
 using Content.Server.Actions;
 using Content.Server.Administration.Logs;
 using Content.Server.Administration.Managers;
+using Content.Shared.Audio;
+using Robust.Shared.Audio;
+using Robust.Shared.Audio.Systems;
+using Robust.Server.Audio;
 using Content.Server.Body.Components;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -132,6 +136,7 @@ public sealed partial class BorgSystem : SharedBorgSystem
     [Dependency] private readonly SharedContainerSystem _container = default!;
     [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
     [Dependency] private readonly ISharedPlayerManager _player = default!;
+    [Dependency] private readonly SharedAudioSystem _audio = default!;
 
     public static readonly ProtoId<JobPrototype> BorgJobId = "Borg";
 
@@ -308,6 +313,7 @@ public sealed partial class BorgSystem : SharedBorgSystem
 
         _container.EmptyContainer(component.BrainContainer);
         _container.EmptyContainer(component.ModuleContainer);
+        _audio.PlayPvs(new SoundPathSpecifier("/Audio/Effects/Gasp/borg_deathgasp.ogg"), uid);
     }
 
     private void OnPowerCellChanged(EntityUid uid, BorgChassisComponent component, PowerCellChangedEvent args)
@@ -434,6 +440,7 @@ public sealed partial class BorgSystem : SharedBorgSystem
             Toggle.TryActivate(uid);
             _powerCell.SetDrawEnabled(uid, _mobState.IsAlive(uid));
         }
+        _audio.PlayPvs(new SoundPathSpecifier("/Audio/Machines/liveagain.ogg"), uid);
         _appearance.SetData(uid, BorgVisuals.HasPlayer, true);
     }
 

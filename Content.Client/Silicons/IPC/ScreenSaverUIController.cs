@@ -77,7 +77,7 @@ public sealed class ScreenSaverUIController : UIController
                     screenSprite,
                     headColor)
                 {
-                    ToolTip = Loc.GetString(markingPrototype.ID)
+                    ToolTip = Loc.GetString($"marking-{markingPrototype.ID}")
                 };
 
                 options.Add(actionOption);

@@ -166,7 +166,7 @@
   - type: IntrinsicRadioTransmitter
   - type: DeadStartupButton
     sound:
-      path: /Audio/_EinsteinEngines/Effects/Silicon/startup.ogg
+      path: /Audio/Machines/liveagain.ogg
   # Erro de linter
   #   - type: Wires
   #     layoutId: IPC

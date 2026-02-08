@@ -33,3 +33,8 @@
   id: MothDeathGasp
   files:
   - /Audio/Effects/Gasp/moth_DeathGasp.ogg
+
+- type: soundCollection
+  id: BorgDeathGasp
+  files:
+  - /Audio/Effects/Gasp/borg_deathgasp.ogg

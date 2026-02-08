@@ -6,7 +6,9 @@ using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Network;
+using Robust.Shared.Network;
 using System.Linq;
+using Content.Shared.Mobs;
 
 namespace Content.Shared.Silicons.IPC;
 
@@ -30,6 +32,7 @@ public abstract class SharedScreenSaverSystem : EntitySystem
     [Dependency] protected readonly INetManager NetManager = default!;
     [Dependency] protected readonly SharedActionsSystem Actions = default!;
     [Dependency] private readonly MarkingManager _markingManager = default!;
+    [Dependency] private readonly SharedHumanoidAppearanceSystem _humanoid = default!;
 
     public override void Initialize()
     {
@@ -39,6 +42,32 @@ public abstract class SharedScreenSaverSystem : EntitySystem
         SubscribeLocalEvent<ScreenSaverComponent, AfterAutoHandleStateEvent>(OnAfterState);
         SubscribeLocalEvent<HumanoidAppearanceComponent, AfterAutoHandleStateEvent>(OnHumanoidAfterState);
         SubscribeLocalEvent<ScreenSaverComponent, ProfileLoadFinishedEvent>(OnProfileLoadFinished);
+
+        SubscribeLocalEvent<ScreenSaverComponent, MobStateChangedEvent>(OnMobStateChanged);
+    }
+
+    private void OnMobStateChanged(EntityUid uid, ScreenSaverComponent component, MobStateChangedEvent args)
+    {
+        if (args.NewMobState != MobState.Dead || args.OldMobState == MobState.Dead)
+            return;
+
+        Color? color = null;
+
+        if (TryComp<HumanoidAppearanceComponent>(uid, out var humanoid))
+        {
+            if (!string.IsNullOrEmpty(component.CurrentScreen))
+            {
+                if (humanoid.MarkingSet.TryGetMarking(MarkingCategories.Face, component.CurrentScreen, out var marking))
+                {
+                    if (marking.MarkingColors.Count > 0)
+                        color = marking.MarkingColors[0];
+                }
+                
+                humanoid.MarkingSet.Remove(MarkingCategories.Face, component.CurrentScreen);
+            }
+        }
+        
+        _humanoid.AddMarking(uid, component.DeathScreen, color, forced: false);
     }
 
     private void OnStartup(EntityUid uid, ScreenSaverComponent component, ComponentStartup args)
