@@ -34,9 +34,3 @@
   files:
   - /Audio/Effects/Gasp/moth_DeathGasp.ogg
 
-# DOWNSTREAM-TPirates: IPC screens (start)
-- type: soundCollection
-  id: BorgDeathGasp
-  files:
-  - /Audio/Effects/Gasp/borg_deathgasp.ogg
-# DOWNSTREAM-TPirates: IPC screens (end)

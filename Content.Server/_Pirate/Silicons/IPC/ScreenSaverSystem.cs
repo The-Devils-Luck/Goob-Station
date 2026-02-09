@@ -94,7 +94,7 @@ public sealed class ScreenSaverSystem : SharedScreenSaverSystem
 
         screenSaver.CurrentScreen = newMarkingId;
         if (sound) {
-            _audio.PlayPvs(new SoundPathSpecifier("/Audio/Machines/terminal_prompt.ogg"), uid);
+            _audio.PlayPvs(new SoundPathSpecifier("/Audio/_Pirate/Machines/terminal_prompt.ogg"), uid);
         }
         UpdateVisuals(uid, screenSaver);
         Dirty(uid, screenSaver);
