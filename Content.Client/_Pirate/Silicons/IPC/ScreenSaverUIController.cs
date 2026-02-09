@@ -1,5 +1,6 @@
 using Content.Client._Goobstation.UserInterface.Controls;
 using Content.Client.UserInterface;
+using Content.Client.UserInterface.Controls;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Markings;
 using Content.Shared.Silicons.IPC;
@@ -59,7 +60,7 @@ public sealed class ScreenSaverUIController : UIController
             }
 
             var screens = _markingManager.Markings;
-            var options = new List<Content.Client.UserInterface.Controls.RadialMenuOption>();
+            var options = new List<RadialMenuOption>();
 
             foreach (var markingPrototype in screens.Values)
             {

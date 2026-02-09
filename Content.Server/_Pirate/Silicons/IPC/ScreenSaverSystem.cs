@@ -23,6 +23,7 @@ public sealed class ScreenSaverSystem : SharedScreenSaverSystem
     [Dependency] private readonly SharedAudioSystem _audio = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly MobStateSystem _mobState = default!;
+    private List<MarkingPrototype>? _ipcFaceMarkings = null;
 
     public override void Initialize()
     {
@@ -32,6 +33,15 @@ public sealed class ScreenSaverSystem : SharedScreenSaverSystem
         SubscribeLocalEvent<ScreenSaverComponent, ComponentShutdown>(OnShutdown);
         SubscribeNetworkEvent<SelectScreenSaverMessage>(OnSelectScreen);
         SubscribeLocalEvent<BodyPartComponent, DamageChangedEvent>(OnBodyPartDamage);
+    }
+
+    private void PopulateCache()
+    {
+        _ipcFaceMarkings = MarkingManager.Markings.Values
+            .Where(m => m.MarkingCategory == MarkingCategories.Face &&
+                        m.SpeciesRestrictions != null &&
+                        m.SpeciesRestrictions.Contains("IPC"))
+            .ToList();
     }
 
     private void OnMapInit(EntityUid uid, ScreenSaverComponent component, MapInitEvent args)
@@ -121,15 +131,13 @@ public sealed class ScreenSaverSystem : SharedScreenSaverSystem
             || !_mobState.IsAlive(body))
             return;
 
-        var markings = MarkingManager.Markings.Values.Where(m =>
-            m.MarkingCategory == MarkingCategories.Face &&
-            m.SpeciesRestrictions != null &&
-            m.SpeciesRestrictions.Contains("IPC")).ToList();
+        if (_ipcFaceMarkings == null)
+            PopulateCache();
 
-        if (markings.Count == 0)
+        if (_ipcFaceMarkings!.Count == 0)
             return;
 
-        var randomMarking = _random.Pick(markings);
+        var randomMarking = _random.Pick(_ipcFaceMarkings);
         ReplaceScreenMarking(body, randomMarking.ID, screenSaver, humanoid);
     }
 }
