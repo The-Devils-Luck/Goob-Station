@@ -61,4 +61,5 @@ public enum MartialArtsForms
     KungFuDragon,
     Ninjutsu,
     HellRip,
+    BigBosCloseQuartersCombat,  // Pirate Changes Власне бойове мистецтво
 }
