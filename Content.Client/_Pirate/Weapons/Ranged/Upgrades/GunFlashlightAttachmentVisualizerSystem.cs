@@ -6,7 +6,6 @@ using Content.Shared._Pirate.Weapons.Ranged.Upgrades;
 using Content.Shared._Pirate.Weapons.Ranged.Upgrades.Components;
 using Robust.Client.GameObjects;
 using Robust.Shared.GameObjects;
-using Robust.Shared.Serialization;
 
 namespace Content.Client._Pirate.Weapons.Ranged.Upgrades;
 

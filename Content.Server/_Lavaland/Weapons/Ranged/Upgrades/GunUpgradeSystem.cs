@@ -169,6 +169,10 @@ public sealed class GunUpgradeSystem : SharedGunUpgradeSystem
         if (!TryComp<ActionComponent>(handheld.ToggleActionEntity.Value, out var action))
             return;
 
+        ent.Comp.OriginalItemIconStyle = action.ItemIconStyle;
+        ent.Comp.OriginalUseDelay = action.UseDelay;
+        ent.Comp.HasSavedActionDefaults = true;
+
         _actions.SetEntityIcon((handheld.ToggleActionEntity.Value, action), args.Container.Owner);
         _actions.SetItemIconStyle((handheld.ToggleActionEntity.Value, action), ItemActionIconStyle.BigItem);
         _actions.SetUseDelay((handheld.ToggleActionEntity.Value, action), null);
@@ -181,15 +185,28 @@ public sealed class GunUpgradeSystem : SharedGunUpgradeSystem
         if (args.Container.ID != "flashlight")
             return;
 
-        if (!TryComp<HandheldLightComponent>(ent, out var handheld)
-            || handheld.ToggleActionEntity == null)
-            return;
+        if (TryComp<HandheldLightComponent>(ent, out var handheld)
+            && handheld.ToggleActionEntity is { } toggleAction
+            && TryComp<ActionComponent>(toggleAction, out var action))
+        {
+            if (ent.Comp.HasSavedActionDefaults)
+            {
+                _actions.SetItemIconStyle((toggleAction, action), ent.Comp.OriginalItemIconStyle);
+                _actions.SetUseDelay((toggleAction, action), ent.Comp.OriginalUseDelay);
+                ent.Comp.HasSavedActionDefaults = false;
+            }
 
-        if (!TryComp<ActionComponent>(handheld.ToggleActionEntity.Value, out var action))
-            return;
+            if (action.EntIcon == args.Container.Owner)
+                _actions.SetEntityIcon((toggleAction, action), null);
 
-        if (action.EntIcon == args.Container.Owner)
-            _actions.SetEntityIcon((handheld.ToggleActionEntity.Value, action), null);
+            if (_containers.TryGetContainingContainer((args.Container.Owner, Transform(args.Container.Owner), MetaData(args.Container.Owner)), out var gunContainer)
+                && TryComp<HandsComponent>(gunContainer.Owner, out _)
+                && action.AttachedEntity == gunContainer.Owner)
+            {
+                _actions.RemoveAction((gunContainer.Owner, CompOrNull<ActionsComponent>(gunContainer.Owner)), (toggleAction, action));
+            }
+        }
+
         SetGunFlashlightVisuals(args.Container.Owner, attached: false, on: false);
     }
 
@@ -244,6 +261,7 @@ public sealed class GunUpgradeSystem : SharedGunUpgradeSystem
         if (ev.Actions.Count == 0)
             return;
 
+        EnsureComp<ActionsContainerComponent>(gun);
         _actions.GrantActions((holder, CompOrNull<ActionsComponent>(holder)), ev.Actions, gun);
         _actions.LoadActions(holder);
     }
