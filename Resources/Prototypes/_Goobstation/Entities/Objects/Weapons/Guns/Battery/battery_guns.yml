@@ -269,7 +269,7 @@
     - state: mag-unshaded-0
       map: ["enum.GunVisualLayers.MagUnshaded"]
       shader: unshaded
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "0.03125, 0.0625"
   - type: Clothing
     sprite: _EinsteinEngines/Objects/Weapons/Guns/Battery/ccdisabler.rsi
@@ -284,8 +284,8 @@
   - type: BatterySelfRecharger
     autoRecharge: true
     autoRechargeRate: 40
-  - type: UpgradeableWeapon
-  - type: ItemSlots
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -295,10 +295,9 @@
         whitelist:
           components:
           - GunUpgradeFlashlight
-  - type: ContainerContainer
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
-
 - type: entity
   name: syndicate disabler
   parent: [ WeaponDisablerPractice, BaseSyndicateContraband ]
@@ -412,7 +411,7 @@
     layers:
     - state: icon
       map: ["enum.GunVisualLayers.Base"]
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "0.125, -0.03125"
   - type: Clothing
     quickEquip: false
@@ -480,8 +479,8 @@
     keyPhrase: "lawbringer-phrase"
     listenRange: 1
     holderOnly: true
-  - type: UpgradeableWeapon
-  - type: ItemSlots
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -491,7 +490,7 @@
         whitelist:
           components:
           - GunUpgradeFlashlight
-  - type: ContainerContainer
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
   - type: AccessReader

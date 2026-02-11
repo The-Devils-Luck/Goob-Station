@@ -47,10 +47,12 @@ public sealed class GunUpgradeSystem : SharedGunUpgradeSystem
 {
     [Dependency] private readonly PressureEfficiencyChangeSystem _pressure = default!;
     [Dependency] private readonly EntityEffectSystem _entityEffect = default!;
+    #region DOWNSTREAM-TPirates: gun flashlights
     [Dependency] private readonly SharedActionsSystem _actions = default!;
     [Dependency] private readonly ActionContainerSystem _actionContainer = default!;
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
     [Dependency] private readonly SharedContainerSystem _containers = default!;
+    #endregion
 
     public override void Initialize()
     {

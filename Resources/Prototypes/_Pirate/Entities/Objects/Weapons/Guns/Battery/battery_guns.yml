@@ -235,7 +235,6 @@
   - type: ContainerContainer
     containers:
       flashlight: !type:ContainerSlot
-
 - type: entity
   name: IK-60 laser carbine
   parent: [BaseWeaponBattery, BaseSecurityContraband, BaseGunWieldable]

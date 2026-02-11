@@ -210,9 +210,9 @@
   components:
   - type: Sprite
     sprite: Objects/Weapons/Guns/Pistols/viper.rsi
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "0.03125, 0.15625"
-  - type: ItemSlots
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -240,8 +240,8 @@
         whitelist:
           tags:
             - CartridgePistol
-  - type: UpgradeableWeapon
-  - type: ContainerContainer
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
       gun_magazine: !type:ContainerSlot
@@ -270,14 +270,14 @@
         map: ["enum.GunVisualLayers.Base"]
       - state: mag-0
         map: ["enum.GunVisualLayers.Mag"]
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "0.03125, 0.15625"
   - type: Appearance
-  - type: ContainerContainer
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
       ballistic-ammo: !type:Container
-  - type: ItemSlots
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -287,7 +287,7 @@
         whitelist:
           components:
           - GunUpgradeFlashlight
-  - type: UpgradeableWeapon
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
   - type: ProjectileBatteryAmmoProvider
     proto: BulletPistol
     fireCost: 100
@@ -312,7 +312,7 @@
       map: ["enum.GunVisualLayers.Base"]
     - state: mag-0
       map: ["enum.GunVisualLayers.Mag"]
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "-0.03125, 0.1875"
   - type: Clothing
     sprite: Objects/Weapons/Guns/Pistols/cobra.rsi
@@ -327,7 +327,7 @@
     projectileSpeed: 35 # Goobstation
     availableModes:
     - SemiAuto
-  - type: ItemSlots
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -354,8 +354,8 @@
         whitelist:
           tags:
             - CartridgeCaselessRifle
-  - type: UpgradeableWeapon
-  - type: ContainerContainer
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
       gun_magazine: !type:ContainerSlot
@@ -376,7 +376,7 @@
       map: ["enum.GunVisualLayers.Base"]
     - state: mag-0
       map: ["enum.GunVisualLayers.Mag"]
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "0, 0.15625"
   - type: Clothing
     sprite: Objects/Weapons/Guns/Pistols/mk58.rsi
@@ -386,8 +386,8 @@
     - SemiAuto
     soundGunshot:
       path: /Audio/Weapons/Guns/Gunshots/mk58.ogg
-  - type: UpgradeableWeapon
-  - type: ItemSlots
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -414,7 +414,7 @@
         whitelist:
           tags:
             - CartridgePistol
-  - type: ContainerContainer
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
       gun_magazine: !type:ContainerSlot
@@ -433,7 +433,7 @@
       map: ["enum.GunVisualLayers.Base"]
     - state: mag-0
       map: ["enum.GunVisualLayers.Mag"]
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "0, 0.1875"
   - type: Clothing
     sprite: Objects/Weapons/Guns/Pistols/N1984.rsi
@@ -449,7 +449,7 @@
     - SemiAuto
     soundGunshot:
       path: /Audio/Weapons/Guns/Gunshots/mateba.ogg # Goob edit
-  - type: ItemSlots
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -476,8 +476,8 @@
         whitelist:
           tags:
             - CartridgeMagnum
-  - type: UpgradeableWeapon
-  - type: ContainerContainer
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
       gun_magazine: !type:ContainerSlot

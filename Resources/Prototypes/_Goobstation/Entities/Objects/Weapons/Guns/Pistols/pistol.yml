@@ -25,7 +25,7 @@
       map: ["enum.GunVisualLayers.Base"]
     - state: mag-0
       map: ["enum.GunVisualLayers.Mag"]
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "-0.03125, 0.1875"
   - type: Clothing
     sprite: _Goobstation/Objects/Weapons/Guns/Pistols/Dualetta.rsi
@@ -40,7 +40,7 @@
     - FullAuto
     soundGunshot:
       path: /Audio/Weapons/Guns/Gunshots/mateba.ogg
-  - type: ItemSlots
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -68,8 +68,8 @@
         whitelist:
           tags:
             - CartridgePistol
-  - type: UpgradeableWeapon
-  - type: ContainerContainer
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
       gun_magazine: !type:ContainerSlot
@@ -105,7 +105,7 @@
     layers:
     - state: icon
       map: ["enum.GunVisualLayers.Base"]
-  - type: GunFlashlightAttachment
+  - type: GunFlashlightAttachment # DOWNSTREAM-TPirates: gun flashlights
     offset: "0.09375, 0.125"
   - type: Appearance
   - type: Clothing
@@ -136,8 +136,8 @@
     - oni-cannot-shoot-guns-2
     - oni-cannot-shoot-guns-3
   - type: AmmoCounter
-  - type: UpgradeableWeapon
-  - type: ItemSlots
+  - type: UpgradeableWeapon # DOWNSTREAM-TPirates: gun flashlights
+  - type: ItemSlots # DOWNSTREAM-TPirates: gun flashlights
     slots:
       flashlight:
         name: weapon-upgrade-slot-name-flashlight
@@ -147,7 +147,7 @@
         whitelist:
           components:
           - GunUpgradeFlashlight
-  - type: ContainerContainer
+  - type: ContainerContainer # DOWNSTREAM-TPirates: gun flashlights
     containers:
       flashlight: !type:ContainerSlot
       ballistic-ammo: !type:Container
