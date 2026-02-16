@@ -40,6 +40,11 @@ public sealed partial class PullingSystem
 
     private readonly record struct GrabFollowupSuppression(EntityUid Target, TimeSpan ExpiresAt);
 
+    [Dependency] private readonly SharedDoAfterSystem _doAfter = default!;
+    [Dependency] private readonly SharedBodySystem _body = default!;
+    [Dependency] private readonly DamageableSystem _damageable = default!;
+    [Dependency] private readonly SharedMeleeWeaponSystem _melee = default!;
+
     public override void Update(float frameTime)
     {
         base.Update(frameTime);
@@ -50,11 +55,6 @@ public sealed partial class PullingSystem
         _nextFollowupSuppressionPrune = _timing.CurTime + suppressionDuration;
         PruneExpiredFollowupSuppressions();
     }
-
-    [Dependency] private readonly SharedDoAfterSystem _doAfter = default!;
-    [Dependency] private readonly SharedBodySystem _body = default!;
-    [Dependency] private readonly DamageableSystem _damageable = default!;
-    [Dependency] private readonly SharedMeleeWeaponSystem _melee = default!;
 
     private void InitializePirateGrabActions()
     {
@@ -101,13 +101,11 @@ public sealed partial class PullingSystem
 
             _audio.PlayPvs(new SoundPathSpecifier("/Audio/_Pirate/Effects/butcher.ogg"), ent.Owner);
 
-            var throatLimb = Loc.GetString("popup-grab-limb-throat");
             PopupGrabAction(args.User,
                 ent.Owner,
                 "popup-grab-throat-slice-start",
                 PopupType.MediumCaution,
-                ("tool", usedItem),
-                ("limb", throatLimb));
+                ("tool", usedItem));
 
             args.Cancel();
             return;
