@@ -103,7 +103,8 @@ public sealed partial class PullingSystem
             if (!_doAfter.TryStartDoAfter(sliceDoAfter))
                 return;
 
-            _audio.PlayPvs(new SoundPathSpecifier("/Audio/_Pirate/Effects/butcher.ogg"), ent.Owner);
+            if (_netManager.IsServer)
+                _audio.PlayPvs(new SoundPathSpecifier("/Audio/_Pirate/Effects/butcher.ogg"), ent.Owner);
 
             PopupGrabAction(args.User,
                 ent.Owner,
@@ -116,7 +117,10 @@ public sealed partial class PullingSystem
         }
 
         if (throatBlockingItem is { } blockingItem)
+        {
             PopupGrabActionCancelled(args.User, "popup-grab-throat-slice-cancel-covered", ("item", blockingItem));
+            return;
+        }
 
         if (!CanStartBoneBreakDoAfter((args.User, pullerComp), ent, usedItem, out var targetPart))
             return;
