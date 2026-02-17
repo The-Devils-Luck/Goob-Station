@@ -340,7 +340,7 @@ namespace Content.Server.Hands.Systems
         {
             if (ContainerSystem.IsEntityInContainer(player) ||
                 !TryComp(player, out HandsComponent? hands) ||
-                !TryGetHeldItem((player, hands), out var throwEnt) || // DOWNSTREAM-TPirates: comat actions
+                !TryGetHeldItem((player, hands), out var throwEnt) || // DOWNSTREAM-TPirates: combat actions
                 !_actionBlockerSystem.CanThrow(player, throwEnt.Value))
                 return false;
             // Goobstation start added throwing for grabbed mobs, mnoved direction.
