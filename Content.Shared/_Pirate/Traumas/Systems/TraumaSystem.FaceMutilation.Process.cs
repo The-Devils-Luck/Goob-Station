@@ -51,7 +51,7 @@ public sealed partial class TraumaSystem
             1);
 
         var chance = FixedPoint2.Clamp(
-            damageFraction * 0.6f - deduction,
+            damageFraction * 0.6f - deduction + woundInflicter.Comp.TraumasChances[TraumaType.FaceMutilation],
             0,
             1);
 
@@ -77,10 +77,9 @@ public sealed partial class TraumaSystem
             return;
         }
 
-        var scarMarkings = new[] { "HeadTwisting", "HeadTwistingFlipped" };
         var appliedMarkings = new List<string>();
 
-        foreach (var markingId in scarMarkings)
+        foreach (var markingId in inflicter.Comp.FaceMutilationMarkings)
         {
             if (!_markingManager.Markings.TryGetValue(markingId, out var markingProto))
                 continue;

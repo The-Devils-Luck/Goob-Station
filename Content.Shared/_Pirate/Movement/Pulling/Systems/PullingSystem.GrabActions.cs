@@ -655,12 +655,15 @@ public sealed partial class PullingSystem
         if (!_netManager.IsServer)
             return;
 
-        var selfArgs = new List<(string, object)> { ("target", Identity.Entity(target, EntityManager)) };
-        var targetArgs = new List<(string, object)> { ("puller", Identity.Entity(user, EntityManager)) };
+        var targetIdentity = Identity.Entity(target, EntityManager);
+        var userIdentity = Identity.Entity(user, EntityManager);
+
+        var selfArgs = new List<(string, object)> { ("target", targetIdentity) };
+        var targetArgs = new List<(string, object)> { ("puller", userIdentity) };
         var othersArgs = new List<(string, object)>
         {
-            ("puller", Identity.Entity(user, EntityManager)),
-            ("target", Identity.Entity(target, EntityManager)),
+            ("puller", userIdentity),
+            ("target", targetIdentity),
         };
 
         foreach (var (name, value) in extraArgs)

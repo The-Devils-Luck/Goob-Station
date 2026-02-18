@@ -56,6 +56,7 @@ public partial class TraumaSystem
             TargetType = comp.TargetType,
             TraumaType = comp.TraumaType,
             TraumaSeverity = comp.TraumaSeverity,
+            MarkingId = comp.MarkingId,
         };
 
         args.State = state;
@@ -71,6 +72,7 @@ public partial class TraumaSystem
         component.TargetType = state.TargetType;
         component.TraumaType = state.TraumaType;
         component.TraumaSeverity = state.TraumaSeverity;
+        component.MarkingId = state.MarkingId;
     }
 
 
@@ -292,7 +294,8 @@ public partial class TraumaSystem
             RandomOrganTraumaChance((target, woundable), woundInflicter))
             traumaList.Add(TraumaType.OrganDamage);
 
-        if (RandomFaceMutilationChance((target, woundable), woundInflicter)) // DOWNSTREAM-TPirates: face mutilation
+        if (woundInflicter.Comp.AllowedTraumas.Contains(TraumaType.FaceMutilation) && // DOWNSTREAM-TPirates: face mutilation
+            RandomFaceMutilationChance((target, woundable), woundInflicter)) // DOWNSTREAM-TPirates: face mutilation
             traumaList.Add(TraumaType.FaceMutilation);
 
         //if (RandomVeinsTraumaChance(woundable))

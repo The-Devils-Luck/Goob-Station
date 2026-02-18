@@ -1,3 +1,4 @@
+using System.Linq;
 using Content.Shared.Body.Components;
 using Content.Shared.Body.Part;
 using Content.Shared.Body.Systems;
@@ -71,17 +72,13 @@ public sealed partial class IdentitySystem
         if (!Resolve(uid, ref body, false))
             return false;
 
-        foreach (var (headUid, _) in _bodySystem.GetBodyChildrenOfType(uid, BodyPartType.Head, body))
-        {
-            return _trauma.HasWoundableTrauma(headUid, TraumaType.FaceMutilation);
-        }
-
-        return false;
+        return _bodySystem.GetBodyChildrenOfType(uid, BodyPartType.Head, body)
+            .Any(head => _trauma.HasWoundableTrauma(head.Id, TraumaType.FaceMutilation));
     }
 
     private void OnPirateTransformSpeakerName(EntityUid uid, IdentityComponent component, ref TransformSpeakerNameEvent args)
     {
-        if (args.VoiceName != Name(uid) || !IsFaceMutilated(uid))
+        if (!IsFaceMutilated(uid))
             return;
 
         args.VoiceName = GetEntityIdentity(uid);
