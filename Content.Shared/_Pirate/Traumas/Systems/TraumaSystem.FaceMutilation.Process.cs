@@ -42,6 +42,9 @@ public sealed partial class TraumaSystem
         if (deduction == 1)
             return false;
 
+        if (target.Comp.IntegrityCap <= 0)
+            return false;
+
         var damageFraction = FixedPoint2.Clamp(
             1f - target.Comp.WoundableIntegrity / target.Comp.IntegrityCap,
             0,
