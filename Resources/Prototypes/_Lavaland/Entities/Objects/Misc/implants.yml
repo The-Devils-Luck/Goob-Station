@@ -17,10 +17,17 @@
         - LavalandMap
     - type: TriggerOnMobstateChange
       mobState:
+      - Critical # DOWNSTREAM-TPirates: death rattle update
       - Dead
     - type: RattleOnTrigger
       radioChannel: Supply
+      targetUser: true # DOWNSTREAM-TPirates: death rattle update
+      messages: # DOWNSTREAM-TPirates: death rattle update
+        Dead: lavaland-deathrattle-implant-dead-message # DOWNSTREAM-TPirates: death rattle update
+        Critical: lavaland-deathrattle-implant-critical-message # DOWNSTREAM-TPirates: death rattle update
       reportCoordinates: true
+      relayToStationMedicalWhenOffStation: true # DOWNSTREAM-TPirates: death rattle update
+      offStationRelayChannel: Medical # DOWNSTREAM-TPirates: death rattle update
 
 - type: entity
   id: DeathRattleLavalandImplanter

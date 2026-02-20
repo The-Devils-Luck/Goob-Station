@@ -34,4 +34,16 @@ public sealed partial class RattleOnTriggerComponent : BaseXOnTriggerComponent
     /// </summary>
     [DataField]
     public bool ReportCoordinates;
+
+    /// <summary>
+    /// If true and the target is not on any station grid, mirror this message to <see cref="OffStationRelayChannel"/>.
+    /// </summary>
+    [DataField]
+    public bool RelayToStationMedicalWhenOffStation;
+
+    /// <summary>
+    /// The radio channel used for off-station relay messages.
+    /// </summary>
+    [DataField]
+    public ProtoId<RadioChannelPrototype> OffStationRelayChannel = "Medical";
 }

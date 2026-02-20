@@ -1,8 +1,10 @@
 using Content.Server.Radio.EntitySystems;
 using Content.Server.Pinpointer;
+using Content.Server.Station.Systems;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Trigger;
 using Content.Shared.Trigger.Components.Effects;
+using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
 
@@ -13,6 +15,8 @@ public sealed class RattleOnTriggerSystem : EntitySystem
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly RadioSystem _radio = default!;
     [Dependency] private readonly NavMapSystem _navMap = default!;
+    [Dependency] private readonly SharedTransformSystem _transform = default!;
+    [Dependency] private readonly StationSystem _station = default!;
 
     public override void Initialize()
     {
@@ -39,11 +43,58 @@ public sealed class RattleOnTriggerSystem : EntitySystem
         if (!ent.Comp.Messages.TryGetValue(mobstate.CurrentState, out var messageId))
             return;
 
-        // Gets the location of the user
-        var posText = FormattedMessage.RemoveMarkupOrThrow(_navMap.GetNearestBeaconString(target.Value));
+        var posText = GetPositionText(target.Value, ent.Comp.ReportCoordinates);
 
         var message = Loc.GetString(messageId, ("user", target.Value), ("position", posText));
         // Sends a message to the radio channel specified by the implant
         _radio.SendRadioMessage(ent.Owner, message, _prototypeManager.Index(ent.Comp.RadioChannel), ent.Owner);
+        #region DOWNSTREAM-TPirates: death rattle update
+        if (!ent.Comp.RelayToStationMedicalWhenOffStation || _station.GetOwningStation(target.Value) != null)
+            return;
+
+        if (TryGetRelaySourceGrid(out var relaySource))
+            _radio.SendRadioMessage(ent.Owner, message, _prototypeManager.Index(ent.Comp.OffStationRelayChannel), relaySource);
+        #endregion
     }
+    #region DOWNSTREAM-TPirates: death rattle update
+    private string GetPositionText(EntityUid target, bool reportCoordinates)
+    {
+        var location = CapitalizeFirst(
+            FormattedMessage.RemoveMarkupOrThrow(_navMap.GetNearestBeaconString(target)),
+            Loc.GetString("rattle-on-trigger-unknown-position"));
+        if (!reportCoordinates)
+            return location;
+
+        var pos = _transform.GetMapCoordinates(target);
+        if (pos.MapId == MapId.Nullspace)
+            return location;
+
+        var x = (int)pos.Position.X;
+        var y = (int)pos.Position.Y;
+        return $"{location} ({x}, {y})";
+    }
+
+    private static string CapitalizeFirst(string text, string fallback)
+    {
+        if (string.IsNullOrEmpty(text))
+            return fallback;
+
+        return char.ToUpperInvariant(text[0]) + text[1..];
+    }
+
+    private bool TryGetRelaySourceGrid(out EntityUid relaySource)
+    {
+        foreach (var station in _station.GetStations())
+        {
+            if (_station.GetLargestGrid(station) is { } grid)
+            {
+                relaySource = grid;
+                return true;
+            }
+        }
+
+        relaySource = EntityUid.Invalid;
+        return false;
+    }
+    #endregion
 }
