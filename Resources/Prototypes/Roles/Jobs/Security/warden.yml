@@ -147,6 +147,10 @@
     - !type:TraitsRequirement # Pirate
       inverted: true
       traits:
+      - Foreigner
+      - ForeignerLight
+      - DeafTrait
+      - MovementImpaired
       - Blindness
       - Narcolepsy
       - Muted
@@ -169,9 +173,9 @@
   canBeAntag: false
   guides: # goobstation
   - SpaceLaw
-  - Legal SOP
+  - LegalSOP
   - Security
-  - Warden SOP
+  - WardenSOP
   - KravMaga
   goobcoins: 35 #Goob content
   access:

@@ -75,6 +75,10 @@
   - !type:TraitsRequirement # Pirate
       inverted: true
       traits:
+      - Foreigner
+      - ForeignerLight
+      - DeafTrait
+      - MovementImpaired
       - Blindness
       - Narcolepsy
       - Muted
@@ -93,7 +97,7 @@
   guides: # goobstation
   - Forensics
   - Security
-  - Detective SOP
+  - DetectiveSOP
   goobcoins: 30 #Goob content
   access:
   - Security
