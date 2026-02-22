@@ -38,13 +38,17 @@ jobs:
           # Fallback 1: parse PR number from the merge commit message/title.
           if [ -z "$pr_number" ]; then
             msg="$(jq -r '.workflow_run.head_commit.message // empty' "$GITHUB_EVENT_PATH")"
-            pr_number="$(printf '%s' "$msg" | sed -n 's/.*#\\([0-9][0-9]*\\).*/\\1/p' | head -n1)"
+            if [[ "$msg" =~ \#([0-9]+) ]]; then
+              pr_number="${BASH_REMATCH[1]}"
+            fi
           fi
 
           # Fallback 2: parse PR number from workflow_run display title.
           if [ -z "$pr_number" ]; then
             title="$(jq -r '.workflow_run.display_title // empty' "$GITHUB_EVENT_PATH")"
-            pr_number="$(printf '%s' "$title" | sed -n 's/.*#\([0-9][0-9]*\).*/\1/p' | head -n1)"
+            if [[ "$title" =~ \#([0-9]+) ]]; then
+              pr_number="${BASH_REMATCH[1]}"
+            fi
           fi
 
           # Fallback 3: ask GitHub which PR is associated with the triggering commit.
@@ -86,10 +90,13 @@ jobs:
           # Ensure we have enough history to find the changelog commit.
           git fetch --no-tags --prune --depth=200 origin "$branch"
 
-          cl_sha="$(
-            git log --format='%H %s' -n 200 "origin/$branch" \
-            | awk -v pr="(#${pr_number})" '$0 ~ /Automated changelog/ && index($0, pr) {print $1; exit}'
-          )"
+          cl_sha="$(git log \
+            --format='%H' \
+            --all-match \
+            --grep='Automated changelog' \
+            --grep="(#${pr_number})" \
+            -n 1 \
+            "origin/$branch" || true)"
 
           if [ -z "$cl_sha" ]; then
             echo "No changelog commit found for PR #${pr_number}; falling back to PR diff mode."
