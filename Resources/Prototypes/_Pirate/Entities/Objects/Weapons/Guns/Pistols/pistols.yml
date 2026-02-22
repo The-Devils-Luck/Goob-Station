@@ -99,18 +99,8 @@
   components:
   - type: Sprite
     sprite: _Pirate/Objects/Weapons/Guns/Pistols/universalnl.rsi
-  - type: GunFlashlightAttachment
-    offset: "0.125, 0.1875"
   - type: ItemSlots
     slots:
-      flashlight:
-        name: weapon-upgrade-slot-name-flashlight
-        priority: 5
-        ejectOnBreak: true
-        occludesLight: false
-        whitelist:
-          components:
-          - GunUpgradeFlashlight
       gun_magazine:
         name: Magazine
         startingItem: MagazineUniversalMagnumRubber
