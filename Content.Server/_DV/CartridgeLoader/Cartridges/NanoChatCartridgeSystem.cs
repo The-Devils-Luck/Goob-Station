@@ -299,7 +299,7 @@ public sealed class NanoChatCartridgeSystem : EntitySystem
             return;
 
         // Pirate: pda fix
-        if (!EnsureRecipientExists(card, msg.RecipientNumber.Value, GetCardInfo(msg.RecipientNumber.Value))) // Pirate: pda fix
+        if (!EnsureRecipientExists(card, msg.RecipientNumber.Value)) // Pirate: pda fix
             return;
 
         var content = msg.Content;
@@ -338,7 +338,7 @@ public sealed class NanoChatCartridgeSystem : EntitySystem
         var msgEv = new NanoChatMessageReceivedEvent(card);
         RaiseLocalEvent(ref msgEv);
 
-        if (!card.Comp.NotificationsMuted) // Pirate: pda fix
+        if (deliveryFailed || !card.Comp.NotificationsMuted) // Pirate: pda fix
             PlaySenderFeedbackSound((card, card.Comp), deliveryFailed); // Pirate: pda fix
 
         if (deliveryFailed)

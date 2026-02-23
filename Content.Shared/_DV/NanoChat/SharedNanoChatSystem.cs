@@ -312,13 +312,13 @@ public abstract class SharedNanoChatSystem : EntitySystem
         {
             // Enrich existing recipient data when we learn missing fields later.
             var existing = card.Comp.Recipients[recipientNumber]; // Pirate: pda fix
-            var updated = existing; // Pirate: pda fix
+            var updated = new NanoChatRecipient(existing.Number, existing.Name, existing.JobTitle, existing.HasUnread); // Pirate: pda fix
 
             if (string.IsNullOrWhiteSpace(existing.Name) && !string.IsNullOrWhiteSpace(info.Name)) // Pirate: pda fix
-                updated = updated with { Name = info.Name };
+                updated.Name = info.Name;
 
             if (string.IsNullOrWhiteSpace(existing.JobTitle) && !string.IsNullOrWhiteSpace(info.JobTitle)) // Pirate: pda fix
-                updated = updated with { JobTitle = info.JobTitle };
+                updated.JobTitle = info.JobTitle;
 
             if (!updated.Equals(existing)) // Pirate: pda fix
             {

@@ -58,7 +58,7 @@ public sealed partial class NanoChatMessageBubblePirate : BoxContainer
         // For other messages: LeftSpacer -> MessagePanel -> FlexSpace
         MessageContainer.RemoveAllChildren();
 
-        // fuuuuuck
+        // Detach before re-parenting to avoid duplicate parent ownership in the visual tree.
         MessageBox.Parent?.RemoveChild(MessageBox);
 
         if (isOwnMessage)

@@ -364,7 +364,7 @@ public sealed class CartridgeLoaderSystem : SharedCartridgeLoaderSystem
         loader.BackgroundPrograms.Remove(cartridgeUid);
     }
 
-    public void SendNotification(EntityUid loaderUid, string header, string message, CartridgeLoaderComponent? loader = default!, bool playRingtone = true) // Pirate: pda fix
+    public void SendNotification(EntityUid loaderUid, string header, string message, CartridgeLoaderComponent? loader = default!, bool playRingtone = true)
     {
         if (!Resolve(loaderUid, ref loader))
             return;
@@ -372,8 +372,9 @@ public sealed class CartridgeLoaderSystem : SharedCartridgeLoaderSystem
         if (!loader.NotificationsEnabled)
             return;
 
-        // Pirate: pda fix
-        var args = new CartridgeLoaderNotificationSentEvent(header, message, playRingtone); // Pirate: pda fix
+        /* Use loaderUid and resolved loader to gate notification delivery, then
+         * raise CartridgeLoaderNotificationSentEvent with ringtone preference. */
+        var args = new CartridgeLoaderNotificationSentEvent(header, message, playRingtone);
         RaiseLocalEvent(loaderUid, ref args);
     }
 

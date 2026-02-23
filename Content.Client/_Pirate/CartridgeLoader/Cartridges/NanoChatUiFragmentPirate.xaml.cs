@@ -39,6 +39,9 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
     private bool _listNumber = true;
     private Dictionary<uint, NanoChatRecipient> _recipients = new();
     private Dictionary<uint, List<NanoChatMessage>> _messages = new();
+    private uint? _renderedChat;
+    private readonly List<NanoChatMessage> _renderedMessages = new();
+    private readonly List<RenderedMessageRow> _renderedRows = new();
 
     public event Action<NanoChatUiMessageType, uint?, string?, string?>? OnMessageSent;
 
@@ -82,12 +85,13 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
             SendButton.Disabled = !isValid;
 
             // Show character count when over limit
-            CharacterCount.Visible = length > NanoChatMessage.MaxContentLength;
-            CharacterCount.StyleClasses.Clear();
-            CharacterCount.StyleClasses.Add("LabelSubText");
+            var overLimit = length > NanoChatMessage.MaxContentLength;
+            CharacterCount.Visible = overLimit;
 
-            if (length > NanoChatMessage.MaxContentLength)
+            if (overLimit)
             {
+                CharacterCount.StyleClasses.Clear();
+                CharacterCount.StyleClasses.Add("LabelSubText");
                 CharacterCount.Text = Loc.GetString("nano-chat-message-too-long",
                     ("current", length),
                     ("max", NanoChatMessage.MaxContentLength));
@@ -130,13 +134,9 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
         if (activeChat == null || string.IsNullOrWhiteSpace(MessageInput.Text))
             return;
 
-        var messageContent = MessageInput.Text;
-        if (!string.IsNullOrWhiteSpace(messageContent))
-        {
-            messageContent = messageContent.Trim();
-            if (messageContent.Length > NanoChatMessage.MaxContentLength)
-                messageContent = messageContent[..NanoChatMessage.MaxContentLength];
-        }
+        var messageContent = MessageInput.Text.Trim();
+        if (messageContent.Length > NanoChatMessage.MaxContentLength)
+            messageContent = messageContent[..NanoChatMessage.MaxContentLength];
 
         // Add predicted message
         var predictedMessage = new NanoChatMessage(
@@ -195,6 +195,11 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
 
     private void UpdateChatList(Dictionary<uint, NanoChatRecipient> recipients)
     {
+        foreach (var entry in ChatList.Children.OfType<NanoChatEntryPirate>())
+        {
+            entry.OnPressed -= SelectChat;
+        }
+
         ChatList.RemoveAllChildren();
         _recipients = recipients;
 
@@ -243,32 +248,64 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
         var separatorGap = TimeSpan.FromMinutes(1);
 
         _messages = messages;
-        MessageList.RemoveAllChildren();
-
         var activeChat = _pendingChat ?? _currentChat;
-        if (activeChat == null || !messages.TryGetValue(activeChat.Value, out var chatMessages))
-            return;
-
-        TimeSpan? previousStationTime = null;
-        foreach (var message in chatMessages)
+        if (activeChat != _renderedChat)
         {
-            var stationTime = GetStationTime(message.Timestamp);
-            if (previousStationTime == null || stationTime - previousStationTime.Value >= separatorGap)
-                AddTimeSeparator(stationTime);
-
-            var messageBubble = new NanoChatMessageBubblePirate();
-            messageBubble.SetMessage(message, message.SenderId == _ownNumber);
-            MessageList.AddChild(messageBubble);
-
-            // Add spacing between messages
-            MessageList.AddChild(new Control { MinSize = new Vector2(0, 6) });
-            previousStationTime = stationTime;
+            ClearRenderedMessages();
+            _renderedChat = activeChat;
         }
+
+        if (activeChat == null || !messages.TryGetValue(activeChat.Value, out var chatMessages))
+        {
+            if (_renderedRows.Count > 0)
+                ClearRenderedMessages();
+
+            return;
+        }
+
+        var previousCount = _renderedMessages.Count;
+        var overlapCount = previousCount < chatMessages.Count ? previousCount : chatMessages.Count;
+        var rebuildFrom = -1;
+
+        for (var i = 0; i < overlapCount; i++)
+        {
+            var incoming = chatMessages[i];
+            var rendered = _renderedMessages[i];
+            if (rendered.Equals(incoming))
+                continue;
+
+            if (rendered.Timestamp == incoming.Timestamp)
+            {
+                _renderedRows[i].Bubble.SetMessage(incoming, incoming.SenderId == _ownNumber);
+                _renderedMessages[i] = incoming;
+                continue;
+            }
+
+            rebuildFrom = i;
+            break;
+        }
+
+        if (rebuildFrom == -1 && chatMessages.Count < previousCount)
+            rebuildFrom = chatMessages.Count;
+
+        if (rebuildFrom != -1)
+            RemoveRenderedTail(rebuildFrom);
+
+        TimeSpan? previousStationTime = _renderedMessages.Count > 0
+            ? GetStationTime(_renderedMessages[^1].Timestamp)
+            : null;
+
+        for (var i = _renderedMessages.Count; i < chatMessages.Count; i++)
+        {
+            previousStationTime = AddRenderedMessage(chatMessages[i], previousStationTime, separatorGap);
+        }
+
+        if (chatMessages.Count <= previousCount)
+            return;
 
         MessageList.InvalidateMeasure();
         MessagesScroll.InvalidateMeasure();
 
-        // Scroll to bottom after messages are added
         if (MessageList.Parent is ScrollContainer scroll)
             scroll.SetScrollValue(new Vector2(0, float.MaxValue));
     }
@@ -279,9 +316,61 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
         return stationTime < TimeSpan.Zero ? TimeSpan.Zero : stationTime;
     }
 
-    private void AddTimeSeparator(TimeSpan stationTime)
+    private TimeSpan AddRenderedMessage(NanoChatMessage message, TimeSpan? previousStationTime, TimeSpan separatorGap)
     {
-        MessageList.AddChild(new Control { MinSize = new Vector2(0, 4) });
+        var stationTime = GetStationTime(message.Timestamp);
+        var shouldAddSeparator = previousStationTime == null || stationTime - previousStationTime.Value >= separatorGap;
+
+        var row = new RenderedMessageRow();
+        if (shouldAddSeparator)
+        {
+            var (topGap, separatorRow, bottomGap) = AddTimeSeparator(stationTime);
+            row.SeparatorTopGap = topGap;
+            row.SeparatorRow = separatorRow;
+            row.SeparatorBottomGap = bottomGap;
+        }
+
+        var bubble = new NanoChatMessageBubblePirate();
+        bubble.SetMessage(message, message.SenderId == _ownNumber);
+        MessageList.AddChild(bubble);
+
+        var spacing = new Control { MinSize = new Vector2(0, 6) };
+        MessageList.AddChild(spacing);
+
+        row.Bubble = bubble;
+        row.Spacing = spacing;
+        _renderedMessages.Add(message);
+        _renderedRows.Add(row);
+        return stationTime;
+    }
+
+    private void ClearRenderedMessages()
+    {
+        MessageList.RemoveAllChildren();
+        _renderedMessages.Clear();
+        _renderedRows.Clear();
+    }
+
+    private void RemoveRenderedTail(int startIndex)
+    {
+        for (var i = _renderedRows.Count - 1; i >= startIndex; i--)
+        {
+            var row = _renderedRows[i];
+            row.SeparatorTopGap?.Parent?.RemoveChild(row.SeparatorTopGap);
+            row.SeparatorRow?.Parent?.RemoveChild(row.SeparatorRow);
+            row.SeparatorBottomGap?.Parent?.RemoveChild(row.SeparatorBottomGap);
+            row.Bubble.Parent?.RemoveChild(row.Bubble);
+            row.Spacing.Parent?.RemoveChild(row.Spacing);
+        }
+
+        _renderedRows.RemoveRange(startIndex, _renderedRows.Count - startIndex);
+        _renderedMessages.RemoveRange(startIndex, _renderedMessages.Count - startIndex);
+    }
+
+    private (Control TopGap, BoxContainer SeparatorRow, Control BottomGap) AddTimeSeparator(TimeSpan stationTime)
+    {
+        var topGap = new Control { MinSize = new Vector2(0, 4) };
+        MessageList.AddChild(topGap);
 
         var separatorRow = new BoxContainer
         {
@@ -322,13 +411,27 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
         });
 
         MessageList.AddChild(separatorRow);
-        MessageList.AddChild(new Control { MinSize = new Vector2(0, 6) });
+        var bottomGap = new Control { MinSize = new Vector2(0, 6) };
+        MessageList.AddChild(bottomGap);
+        return (topGap, separatorRow, bottomGap);
+    }
+
+    private sealed class RenderedMessageRow
+    {
+        public Control? SeparatorTopGap;
+        public BoxContainer? SeparatorRow;
+        public Control? SeparatorBottomGap;
+        public NanoChatMessageBubblePirate Bubble = default!;
+        public Control Spacing = default!;
     }
 
     private void UpdateMuteButton()
     {
         if (BellMutedIcon != null)
             BellMutedIcon.Visible = _notificationsMuted;
+
+        if (BellIcon != null)
+            BellIcon.Visible = !_notificationsMuted;
     }
 
     private void UpdateListNumber()
@@ -353,18 +456,14 @@ public sealed partial class NanoChatUiFragmentPirate : BoxContainer
             ? Loc.GetString("nano-chat-max-recipients")
             : Loc.GetString("nano-chat-new-chat");
 
-        // First handle pending chat resolution if we have one
+        // Clear any local prediction once server state arrives.
         if (_pendingChat != null)
         {
-            if (_pendingChat == state.CurrentChat)
-                _currentChat = _pendingChat; // Server confirmed our selection
-
             _pendingChat = null; // Clear pending either way
         }
 
-        // No pending chat or it was just cleared, update current directly
-        if (_pendingChat == null)
-            _currentChat = state.CurrentChat;
+        // Server state is authoritative for selected chat.
+        _currentChat = state.CurrentChat;
 
         UpdateCurrentChat();
         UpdateChatList(state.Recipients);
