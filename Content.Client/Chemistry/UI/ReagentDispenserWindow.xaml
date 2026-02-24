@@ -74,7 +74,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                         <PanelContainer.PanelOverride>
                             <gfx:StyleBoxFlat BackgroundColor="#1f232a" />
                         </PanelContainer.PanelOverride>
-                        <BoxContainer Orientation="Vertical" Margin="5">
+                        <BoxContainer Orientation="Vertical">
                             <BoxContainer Orientation="Horizontal"
                                           Margin="0 4 0 0">
                                 <Label Text="{Loc 'reagent-dispenser-window-recipes-title'}"

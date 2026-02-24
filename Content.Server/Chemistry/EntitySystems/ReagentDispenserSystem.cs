@@ -52,6 +52,8 @@ using Robust.Shared.Prototypes;
 using Content.Shared.Labels.Components;
 using Content.Shared.Storage;
 using Content.Server.Hands.Systems;
+using Content.Server.Popups;
+using Content.Shared.Popups;
 
 namespace Content.Server.Chemistry.EntitySystems
 {
@@ -70,6 +72,7 @@ namespace Content.Server.Chemistry.EntitySystems
         [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
         [Dependency] private readonly OpenableSystem _openable = default!;
         [Dependency] private readonly HandsSystem _handsSystem = default!;
+        [Dependency] private readonly PopupSystem _popupSystem = default!;
 
         public override void Initialize()
         {
@@ -351,8 +354,9 @@ namespace Content.Server.Chemistry.EntitySystems
                 return;
             }
 
-            if (!TryDispenseRecipe(reagentDispenser, recipe))
+            if (!TryDispenseRecipe(reagentDispenser, recipe, out var reason, out var failedReagentId))
             {
+                ShowRecipeFailurePopup(reagentDispenser, reason, failedReagentId, message.Actor);
                 ErrorSound(reagentDispenser);
                 return;
             }
@@ -375,8 +379,9 @@ namespace Content.Server.Chemistry.EntitySystems
                 return;
             }
 
-            if (!TryDispenseRecipe(reagentDispenser, recipe))
+            if (!TryDispenseRecipe(reagentDispenser, recipe, out var reason, out var failedReagentId))
             {
+                ShowRecipeFailurePopup(reagentDispenser, reason, failedReagentId, message.Actor);
                 ErrorSound(reagentDispenser);
                 return;
             }
@@ -385,8 +390,15 @@ namespace Content.Server.Chemistry.EntitySystems
             ClickSound(reagentDispenser);
         }
 
-        private bool TryDispenseRecipe(Entity<ReagentDispenserComponent> reagentDispenser, Dictionary<string, FixedPoint2> recipe)
+        private bool TryDispenseRecipe(
+            Entity<ReagentDispenserComponent> reagentDispenser,
+            Dictionary<string, FixedPoint2> recipe,
+            out RecipeDispenseFailureReason reason,
+            out string? failedReagentId)
         {
+            reason = RecipeDispenseFailureReason.None;
+            failedReagentId = null;
+
             if (reagentDispenser.Comp.RecordingRecipe != null)
             {
                 foreach (var (reagentId, quantity) in recipe)
@@ -402,27 +414,74 @@ namespace Content.Server.Chemistry.EntitySystems
 
             var outputContainer = _itemSlotsSystem.GetItemOrNull(reagentDispenser, SharedReagentDispenser.OutputSlotName);
             if (outputContainer is not { Valid: true } || !_solutionContainerSystem.TryGetFitsInDispenser(outputContainer.Value, out _, out _))
+            {
+                reason = RecipeDispenseFailureReason.MissingOutputContainer;
                 return false;
+            }
+
+            // Pre-check recipe contents so recipe usage either succeeds as a whole or aborts with a precise error.
+            foreach (var (reagentId, quantity) in recipe)
+            {
+                if (!TryGetStoredContainerForReagentId(reagentDispenser.Owner, reagentId, out var srcContainer))
+                {
+                    reason = RecipeDispenseFailureReason.ReagentNotFound;
+                    failedReagentId = reagentId;
+                    return false;
+                }
+
+                if (!_solutionContainerSystem.TryGetDrainableSolution(srcContainer, out _, out var srcSoln))
+                {
+                    reason = RecipeDispenseFailureReason.ReagentNotFound;
+                    failedReagentId = reagentId;
+                    return false;
+                }
+
+                var available = srcSoln.GetReagentQuantity(new ReagentId(reagentId, null));
+                if (available < quantity)
+                {
+                    reason = RecipeDispenseFailureReason.NotEnoughReagent;
+                    failedReagentId = reagentId;
+                    return false;
+                }
+            }
 
             foreach (var (reagentId, quantity) in recipe)
             {
                 if (!TryGetStoredContainerForReagentId(reagentDispenser.Owner, reagentId, out var srcContainer))
+                {
+                    reason = RecipeDispenseFailureReason.ReagentNotFound;
+                    failedReagentId = reagentId;
                     return false;
+                }
 
                 if (!_solutionContainerSystem.TryGetDrainableSolution(srcContainer, out var srcSoln, out _))
+                {
+                    reason = RecipeDispenseFailureReason.ReagentNotFound;
+                    failedReagentId = reagentId;
                     return false;
+                }
 
                 if (!_solutionContainerSystem.TryGetRefillableSolution(outputContainer.Value, out var dstRefillable, out _))
+                {
+                    reason = RecipeDispenseFailureReason.MissingOutputContainer;
                     return false;
+                }
 
                 _openable.SetOpen(srcContainer, true);
-                _solutionTransferSystem.Transfer(
+                var transferred = _solutionTransferSystem.Transfer(
                     reagentDispenser,
                     srcContainer,
                     srcSoln.Value,
                     outputContainer.Value,
                     dstRefillable.Value,
                     quantity.Int());
+
+                if (transferred < quantity)
+                {
+                    reason = RecipeDispenseFailureReason.TransferFailed;
+                    failedReagentId = reagentId;
+                    return false;
+                }
             }
 
             return true;
@@ -547,6 +606,46 @@ namespace Content.Server.Chemistry.EntitySystems
             return true;
         }
 
+        private void ShowRecipeFailurePopup(
+            Entity<ReagentDispenserComponent> reagentDispenser,
+            RecipeDispenseFailureReason reason,
+            string? failedReagentId,
+            EntityUid actor)
+        {
+            if (actor == EntityUid.Invalid)
+                return;
+
+            var target = GetRecipeReagentName(failedReagentId);
+            var text = reason switch
+            {
+                RecipeDispenseFailureReason.ReagentNotFound => Loc.GetString("reagent-dispenser-recipes-error-reagent-not-found", ("target", target)),
+                RecipeDispenseFailureReason.NotEnoughReagent => Loc.GetString("reagent-dispenser-recipes-error-not-enough-reagent", ("target", target)),
+                _ => null,
+            };
+
+            if (text != null)
+                _popupSystem.PopupEntity(text, reagentDispenser.Owner, actor, PopupType.MediumCaution);
+        }
+
+        private string GetRecipeReagentName(string? reagentId)
+        {
+            if (reagentId == null)
+                return Loc.GetString("reagent-dispenser-window-reagent-name-not-found-text");
+
+            return _prototypeManager.TryIndex(reagentId, out ReagentPrototype? proto)
+                ? proto.LocalizedName
+                : reagentId;
+        }
+
+        private enum RecipeDispenseFailureReason
+        {
+            None,
+            MissingOutputContainer,
+            ReagentNotFound,
+            NotEnoughReagent,
+            TransferFailed,
+        }
+
         private void ClickSound(Entity<ReagentDispenserComponent> reagentDispenser)
         {
             _audioSystem.PlayPvs(reagentDispenser.Comp.ClickSound, reagentDispenser, AudioParams.Default.WithVolume(-2f));
@@ -567,3 +666,8 @@ namespace Content.Server.Chemistry.EntitySystems
         }
     }
 }
+
+
+
+
+

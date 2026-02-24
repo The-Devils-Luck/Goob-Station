@@ -65,8 +65,7 @@ namespace Content.Client.Chemistry.UI
         private const float RecipeActionButtonSize = 28f;
         private const float RecipeChipHeight = 28f;
         private const float RecipeChipActionButtonSize = RecipeChipHeight;
-        private const float RecipeChipColorSwatchSize = 14f;
-        private const float RecipeChipColorSwatchSlotWidth = 16f;
+        private const float RecipeChipColorLineWidth = 7f;
         private const int RecipeChipColumns = 3;
         private static readonly SoundSpecifier InterfaceClickSound = new SoundPathSpecifier("/Audio/UserInterface/click.ogg");
         private DialogWindow? _saveRecipeDialog;
@@ -193,11 +192,12 @@ namespace Content.Client.Chemistry.UI
                 var loadButton = new Button
                 {
                     Text = recipe.Name,
-                    StyleClasses = { StyleBase.ButtonOpenRight },
+                    StyleClasses = { StyleBase.ButtonSquare },
                     HorizontalExpand = true,
                     MinHeight = RecipeChipHeight,
                     SetHeight = RecipeChipHeight,
                     ClipText = true,
+                    Margin = new Thickness(-1f, 0f, 0f, 0f),
                 };
                 loadButton.OnPressed += _ =>
                 {
@@ -207,11 +207,12 @@ namespace Content.Client.Chemistry.UI
                 var saveToDiskButton = new Button
                 {
                     HorizontalExpand = false,
-                    StyleClasses = { StyleBase.ButtonOpenBoth },
+                    StyleClasses = { StyleBase.ButtonSquare },
                     MinWidth = RecipeChipActionButtonSize,
                     SetWidth = RecipeChipActionButtonSize,
                     Disabled = !state.HasRecipeDisk,
                     ToolTip = Loc.GetString("reagent-dispenser-window-recipes-save-to-disk-tooltip"),
+                    Margin = new Thickness(-1f, 0f, 0f, 0f),
                 };
                 ConfigureCompactIconButton(saveToDiskButton, "/Textures/_Pirate/Interface/VerbIcons/ChemRecipes/recipe-download-from-disk.svg.192dpi.png");
                 saveToDiskButton.OnPressed += _ =>
@@ -222,10 +223,11 @@ namespace Content.Client.Chemistry.UI
                 var deleteButton = new Button
                 {
                     HorizontalExpand = false,
-                    StyleClasses = { StyleBase.ButtonOpenLeft },
+                    StyleClasses = { StyleBase.ButtonSquare },
                     MinWidth = RecipeChipActionButtonSize,
                     SetWidth = RecipeChipActionButtonSize,
                     ToolTip = Loc.GetString("reagent-dispenser-window-recipes-delete-tooltip"),
+                    Margin = new Thickness(-1f, 0f, 0f, 0f),
                 };
                 ConfigureCompactIconButton(deleteButton, "/Textures/_Pirate/Interface/VerbIcons/ChemRecipes/recipe-delete.svg.192dpi.png");
                 deleteButton.OnPressed += _ =>
@@ -266,12 +268,13 @@ namespace Content.Client.Chemistry.UI
                 var nameButton = new Button
                 {
                     Text = recipe.Name,
-                    StyleClasses = { StyleBase.ButtonOpenRight },
+                    StyleClasses = { StyleBase.ButtonSquare },
                     HorizontalExpand = true,
                     MinHeight = RecipeChipHeight,
                     SetHeight = RecipeChipHeight,
                     ClipText = true,
                     ToolTip = Loc.GetString("reagent-dispenser-window-recipes-copy-from-disk-tooltip"),
+                    Margin = new Thickness(-1f, 0f, 0f, 0f),
                 };
                 nameButton.OnPressed += _ =>
                 {
@@ -281,10 +284,11 @@ namespace Content.Client.Chemistry.UI
                 var uploadButton = new Button
                 {
                     HorizontalExpand = false,
-                    StyleClasses = { StyleBase.ButtonOpenBoth },
+                    StyleClasses = { StyleBase.ButtonSquare },
                     MinWidth = RecipeChipActionButtonSize,
                     SetWidth = RecipeChipActionButtonSize,
                     ToolTip = Loc.GetString("reagent-dispenser-window-recipes-copy-from-disk-tooltip"),
+                    Margin = new Thickness(-1f, 0f, 0f, 0f),
                 };
                 ConfigureCompactIconButton(uploadButton, "/Textures/_Pirate/Interface/VerbIcons/ChemRecipes/recipe-save-to-disk.svg.192dpi.png");
                 uploadButton.OnPressed += _ =>
@@ -295,10 +299,11 @@ namespace Content.Client.Chemistry.UI
                 var deleteButton = new Button
                 {
                     HorizontalExpand = false,
-                    StyleClasses = { StyleBase.ButtonOpenLeft },
+                    StyleClasses = { StyleBase.ButtonSquare },
                     MinWidth = RecipeChipActionButtonSize,
                     SetWidth = RecipeChipActionButtonSize,
                     ToolTip = Loc.GetString("reagent-dispenser-window-recipes-delete-disk-tooltip"),
+                    Margin = new Thickness(-1f, 0f, 0f, 0f),
                 };
                 ConfigureCompactIconButton(deleteButton, "/Textures/_Pirate/Interface/VerbIcons/ChemRecipes/recipe-delete.svg.192dpi.png");
                 deleteButton.OnPressed += _ =>
@@ -382,22 +387,14 @@ namespace Content.Client.Chemistry.UI
                     : "reagent-dispenser-window-recipes-record-tooltip");
         }
 
-        private CenterContainer CreateRecipeColorSwatch(Color color)
+        private PanelContainer CreateRecipeColorSwatch(Color color)
         {
-            return new CenterContainer
+            return new PanelContainer
             {
-                MinWidth = RecipeChipColorSwatchSlotWidth,
-                SetWidth = RecipeChipColorSwatchSlotWidth,
-                Margin = new Thickness(0f, 0f, 1f, 0f),
-                Children =
-                {
-                    new PanelContainer
-                    {
-                        MinSize = new Vector2(RecipeChipColorSwatchSize, RecipeChipColorSwatchSize),
-                        MaxSize = new Vector2(RecipeChipColorSwatchSize, RecipeChipColorSwatchSize),
-                        PanelOverride = new StyleBoxFlat { BackgroundColor = color },
-                    }
-                }
+                VerticalExpand = true,
+                SetWidth = RecipeChipColorLineWidth,
+                Margin = new Thickness(0f, 1f, 0f, 0f),
+                PanelOverride = new StyleBoxFlat { BackgroundColor = color },
             };
         }
 
@@ -548,3 +545,4 @@ namespace Content.Client.Chemistry.UI
         }
     }
 }
+

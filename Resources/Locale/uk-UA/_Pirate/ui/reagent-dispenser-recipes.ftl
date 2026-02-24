@@ -33,3 +33,6 @@ reagent-dispenser-window-recipes-recording = Триває запис.
 reagent-dispenser-window-recipes-idle = Запис не ведеться.
 reagent-dispenser-window-recipes-virtual-container-name = Віртуальна мензурка
 reagent-dispenser-window-recipes-virtual-container-empty = Нічого не записано.
+
+reagent-dispenser-recipes-error-reagent-not-found = Реагент не знайдено: {$target}. Відміна.
+reagent-dispenser-recipes-error-not-enough-reagent = Недостатньо реагента: {$target}. Відміна.
