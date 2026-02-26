@@ -39,7 +39,7 @@
     JugSodium: 2
     JugSugar: 3
     JugSulfur: 1
-    ChemRecipeDiskPirate: 4 # Pirates: chem recipes
+    ChemRecipeDisk: 4 # Pirate: chem recipes
   contrabandInventory:
     DrinkLithiumFlask: 1
     StrangePill: 3
@@ -72,7 +72,7 @@
     JugSodium: 2
     JugSugar: 3
     JugSulfur: 1
-    ChemRecipeDiskPirate: 4 # Pirates: chem recipes
+    ChemRecipeDisk: 4 # Pirate: chem recipes
     JugWeldingFuel: 1
     PlasmaChemistryVial: 1
   contrabandInventory:
@@ -82,4 +82,6 @@
     ChemistryBottleMuteToxin: 3
     ChemistryBottleLead: 2
     ChemistryBottleToxin: 1
+
+
 

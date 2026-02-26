@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2026 Goob Station Contributors
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
-
 reagent-dispenser-component-slot-name-disk = диск рецептів
 
 reagent-dispenser-window-recipes-title = Збережені рецепти
@@ -36,5 +32,6 @@ reagent-dispenser-window-recipes-virtual-container-empty = Нічого не з�
 
 reagent-dispenser-recipes-error-reagent-not-found = Реагент не знайдено: {$target}. Відміна.
 reagent-dispenser-recipes-error-not-enough-reagent = Недостатньо реагента: {$target}. Відміна.
-reagent-dispenser-window-reagents-title = ��������
+
+reagent-dispenser-window-reagents-title = Реагенти
 

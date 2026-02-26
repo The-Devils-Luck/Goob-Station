@@ -48,7 +48,7 @@
   - Jug
   - ChemistryEmptyBottle01
   - ClothingEyesGlassesChemical
-  - ChemRecipeDiskPirate # Pirates: chem recipes
+  - ChemRecipeDiskPirate # Pirate: chem recipes
 
 - type: latheRecipePack
   id: SurgeryStatic
@@ -130,3 +130,4 @@
   - CryoPodMachineCircuitboard
   - BiomassReclaimerMachineCircuitboard
   - StasisOperatingTableCircuitboard # Corvax-Goob-StasisOperatingTable
+

@@ -25,8 +25,10 @@ namespace Content.Shared.Chemistry
     public sealed class SharedReagentDispenser
     {
         public const string OutputSlotName = "beakerSlot";
+        #region Pirate: chem recipes
         public const string RecipeDiskSlotName = "recipeDiskSlot";
         public const int RecipeNameMaxLength = 16;
+        #endregion
     }
 
     [Serializable, NetSerializable]
@@ -111,6 +113,7 @@ namespace Content.Shared.Chemistry
 
     }
 
+    #region Pirate: chem recipes
     [Serializable, NetSerializable]
     public sealed class ReagentDispenserStartRecipeRecordingMessage : BoundUserInterfaceMessage
     {
@@ -203,6 +206,7 @@ namespace Content.Shared.Chemistry
         }
     }
 
+    #endregion
     public enum ReagentDispenserDispenseAmount
     {
         U1 = 1,
@@ -225,6 +229,7 @@ namespace Content.Shared.Chemistry
         public Color ReagentColor = reagentColor;
     }
 
+    #region Pirate: chem recipes
     [Serializable, NetSerializable]
     public sealed class ReagentDispenserRecipeItem(string name, Color color)
     {
@@ -274,9 +279,15 @@ namespace Content.Shared.Chemistry
         }
     }
 
+    #endregion
+
     [Serializable, NetSerializable]
     public enum ReagentDispenserUiKey
     {
         Key
     }
 }
+
+
+
+

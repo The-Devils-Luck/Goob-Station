@@ -542,9 +542,6 @@
   id: ChemDispensable # container that can go into the chem dispenser
 
 - type: Tag
-  id: ChemRecipeDisk
-
-- type: Tag
   id: ChiliBowl
 
 - type: Tag

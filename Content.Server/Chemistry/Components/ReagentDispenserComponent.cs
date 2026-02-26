@@ -58,7 +58,7 @@ using Content.Shared.Whitelist;
 using Content.Shared.Containers.ItemSlots;
 using Content.Server.Chemistry.EntitySystems;
 using Content.Shared.Chemistry;
-using Content.Goobstation.Maths.FixedPoint;
+using Content.Goobstation.Maths.FixedPoint; // Pirate: chem recipes
 using Robust.Shared.Audio;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
@@ -74,6 +74,7 @@ namespace Content.Server.Chemistry.Components
         [DataField]
         public ItemSlot BeakerSlot = new();
 
+        #region Pirate: chem recipes
         [DataField]
         public ItemSlot RecipeDiskSlot = new();
 
@@ -91,5 +92,9 @@ namespace Content.Server.Chemistry.Components
 
         [ViewVariables]
         public Dictionary<string, FixedPoint2>? RecordingRecipe;
+        #endregion
     }
 }
+
+
+

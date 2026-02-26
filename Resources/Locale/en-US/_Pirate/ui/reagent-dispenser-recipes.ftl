@@ -1,7 +1,3 @@
-# SPDX-FileCopyrightText: 2026 Goob Station Contributors
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
-
 reagent-dispenser-component-slot-name-disk = recipe disk
 
 reagent-dispenser-window-recipes-title = Saved recipes

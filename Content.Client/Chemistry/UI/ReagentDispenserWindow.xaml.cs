@@ -64,7 +64,7 @@ namespace Content.Client.Chemistry.UI
         private AudioSystem _audioSystem = default!;
         private const float RecipeActionButtonSize = 28f;
         private const float RecipeChipHeight = 28f;
-        private const float RecipeChipActionButtonSize = 20f; // Pirates: chem recipes
+        private const float RecipeChipActionButtonSize = 20f; // Pirate: chem recipes
         private const float RecipeChipColorLineWidth = 7f;
         private const int RecipeChipColumns = 3;
         private static readonly SoundSpecifier InterfaceClickSound = new SoundPathSpecifier("/Audio/UserInterface/click.ogg");
@@ -356,8 +356,8 @@ namespace Content.Client.Chemistry.UI
         private void ConfigureCompactIconButton(Button button, string texturePath)
         {
             button.Text = string.Empty;
-            button.MinHeight = RecipeChipHeight; // Pirates: chem recipes
-            button.SetHeight = RecipeChipHeight; // Pirates: chem recipes
+            button.MinHeight = RecipeChipHeight; // Pirate: chem recipes
+            button.SetHeight = RecipeChipHeight; // Pirate: chem recipes
             button.RemoveAllChildren();
             button.AddChild(new TextureRect
             {
@@ -437,10 +437,10 @@ namespace Content.Client.Chemistry.UI
             if (container.PixelWidth <= 0)
                 return;
 
-            #region Pirates: chem recipes
+            #region Pirate: chem recipes
             var hSeparation = container.HSeparationOverride ?? 4;
             var totalSeparation = hSeparation * (RecipeChipColumns - 1);
-            var chipWidth = MathF.Max(0f, (container.PixelWidth - totalSeparation) / (float) RecipeChipColumns) + 1f; // Pirates: chem recipes
+            var chipWidth = MathF.Max(0f, (container.PixelWidth - totalSeparation) / (float) RecipeChipColumns) + 1f; // Pirate: chem recipes
             #endregion
             foreach (var child in container.Children)
             {
@@ -549,4 +549,5 @@ namespace Content.Client.Chemistry.UI
         }
     }
 }
+
 
