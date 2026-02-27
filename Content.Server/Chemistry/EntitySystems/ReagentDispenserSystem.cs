@@ -451,6 +451,14 @@ namespace Content.Server.Chemistry.EntitySystems
                     return false;
                 }
 
+                // Pirate: chem recipes - recipe quantities are per reagent, so mixed sources are invalid.
+                if (srcSoln.Volume - available > FixedPoint2.Zero)
+                {
+                    reason = RecipeDispenseFailureReason.TransferFailed;
+                    failedReagentId = reagentId;
+                    return false;
+                }
+
                 cachedSources[reagentId] = (srcContainer, srcDrainable);
             }
 
