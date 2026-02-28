@@ -138,6 +138,7 @@ namespace Content.Client.Paper.UI
         {
             ("[author]", "[author]"),
             ("[job]", "[job]"),
+            ("[datetime]", "[datetime]"),
             ("[date]", "[date]"),
             ("[time]", "[time]"),
             ("[stn]", "[stn]"),

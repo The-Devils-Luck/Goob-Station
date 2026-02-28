@@ -322,12 +322,14 @@ public sealed class PaperSystem : EntitySystem
         var nowUtc = DateTime.UtcNow;
         var date = $"{nowUtc.Day:00}/{nowUtc.Month:00}/{StationBaseYear:0000}";
         var time = _ticker.RoundDuration().ToString("hh\\:mm\\:ss", CultureInfo.InvariantCulture);
+        var dateTime = $"{date} {time}";
         var stationNumber = GetStationNumber(entity.Owner, actor);
         var stationCode = GetStationSecurityCode(actor);
 
         return input
             .Replace("[author]", author)
             .Replace("[job]", job)
+            .Replace("[datetime]", dateTime)
             .Replace("[date]", date)
             .Replace("[time]", time)
             .Replace("[stn]", stationNumber)
