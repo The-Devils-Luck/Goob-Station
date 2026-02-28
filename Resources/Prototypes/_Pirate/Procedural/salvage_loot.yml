@@ -4,3 +4,4 @@
   loots:
     - !type:BiomeMarkerLoot
       proto: OreTitanium
+      

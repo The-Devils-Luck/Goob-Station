@@ -2,6 +2,7 @@ stack-steel = сталь
 stack-bananium = бананій
 stack-glass = скло
 stack-plasteel = пласталь
+stack-plastitanium = пластитан
 stack-brass = латунь
 stack-plastic = пластик
 stack-silver = срібло
