@@ -75,13 +75,19 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Content.Shared.Administration.Logs;
+using Content.Shared.Access.Systems;
+using Content.Shared.GameTicking;
 using Content.Shared.UserInterface;
 using Content.Shared.Database;
 using Content.Shared.Examine;
 using Content.Shared.Interaction;
 using Content.Shared.Popups;
+using Content.Shared.PDA;
+using Content.Shared.Station;
 using Content.Shared.Tag;
 using Robust.Shared.Player;
 using Robust.Shared.Audio.Systems;
@@ -100,9 +106,17 @@ public sealed class PaperSystem : EntitySystem
     [Dependency] private readonly SharedUserInterfaceSystem _uiSystem = default!;
     [Dependency] private readonly MetaDataSystem _metaSystem = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
+    [Dependency] private readonly SharedIdCardSystem _idCard = default!;
+    [Dependency] private readonly SharedStationSystem _station = default!;
+    [Dependency] private readonly SharedGameTicker _ticker = default!;
 
     private static readonly ProtoId<TagPrototype> WriteIgnoreStampsTag = "WriteIgnoreStamps";
     private static readonly ProtoId<TagPrototype> WriteTag = "Write";
+    private const int StationBaseYear = 2468;
+    private static readonly Regex StationCodeRegex = new(@"\b[A-Z]{2,5}-\d{1,4}\b", RegexOptions.Compiled);
+    private static readonly Regex StationLabelRegex = new(
+        @"(?:^|\s)(?:Station|Станція|Станция)\s*:\s*(?<value>[^\s,.;:]+)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
     public override void Initialize()
     {
@@ -114,6 +128,7 @@ public sealed class PaperSystem : EntitySystem
         SubscribeLocalEvent<PaperComponent, ExaminedEvent>(OnExamined);
         SubscribeLocalEvent<PaperComponent, InteractUsingEvent>(OnInteractUsing);
         SubscribeLocalEvent<PaperComponent, PaperInputTextMessage>(OnInputTextMessage);
+        SubscribeLocalEvent<PaperComponent, PaperMacroMenuUsedMessage>(OnMacroMenuUsedMessage);
 
         SubscribeLocalEvent<ActivateOnPaperOpenedComponent, PaperWriteEvent>(OnPaperWrite);
     }
@@ -257,11 +272,13 @@ public sealed class PaperSystem : EntitySystem
         if (ev.Cancelled)
             return;
 
-        if (args.Text.Length <= entity.Comp.ContentSize)
-        {
-            SetContent(entity, args.Text);
+        var processedText = ExpandPaperMacros(entity, args.Actor, args.Text);
 
-            var paperStatus = string.IsNullOrWhiteSpace(args.Text) ? PaperStatus.Blank : PaperStatus.Written;
+        if (processedText.Length <= entity.Comp.ContentSize)
+        {
+            SetContent(entity, processedText);
+
+            var paperStatus = string.IsNullOrWhiteSpace(processedText) ? PaperStatus.Blank : PaperStatus.Written;
 
             if (TryComp<AppearanceComponent>(entity, out var appearance))
                 _appearance.SetData(entity, PaperVisuals.Status, paperStatus, appearance);
@@ -271,13 +288,115 @@ public sealed class PaperSystem : EntitySystem
 
             _adminLogger.Add(LogType.Chat,
                 LogImpact.Low,
-                $"{ToPrettyString(args.Actor):player} has written on {ToPrettyString(entity):entity} the following text: {args.Text}");
+                $"{ToPrettyString(args.Actor):player} has written on {ToPrettyString(entity):entity} the following text: {processedText}");
 
             _audio.PlayPvs(entity.Comp.Sound, entity);
         }
 
         entity.Comp.Mode = PaperAction.Read;
         UpdateUserInterface(entity);
+    }
+
+    private void OnMacroMenuUsedMessage(Entity<PaperComponent> entity, ref PaperMacroMenuUsedMessage args)
+    {
+        _audio.PlayPvs(entity.Comp.Sound, entity);
+    }
+
+    private string ExpandPaperMacros(Entity<PaperComponent> entity, EntityUid actor, string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        var author = Name(actor);
+        var job = "N/A";
+
+        if (_idCard.TryFindIdCard(actor, out var idCard))
+        {
+            if (!string.IsNullOrWhiteSpace(idCard.Comp.FullName))
+                author = idCard.Comp.FullName;
+
+            if (!string.IsNullOrWhiteSpace(idCard.Comp.LocalizedJobTitle))
+                job = idCard.Comp.LocalizedJobTitle;
+        }
+
+        var nowUtc = DateTime.UtcNow;
+        var date = $"{nowUtc.Day:00}/{nowUtc.Month:00}/{StationBaseYear:0000}";
+        var time = _ticker.RoundDuration().ToString("hh\\:mm\\:ss", CultureInfo.InvariantCulture);
+        var stationNumber = GetStationNumber(entity.Owner, actor);
+        var stationCode = GetStationSecurityCode(actor);
+
+        return input
+            .Replace("[author]", author)
+            .Replace("[job]", job)
+            .Replace("[date]", date)
+            .Replace("[time]", time)
+            .Replace("[stn]", stationNumber)
+            .Replace("[code]", stationCode);
+    }
+
+    private string GetStationNumber(EntityUid paper, EntityUid actor)
+    {
+        var stationUid = _station.GetOwningStation(paper) ?? _station.GetOwningStation(actor);
+        if (stationUid == null)
+            return "0000";
+
+        var stationName = MetaData(stationUid.Value).EntityName;
+        var codeMatch = StationCodeRegex.Match(stationName);
+        if (codeMatch.Success)
+            return codeMatch.Value;
+
+        // Handles labels like "Станція: Дев" / "Station: Dev" (including no-space variants).
+        var stationLabelMatch = StationLabelRegex.Match(stationName);
+        if (stationLabelMatch.Success)
+        {
+            var labelValue = stationLabelMatch.Groups["value"].Value.Trim(',', '.', ':', ';');
+            if (!string.IsNullOrWhiteSpace(labelValue))
+                return labelValue;
+        }
+
+        // Fallback for station names like: "NTTG Станція Бокс"
+        // or "NTTG Station Box", returning the short station name.
+        var tokens = stationName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        for (var i = 0; i < tokens.Length - 1; i++)
+        {
+            var token = tokens[i].Trim(',', '.', ':', ';');
+            if (token.Equals("Станція", StringComparison.OrdinalIgnoreCase) ||
+                token.Equals("Station", StringComparison.OrdinalIgnoreCase))
+            {
+                var fallbackName = tokens[i + 1].Trim(',', '.', ':', ';');
+                if (!string.IsNullOrWhiteSpace(fallbackName))
+                    return fallbackName;
+            }
+        }
+
+        // Last resort: use the station value as-is (e.g. "Dev") instead of forcing 0000.
+        var rawFallback = stationName.Trim(',', '.', ':', ';', ' ');
+        if (!string.IsNullOrWhiteSpace(rawFallback))
+            return rawFallback;
+
+        return "0000";
+    }
+
+    private string GetStationSecurityCode(EntityUid actor)
+    {
+        if (!_idCard.TryFindIdCard(actor, out var idCard))
+            return "N/A";
+
+        var parentUid = Transform(idCard).ParentUid;
+        if (parentUid != EntityUid.Invalid &&
+            TryComp<PdaComponent>(parentUid, out var pda) &&
+            !string.IsNullOrWhiteSpace(pda.StationAlertLevel))
+        {
+            var alertLevelKey = $"alert-level-{pda.StationAlertLevel}";
+            if (Loc.TryGetString(alertLevelKey, out var localizedLevel))
+                return localizedLevel;
+
+            return pda.StationAlertLevel;
+        }
+
+        return Loc.GetString("alert-level-unknown");
     }
 
     private void OnPaperWrite(Entity<ActivateOnPaperOpenedComponent> entity, ref PaperWriteEvent args)

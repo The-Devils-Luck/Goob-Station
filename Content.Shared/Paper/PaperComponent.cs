@@ -145,6 +145,11 @@ public sealed partial class PaperComponent : Component
     }
 
     [Serializable, NetSerializable]
+    public sealed class PaperMacroMenuUsedMessage : BoundUserInterfaceMessage
+    {
+    }
+
+    [Serializable, NetSerializable]
     public enum PaperUiKey
     {
         Key
