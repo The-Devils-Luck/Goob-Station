@@ -80,3 +80,4 @@
   - type: Repairable
     fuelCost: 40
     doAfterDelay: 10
+    

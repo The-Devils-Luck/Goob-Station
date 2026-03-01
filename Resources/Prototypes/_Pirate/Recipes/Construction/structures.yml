@@ -24,3 +24,23 @@
   conditions:
     - !type:TileNotBlocked
     
+- type: construction
+  id: BlastDoorOnyx
+  graph: BlastDoorOnyx
+  startNode: start
+  targetNode: blastdoorOnyx
+  category: construction-category-structures
+  objectType: Structure
+  placementMode: SnapgridCenter
+  canBuildInImpassable: true
+
+- type: construction
+  id: BlastDoorOnyxCorner
+  graph: BlastDoorOnyxCorner
+  startNode: startc
+  targetNode: blastdoorOnyxCorner
+  category: construction-category-structures
+  objectType: Structure
+  placementMode: SnapgridCenter
+  canBuildInImpassable: true
+  
