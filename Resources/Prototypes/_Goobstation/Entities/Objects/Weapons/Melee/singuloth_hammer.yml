@@ -1,5 +1,5 @@
 - type: entity
-  name: "молот Синґулота"
+  name: Singuloth's hammer
   parent: SingularityHammer
   id: SingulothsHammer
   components:
