@@ -101,7 +101,7 @@ public class SharedCrawlUnderSystem : EntitySystem
         if (!TryComp<FixturesComponent>(uid, out var fixtures) || !TryComp<PhysicsComponent>(uid, out var physics))
             return;
 
-        var maskBits = (int) (CollisionGroup.MidImpassable);
+        var maskBits = (int) CollisionGroup.MidImpassable;
         bool canPass = !standing.Standing || standing.IsCrawlingUnder;
 
         foreach (var (id, fixture) in fixtures.Fixtures)
@@ -112,9 +112,23 @@ public class SharedCrawlUnderSystem : EntitySystem
             int newMask = fixture.CollisionMask;
 
             if (canPass)
-                newMask &= ~maskBits;
+            {
+                if ((newMask & maskBits) != 0)
+                {
+                    newMask &= ~maskBits;
+                    
+                    if (!standing.ChangedFixtures.Contains(id))
+                        standing.ChangedFixtures.Add(id);
+                }
+            }
             else
-                newMask |= maskBits;
+            {
+                if (standing.ChangedFixtures.Contains(id))
+                {
+                    newMask |= maskBits;
+                    standing.ChangedFixtures.Remove(id);
+                }
+            }
 
             if (newMask != fixture.CollisionMask)
             {
