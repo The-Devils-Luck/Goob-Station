@@ -4,8 +4,8 @@ meta:
   engineVersion: 266.0.0
   forkId: ""
   forkVersion: ""
-  time: 03/03/2026 13:17:40
-  entityCount: 19150
+  time: 03/03/2026 16:37:57
+  entityCount: 19156
 maps:
 - 1
 grids:
@@ -112778,6 +112778,38 @@ entities:
     - type: Transform
       pos: 15.5,38.5
       parent: 2
+- proto: SpawnPointVirologist
+  entities:
+  - uid: 19151
+    components:
+    - type: Transform
+      pos: 6.5,-14.5
+      parent: 2
+  - uid: 19152
+    components:
+    - type: Transform
+      pos: 7.5,-14.5
+      parent: 2
+  - uid: 19153
+    components:
+    - type: Transform
+      pos: 7.5,-11.5
+      parent: 2
+  - uid: 19154
+    components:
+    - type: Transform
+      pos: 7.5,-12.5
+      parent: 2
+  - uid: 19155
+    components:
+    - type: Transform
+      pos: 7.5,-8.5
+      parent: 2
+  - uid: 19156
+    components:
+    - type: Transform
+      pos: 7.5,-7.5
+      parent: 2
 - proto: SpawnPointWarden
   entities:
   - uid: 16025
@@ -128531,7 +128563,7 @@ entities:
       lastSignals:
         DoorStatus: True
     - type: Door
-      secondsUntilStateChange: -115037.266
+      secondsUntilStateChange: -115089.766
       state: Opening
     - type: Airlock
       autoClose: False
