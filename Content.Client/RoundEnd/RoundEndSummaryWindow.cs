@@ -117,7 +117,8 @@ namespace Content.Client.RoundEnd
             var gamemodeMessage = new FormattedMessage();
             gamemodeMessage.AddMarkupOrThrow(Loc.GetString("round-end-summary-window-round-id-label", ("roundId", roundId)));
             gamemodeMessage.AddText(" ");
-            gamemodeMessage.AddMarkupOrThrow(Loc.GetString("round-end-summary-window-gamemode-name-label", ("gamemode", gamemode)));
+            gamemodeMessage.AddMarkupOrThrow(Loc.GetString("round-end-summary-window-gamemode-name-label",
+                ("gamemode", FormattedMessage.EscapeText(gamemode))));
             gamemodeLabel.SetMessage(gamemodeMessage);
             roundEndSummaryContainer.AddChild(gamemodeLabel);
 
@@ -133,7 +134,7 @@ namespace Content.Client.RoundEnd
             if (!string.IsNullOrEmpty(roundEnd))
             {
                 var roundEndLabel = new RichTextLabel();
-                roundEndLabel.SetMarkup(roundEnd);
+                roundEndLabel.SetMarkupPermissive(roundEnd);
                 roundEndSummaryContainer.AddChild(roundEndLabel);
             }
 
@@ -251,7 +252,7 @@ namespace Content.Client.RoundEnd
                     };
 
                     playerLastWordsText.SetMarkup(Loc.GetString("round-end-summary-window-last-words",
-                        ("lastWords", playerInfo.LastWords)));
+                        ("lastWords", FormattedMessage.EscapeText(playerInfo.LastWords))));
 
                     textVBox.AddChild(playerLastWordsText);
                 }
@@ -392,9 +393,7 @@ namespace Content.Client.RoundEnd
                 Orientation = LayoutOrientation.Vertical
             };
             var StationReportLabel = new RichTextLabel();
-            var StationReportmessage = new FormattedMessage();
-            StationReportmessage.AddMarkupOrThrow(stationReportText);
-            StationReportLabel.SetMessage(StationReportmessage);
+            StationReportLabel.SetMarkupPermissive(stationReportText);
             StationReportContainer.AddChild(StationReportLabel);
 
 
