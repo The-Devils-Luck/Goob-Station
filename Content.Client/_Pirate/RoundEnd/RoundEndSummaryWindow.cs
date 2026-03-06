@@ -66,7 +66,16 @@ public sealed partial class RoundEndSummaryWindow
 
             foreach (var image in album.Images)
             {
-                using var stream = new MemoryStream(image.Key);
+                Texture texture;
+                try
+                {
+                    using var stream = new MemoryStream(image.Key);
+                    texture = Texture.LoadFromPNGStream(stream);
+                }
+                catch
+                {
+                    continue;
+                }
 
                 var imageLabel = new RichTextLabel();
 
@@ -116,7 +125,7 @@ public sealed partial class RoundEndSummaryWindow
                 downloadButton.Scale = new Vector2(0.5f, 0.5f);
                 downloadButton.TextureNormal = spriteSystem.Frame0(downloadIconTexture);
 
-                textureRect.Texture = Texture.LoadFromPNGStream(stream);
+                textureRect.Texture = texture;
                 textureRect.AddChild(downloadButton);
 
                 var panel = new PanelContainer

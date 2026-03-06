@@ -127,7 +127,7 @@ public sealed partial class DialogWindow : FancyWindow
 
                 // Last text box gets enter confirmation.
                 // Only the last so you don't accidentally confirm early.
-                if (i == entries.Count - 1)
+                if (ok && i == entries.Count - 1)
                     edit.OnTextEntered += _ => Confirm();
 
                 input = edit;
