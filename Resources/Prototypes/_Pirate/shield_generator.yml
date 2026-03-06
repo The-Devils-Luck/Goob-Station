@@ -1,8 +1,9 @@
-# High-End
+# Base
 - type: entity
-  id: ShieldGenerator
+  id: ShieldGeneratorBase
   parent: BaseMachinePowered
-  name: MS-500 "Titan" Shield Generator
+  name: Shield Generator
+  abstract: true
   components:
   - type: AmbientOnPowered
   - type: AmbientSound
@@ -36,13 +37,36 @@
     thresholds:
     - trigger:
         !type:DamageTrigger
-        damage: 1000
+        damage: 1500
       behaviors:
       - !type:DoActsBehavior
-        acts: [ "Destruction" ]
-      - !type:PlaySoundBehavior
-        sound:
-          collection: MetalGlassBreak
+        acts: ["Destruction"]
+      - !type:ExplodeBehavior
+      - !type:SpawnGasBehavior
+        gasMixture:
+          volume: 1000
+          moles:
+          - 194 # oxygen
+          - 0 # nitrogen
+          - 0 # carbon dioxide
+          - 6 # plasma
+          temperature: 752.48
+    - trigger:
+        !type:DamageTrigger
+        damage: 1000
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          SheetSteel1:
+            min: 1
+            max: 2
+      - !type:DoActsBehavior
+        acts: ["Destruction"]
+  - type: Explosive
+    explosionType: Default
+    maxIntensity: 4000
+    intensitySlope: 4
+    totalIntensity: 600
   - type: Repairable
     doAfterDelay: 8
   - type: PointLight
@@ -58,9 +82,15 @@
     powerLoad: 60000
   - type: Appearance
   - type: ShipShieldEmitter
-    damageLimit: 25000
-    damageOverloadTimePunishment: 120
+    damageLimit: 8000
+    damageOverloadTimePunishment: 40
+    healPerSecond: 120 # Base is 250
+    damageExp: 1.15 # Base is 1.1
+    baseDraw: 40000 # Base is 50000
+    maxDraw: 100000 # Base is 150000
+    unpoweredBonus: 7 # Base is 6
     shieldColor: "#FF3333"
+    collisionResistanceMultiplier: 1.0
     powerUpSound: !type:SoundPathSpecifier
         path: "/Audio/Effects/teleport_arrival.ogg"
         params:
@@ -70,21 +100,39 @@
         params:
           pitch: 0.5
 
+# High-End
+- type: entity
+  id: ShieldGenerator
+  parent: ShieldGeneratorBase
+  name: MS-500 "Titan" Shield Generator
+  components:
+  - type: ShipShieldEmitter
+    damageLimit: 8000
+    damageOverloadTimePunishment: 40
+    healPerSecond: 120 # Base is 250
+    damageExp: 1.15 # Base is 1.1
+    baseDraw: 40000 # Base is 50000
+    maxDraw: 100000 # Base is 150000
+    unpoweredBonus: 7 # Base is 6
+    shieldColor: "#FF3333"
+    collisionResistanceMultiplier: 0.05
+
 # Medium-End
 - type: entity
   id: ShieldGeneratorMedium
-  parent: ShieldGenerator
+  parent: ShieldGeneratorBase
   name: MS-250 "Aegis" Shield Generator
   components:
   - type: ShipShieldEmitter
-    healPerSecond: 200
-    damageExp: 1.15
-    baseDraw: 40000
-    maxDraw: 80000
-    unpoweredBonus: 3
-    damageLimit: 10000
+    healPerSecond: 100 # Base is 250
+    damageExp: 1.15 # Base is 1.1
+    baseDraw: 30000 # Base is 50000
+    maxDraw: 75000 # Base is 150000
+    unpoweredBonus: 4 # Base is 6
+    damageLimit: 40000
     damageOverloadTimePunishment: 100
     shieldColor: "#9933FF"
+    collisionResistanceMultiplier: 0.6
   - type: Sprite
     sprite: _Pirate/Structures/ShuttleComponents/shield.rsi
     snapCardinals: true
@@ -95,6 +143,40 @@
       map: ["enum.PowerDeviceVisualLayers.Powered"]
       visible: false
       color: "#9933FF"
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 1500
+      behaviors:
+      - !type:DoActsBehavior
+        acts: ["Destruction"]
+      - !type:ExplodeBehavior
+      - !type:SpawnGasBehavior
+        gasMixture:
+          volume: 1000
+          moles:
+          - 194 # oxygen
+          - 0 # nitrogen
+          - 0 # carbon dioxide
+          - 6 # plasma
+          temperature: 752.48
+    - trigger:
+        !type:DamageTrigger
+        damage: 750
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          SheetSteel1:
+            min: 1
+            max: 2
+      - !type:DoActsBehavior
+        acts: ["Destruction"]
+  - type: Explosive
+    explosionType: Default
+    maxIntensity: 4000
+    intensitySlope: 4
+    totalIntensity: 400
   - type: ApcPowerReceiver
     powerLoad: 40000
   - type: PointLight
@@ -107,18 +189,19 @@
 # Low-End
 - type: entity
   id: ShieldGeneratorSmall
-  parent: ShieldGenerator
+  parent: ShieldGeneratorBase
   name: MS-100 "Sentinel" Shield Generator
   components:
   - type: ShipShieldEmitter
-    healPerSecond: 50
-    damageExp: 1.4
+    healPerSecond: 80
+    damageExp: 1.2
     baseDraw: 20000
     maxDraw: 60000
-    unpoweredBonus: 2.5
+    unpoweredBonus: 3
     damageLimit: 5000
     damageOverloadTimePunishment: 80
     shieldColor: "#3399FF"
+    collisionResistanceMultiplier: 0.5
   - type: Sprite
     sprite: _Pirate/Structures/ShuttleComponents/shield.rsi
     snapCardinals: true
@@ -129,6 +212,40 @@
       map: ["enum.PowerDeviceVisualLayers.Powered"]
       visible: false
       color: "#3399FF"
+  - type: Destructible
+    thresholds:
+    - trigger:
+        !type:DamageTrigger
+        damage: 1500
+      behaviors:
+      - !type:DoActsBehavior
+        acts: ["Destruction"]
+      - !type:ExplodeBehavior
+      - !type:SpawnGasBehavior
+        gasMixture:
+          volume: 1000
+          moles:
+          - 194 # oxygen
+          - 0 # nitrogen
+          - 0 # carbon dioxide
+          - 6 # plasma
+          temperature: 752.48
+    - trigger:
+        !type:DamageTrigger
+        damage: 500
+      behaviors:
+      - !type:SpawnEntitiesBehavior
+        spawn:
+          SheetSteel1:
+            min: 1
+            max: 2
+      - !type:DoActsBehavior
+        acts: ["Destruction"]
+  - type: Explosive
+    explosionType: Default
+    maxIntensity: 4000
+    intensitySlope: 4
+    totalIntensity: 300
   - type: ApcPowerReceiver
     powerLoad: 20000
   - type: PointLight

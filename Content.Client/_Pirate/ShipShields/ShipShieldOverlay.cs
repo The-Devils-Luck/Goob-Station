@@ -32,7 +32,7 @@ public sealed class ShipShieldOverlay : Overlay
         _resourceCache = resourceCache;
         _entManager = entityManager;
         _fixture = _entManager.EntitySysManager.GetEntitySystem<FixtureSystem>();
-        _physics = _entManager.EntitySysManager.GetEntitySystem<SharedPhysicsSystem>();
+        _physics = _entManager.EntitySysManager.GetEntitySystem<Robust.Client.Physics.PhysicsSystem>();
 
         _unshadedShader = prototypeManager.Index<ShaderPrototype>("unshaded").Instance();
 
@@ -53,10 +53,8 @@ public sealed class ShipShieldOverlay : Overlay
 
             var fixture = _fixture.GetFixtureOrNull(uid, "shield", fixtures);
 
-            if (fixture == null || fixture.Shape is not ChainShape)
+            if (fixture is not { Shape: ChainShape chain })
                 continue;
-
-            var chain = (ChainShape) fixture.Shape;
 
             var texture = _resourceCache.GetTexture("/Textures/_Pirate/ShipShields/shieldtex.png");
 
