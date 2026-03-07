@@ -47,6 +47,11 @@ public sealed partial class PhotoCardWindow : BaseWindow
         }
     }
 
+    public void ClearImage()
+    {
+        ImageDisplay.Texture = null;
+    }
+
     public void SetMetadata(string? customName, string? caption)
     {
         PhotoNameLabel.Text = customName ?? string.Empty;

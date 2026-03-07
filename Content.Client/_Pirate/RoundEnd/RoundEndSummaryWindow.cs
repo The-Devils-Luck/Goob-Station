@@ -177,8 +177,10 @@ public sealed partial class RoundEndSummaryWindow
 
             string authorName = album.AuthorName ?? Loc.GetString("round-end-summary-album-photo-no-author-name");
             string authorCKey = album.AuthorCkey ?? Loc.GetString("round-end-summary-album-photo-no-author-ckey");
+            var escapedAuthorName = FormattedMessage.EscapeText(authorName);
+            var escapedAuthorCKey = FormattedMessage.EscapeText(authorCKey);
 
-            stationAlbumAuthorHeaderLabel.SetMarkup(Loc.GetString("round-end-summary-album-photo-author", ("authorName", authorName), ("authorCKey", authorCKey)));
+            stationAlbumAuthorHeaderLabel.SetMarkup(Loc.GetString("round-end-summary-album-photo-author", ("authorName", escapedAuthorName), ("authorCKey", escapedAuthorCKey)));
 
             stationAlbumAuthorHeaderPanel.AddChild(stationAlbumAuthorHeaderLabel);
             stationAlbumAuthorHeaderContainer.AddChild(stationAlbumAuthorHeaderPanel);
@@ -246,19 +248,19 @@ public sealed partial class RoundEndSummaryWindow
             return;
         }
 
-        var stationAlbumSystem = _entityManager.System<PhotoAlbumSystem>();
-        var fullImageBytes = await stationAlbumSystem.GetFullImageDataAsync(photoImageId);
-        if (fullImageBytes is not { Length: > 0 })
-        {
-            Logger.Warning($"Round-end photo full image fetch failed for image id {imageId}, photo id {photoImageId}.");
-            _entityManager.System<PopupSystem>().PopupCursor(Loc.GetString("round-end-summary-album-photo-save-failed"));
-            return;
-        }
-
         (Stream fileStream, bool alreadyExisted)? file = null;
 
         try
         {
+            var stationAlbumSystem = _entityManager.System<PhotoAlbumSystem>();
+            var fullImageBytes = await stationAlbumSystem.GetFullImageDataAsync(photoImageId);
+            if (fullImageBytes is not { Length: > 0 })
+            {
+                Logger.Warning($"Round-end photo full image fetch failed for image id {imageId}, photo id {photoImageId}.");
+                _entityManager.System<PopupSystem>().PopupCursor(Loc.GetString("round-end-summary-album-photo-save-failed"));
+                return;
+            }
+
             file = await _fileDialogManager.SaveFile(new FileDialogFilters(new FileDialogFilters.Group("png")));
             if (!file.HasValue)
                 return;

@@ -76,7 +76,7 @@ public sealed class PhotoCaptureEntityDetectorSystem : EntitySystem
 
             unique.Add(net.Value);
             if (unique.Count >= maxEntities)
-                return new List<NetEntity>(unique);
+                break;
         }
 
         return new List<NetEntity>(unique);

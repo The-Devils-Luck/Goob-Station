@@ -48,15 +48,16 @@ public sealed partial class TextureButton : ContainerButton
 
         this.OnButtonUp += args =>
         {
-            if (PointedTexture != null)
+            if (IsHovered && PointedTexture != null)
                 Icon.SetFromSpriteSpecifier(PointedTexture);
+            else
+                RefreshTexture();
         };
     }
 
     public void ShowBase()
     {
-        if (BaseTexture != null)
-            Icon.SetFromSpriteSpecifier(BaseTexture);
+        RefreshTexture();
     }
 
     public Vector2 TextureScale
@@ -65,7 +66,15 @@ public sealed partial class TextureButton : ContainerButton
         set => Icon.DisplayRect.SetSize = value;
     }
 
-    public SpriteSpecifier? BaseTexture { get; set; }
+    public SpriteSpecifier? BaseTexture
+    {
+        get => _baseTexture;
+        set
+        {
+            _baseTexture = value;
+            RefreshTexture();
+        }
+    }
     public SpriteSpecifier? PointedTexture { get; set; }
     public SpriteSpecifier? PressedTexture { get; set; }
 
@@ -99,6 +108,13 @@ public sealed partial class TextureButton : ContainerButton
     }
 
     private IAudioSource? _clickSound;
+    private SpriteSpecifier? _baseTexture;
+
+    private void RefreshTexture()
+    {
+        if (BaseTexture != null)
+            Icon.SetFromSpriteSpecifier(BaseTexture);
+    }
 }
 
 

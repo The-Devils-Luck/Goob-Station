@@ -242,9 +242,6 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
 
     private bool TryTakeImage(EntityUid uid, PhotoCameraComponent component, EntityUid user, byte[] imageData, byte[]? previewData, IReadOnlyList<NetEntity> capturedEntities, float zoom)
     {
-        if (_delay.IsDelayed(uid))
-            return false;
-
         var printCard = PrintCard(uid, component, user, imageData, previewData, capturedEntities, zoom);
 
         if (printCard)

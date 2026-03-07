@@ -33,7 +33,10 @@ public sealed class PhotoCardBoundUserInterface : BoundUserInterface
         _window.SetMetadata(cast.CustomName, cast.Caption);
 
         if (cast.ImageData == null)
+        {
+            _window.ClearImage();
             return;
+        }
 
         _window.ShowImage(cast.ImageData);
     }
