@@ -82,12 +82,6 @@ public sealed class PhotoAlbumSystem : EntitySystem
         return completion.Task;
     }
 
-    public void ClearImagesData()
-    {
-        ClearImageCaches();
-        AlbumsUpdated?.Invoke();
-    }
-
     public void ResetAlbums()
     {
         Albums = null;
@@ -95,7 +89,7 @@ public sealed class PhotoAlbumSystem : EntitySystem
         AlbumsUpdated?.Invoke();
     }
 
-    public void ClearImageCaches()
+    private void ClearImageCaches()
     {
         List<PendingImageRequest> pendingRequests = new();
 

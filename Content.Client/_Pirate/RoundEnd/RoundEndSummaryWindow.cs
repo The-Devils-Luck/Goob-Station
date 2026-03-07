@@ -43,6 +43,9 @@ public sealed partial class RoundEndSummaryWindow
     private BoxContainer? MakePhotoReportTab()
     {
         var stationAlbumSystem = _entityManager.System<PhotoAlbumSystem>();
+        if (stationAlbumSystem.Albums is null || stationAlbumSystem.Albums.Count == 0)
+            return null;
+
         var spriteSystem = _entityManager.System<SpriteSystem>();
         ReleasePhotoResources();
         OnClose += ReleasePhotoResources;
@@ -52,9 +55,6 @@ public sealed partial class RoundEndSummaryWindow
             Orientation = LayoutOrientation.Vertical,
             Name = Loc.GetString("round-end-summary-window-photo-album-tab-title")
         };
-
-        if (stationAlbumSystem.Albums is null || stationAlbumSystem.Albums.Count == 0)
-            return null;
 
         var stationAlbumContainerScrollbox = new ScrollContainer
         {
@@ -186,7 +186,7 @@ public sealed partial class RoundEndSummaryWindow
         stationAlbumContainerScrollbox.AddChild(stationAlbumContainer);
         stationAlbumTab.AddChild(stationAlbumContainerScrollbox);
 
-        stationAlbumSystem.ClearImageCaches();
+        stationAlbumSystem.ResetAlbums();
 
         return stationAlbumTab;
     }

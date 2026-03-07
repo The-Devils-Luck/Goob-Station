@@ -144,6 +144,12 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
         if (!component.OpenUsers.Contains(message.Actor))
             return;
 
+        if (_delay.IsDelayed(uid))
+            return;
+
+        if (!CanPrintPhoto(uid, component))
+            return;
+
         if (!ValidatePngData(message.Data, MAX_SIZE, MAX_WIDTH, MAX_HEIGHT, MAX_PIXELS))
             return;
 
@@ -164,7 +170,7 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
 
     private void UpdateCameraInterface(EntityUid uid, PhotoCameraComponent component)
     {
-        bool hasPaper = _material.CanChangeMaterialAmount(uid, component.CardMaterial, -component.CardCost);
+        var hasPaper = CanPrintPhoto(uid, component);
 
         var state = new PhotoCameraUiState(GetNetEntity(uid), hasPaper);
         _userInterface.SetUiState(uid, PhotoCameraUiKey.Key, state);
@@ -184,6 +190,9 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
             return;
 
         args.Handled = true;
+
+        if (!IsValidCardCost(uid, component))
+            return;
 
         var photosLeft = (int)MathF.Ceiling(_material.GetMaterialAmount(uid, component.CardMaterial) / (float)component.CardCost);
         if (photosLeft > 0)
@@ -233,6 +242,9 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
 
     private bool PrintCard(EntityUid uid, PhotoCameraComponent component, EntityUid user, byte[] imageData, byte[]? previewData, IReadOnlyList<EntityUid> capturedEntities, float zoom)
     {
+        if (!IsValidCardCost(uid, component))
+            return false;
+
         if (!_material.TryChangeMaterialAmount(uid, component.CardMaterial, -component.CardCost))
         {
             _popup.PopupEntity(Loc.GetString("photo-camera-no-paper"), uid, user);
@@ -277,6 +289,21 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
             return;
 
         _appearance.SetData(uid, PhotoCardVisuals.PreviewImage, component.PreviewData ?? Array.Empty<byte>(), appearance);
+    }
+
+    private bool CanPrintPhoto(EntityUid uid, PhotoCameraComponent component)
+    {
+        return IsValidCardCost(uid, component) &&
+               _material.CanChangeMaterialAmount(uid, component.CardMaterial, -component.CardCost);
+    }
+
+    private bool IsValidCardCost(EntityUid uid, PhotoCameraComponent component)
+    {
+        if (component.CardCost > 0)
+            return true;
+
+        Log.Warning($"Photo camera {ToPrettyString(uid)} has invalid {nameof(PhotoCameraComponent.CardCost)} value {component.CardCost}. Expected > 0.");
+        return false;
     }
 
     private static bool CheckPngSignature(ReadOnlySpan<byte> data)
@@ -641,6 +668,7 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
             return;
 
         photoCard.CustomName = customName;
+        UpdatePhotoCardInterface(photo, photoCard);
     }
 
     private void SetPhotoCustomDescription(
@@ -670,6 +698,7 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
             return;
 
         photoCard.Caption = caption;
+        UpdatePhotoCardInterface(photo, photoCard);
     }
 
     private bool CanContinueCustomization(EntityUid user, EntityUid photo)
@@ -721,6 +750,11 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
     // Photo Card
 
     private void OnOpenCardInterface(EntityUid uid, PhotoCardComponent component, AfterActivatableUIOpenEvent args)
+    {
+        UpdatePhotoCardInterface(uid, component);
+    }
+
+    private void UpdatePhotoCardInterface(EntityUid uid, PhotoCardComponent component)
     {
         var state = new PhotoCardUiState(component.ImageData, component.CustomName, component.Caption);
         _userInterface.SetUiState(uid, PhotoCardUiKey.Key, state);
