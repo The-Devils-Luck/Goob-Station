@@ -2,7 +2,7 @@
   id: MagazinePistolCryptobiolin
   name: pistol magazine (.35 auto Cryptobiolin)
   parent: [ BaseMagazinePistol, BaseMantisContraband ]
-  description: 10-round single-stack magazine for pistols.
+  description: "10-зарядний однорядний магазин для пістолетів."
   components:
   - type: BallisticAmmoProvider
     proto: CartridgePistolCryptobiolin

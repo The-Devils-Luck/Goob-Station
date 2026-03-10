@@ -21,3 +21,15 @@
 
 - type: Tag
   id: OreTitanium
+
+- type: Tag
+  id: Photo
+
+- type: Tag
+  id: CameraFilm
+
+- type: Tag
+  id: CaptainSabreHeavy
+
+- type: Tag
+  id: CaptainSabreShashka
