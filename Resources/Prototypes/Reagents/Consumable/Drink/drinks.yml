@@ -74,6 +74,13 @@
       - !type:AdjustReagent
         reagent: Theobromine
         amount: 0.05
+      # Pirate: coffeemaker - coffee adjust cold temperature, 1/4 of leporazine (start)
+      - !type:AdjustTemperature
+        conditions:
+        - !type:Temperature
+          max: 293.15
+        amount: 25000 
+      # Pirate: coffeemaker
       - !type:Jitter # Goobstation: Coffee causes jitteriness and alters speed
         conditions:
         - !type:ReagentThreshold
