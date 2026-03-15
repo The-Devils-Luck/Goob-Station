@@ -8,7 +8,7 @@
     contents:
     - id: CoffeemakerFlatpackPirate
     - id: CoffeeCartridgeFancyPirate
-      amount: 2
+      amount: 3
     - id: DrinkCoffeepotPirate
     - id: CoffeeCondimentDisplayPirate
     - id: DrinkCreamCartonPirate

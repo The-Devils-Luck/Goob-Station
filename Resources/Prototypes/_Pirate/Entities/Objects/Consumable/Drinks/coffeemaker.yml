@@ -29,7 +29,7 @@
           Bootleg: { state: cartridge_bootleg }
           Blank: { state: cartridge_blank }
   - type: CoffeeCartridge
-    charges: 4
+    charges: 5
     variant: Basic
     reagentYield:
     - ReagentId: Coffee

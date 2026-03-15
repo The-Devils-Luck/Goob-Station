@@ -231,7 +231,7 @@ public sealed class CoffeemakerSystem : EntitySystem
             });
         }
 
-        if (ent.Comp.UsesBeans && TryTakeOneBean(ent.Owner, ent.Comp, out var bean))
+        if (ent.Comp.UsesBeans && TryPeekOneBean(ent.Owner, ent.Comp, out var bean))
         {
             var entry = new RadialSelectorEntry
             {
@@ -399,7 +399,7 @@ public sealed class CoffeemakerSystem : EntitySystem
 
         if (ent.Comp.UsesBeans)
         {
-            if (!TryTakeOneBean(ent.Owner, ent.Comp, out var bean))
+            if (!TryPeekOneBean(ent.Owner, ent.Comp, out var bean))
             {
                 RefreshAppearance(ent.Owner, ent.Comp);
                 return;
@@ -713,13 +713,7 @@ public sealed class CoffeemakerSystem : EntitySystem
 
     private void TryDispenseBean(Entity<CoffeemakerComponent> ent, EntityUid user)
     {
-        if (!ent.Comp.UsesBeans || !TryTakeOneBean(ent.Owner, ent.Comp, out var bean))
-        {
-            _popup.PopupEntity(Loc.GetString("coffeemaker-popup-no-beans"), ent, user);
-            return;
-        }
-
-        if (!TryGetBeanContainer(ent.Owner, ent.Comp, out var beanContainer))
+        if (!ent.Comp.UsesBeans || !TryPeekOneBean(ent.Owner, ent.Comp, out var bean, out var beanContainer))
         {
             _popup.PopupEntity(Loc.GetString("coffeemaker-popup-no-beans"), ent, user);
             return;
@@ -836,14 +830,26 @@ public sealed class CoffeemakerSystem : EntitySystem
         return beanContainer.ContainedEntities.Count;
     }
 
-    private bool TryTakeOneBean(EntityUid uid, CoffeemakerComponent component, [NotNullWhen(true)] out EntityUid? bean)
+    private bool TryPeekOneBean(EntityUid uid, CoffeemakerComponent component, [NotNullWhen(true)] out EntityUid? bean)
+    {
+        return TryPeekOneBean(uid, component, out bean, out _);
+    }
+
+    private bool TryPeekOneBean(EntityUid uid,
+        CoffeemakerComponent component,
+        [NotNullWhen(true)] out EntityUid? bean,
+        [NotNullWhen(true)] out Container? beanContainer)
     {
         bean = null;
-        if (!TryGetBeanContainer(uid, component, out var beanContainer))
+        beanContainer = null;
+        if (!TryGetBeanContainer(uid, component, out beanContainer))
             return false;
 
         if (beanContainer.ContainedEntities.Count <= 0)
+        {
+            beanContainer = null;
             return false;
+        }
 
         bean = beanContainer.ContainedEntities[0];
         return true;
