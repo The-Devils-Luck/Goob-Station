@@ -153,7 +153,7 @@
   
 # Interdyne ENG
 - type: selectableSet
-  id: IPClothingBeltCE
+  id: IPBeltCE
   name: "Пояс головного інженера"
   description: "Пояс з просунутими інструментами для головного інженера"
   sprite:
@@ -161,6 +161,26 @@
     state: icon
   content:
   - ClothingBeltChiefEngineerFilled
+  
+- type: selectableSet
+  id: IPJetpackVoid
+  name: Реактивний ранець Void
+  description: Реактивний ранець для поясу, працюйте в космосі без страху відлетіти від станції чи шатлу
+  sprite:
+    sprite: Objects/Tanks/Jetpacks/void.rsi
+    state: icon
+  content:
+  - JetpackVoidFilled
+  
+- type: selectableSet
+  id: IPRCD
+  name: Interdyne RCD
+  description: Унікальний РЦД Інтердайну, розроблений Cybersun, краще вам не губити його
+  sprite:
+    sprite: _Pirate/Objects/Tools/rcd_dark.rsi
+    state: icon
+  content:
+  - RCDInterdyne
   
 # Interdyne Pilot
 - type: selectableSet
@@ -316,7 +336,7 @@
     sprite: Objects/Weapons/Guns/Pistols/N1984.rsi
     state: icon
   content:
-  - WeaponSubMachineGunWt550
+  - WeaponEnergyShotgun
   - ClothingBeltSheathFilledNavyOfficer
   - ClothingEyesGlassesBSO
   - WeaponPistolN1984
@@ -326,7 +346,6 @@
   - TelescopicBaton
   - ClothingBeltChemBagSyndiFilled
   - CQCManual
-  - ClothingOuterArmourInvisibleSyndie
   
 - type: selectableSet
   id: IPCyberpunk
@@ -351,13 +370,19 @@
     sprite: Clothing/Belt/sheath.rsi
     state: sheath-sabre
   content:
-  - ClothingBackpackDuffelSyndicateFilledWSPR
+  - WeaponSubMachineSmart
+  - MagazineSmart
+  - MagazineSmart
+  - MagazineSmart
   - TelescopicBaton
   - ClothingEyesGlassesBSO
-  - ClothingBeltSheathFilledNavyOfficer
+  - EnergySword
   - TelescopicShield
   - ClothingBeltChemBagSyndiFilled
   - CQCManual
+  - CigPackSyndicate
+  - CigPackSyndicate
+  - InterdyneFlippo
   - ClothingOuterArmourInvisibleSyndie
 
 # ГШР КШР
