@@ -167,9 +167,26 @@ public sealed partial class CriminalRecordsConsoleSystem : SharedCriminalRecords
             return;
         }
 
+        // Pirate: sanitize incoming record names instead of rejecting oversized input outright
         var name = msg.Name.Trim();
-        if (string.IsNullOrWhiteSpace(name) || name.Length > ent.Comp.MaxStringLength)
+        if (name.Length > ent.Comp.MaxStringLength)
+            name = name[..(int) ent.Comp.MaxStringLength];
+
+        if (string.IsNullOrWhiteSpace(name))
             return;
+
+        // Pirate: reuse snapshot-only criminal records by visible name instead of creating duplicate keys
+        var criminalMatches = GetCriminalRecordIdsByName(station, name, stationRecords);
+        if (criminalMatches.Count > 1)
+            return;
+
+        // Pirate: when only the criminal snapshot remains, select that record instead of creating a new general record
+        if (criminalMatches.Count == 1)
+        {
+            ent.Comp.ActiveKey = criminalMatches[0];
+            UpdateUserInterface(ent);
+            return;
+        }
 
         var matchingIds = _records.GetRecordIdsByName(station, name, stationRecords);
         if (matchingIds.Count > 1)
@@ -178,16 +195,10 @@ public sealed partial class CriminalRecordsConsoleSystem : SharedCriminalRecords
         if (matchingIds.Count == 1)
         {
             var existingKey = new StationRecordKey(matchingIds[0], station);
-            if (_records.TryGetRecord<CriminalRecord>(existingKey, out _))
-            {
-                ent.Comp.ActiveKey = existingKey.Id;
-                UpdateUserInterface(ent);
-                return;
-            }
-
             if (!_records.TryGetRecord<GeneralStationRecord>(existingKey, out var generalRecord))
                 return;
 
+            // Pirate: criminal match count was zero, so this general record still needs its criminal entry created
             _records.AddRecordEntry(existingKey, CreateCriminalRecordFromGeneral(generalRecord));
             ent.Comp.ActiveKey = existingKey.Id;
             _records.Synchronize(existingKey);

@@ -6,8 +6,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 using Content.Shared.Security;
-using Content.Shared.Preferences; // Pirate: cameras (photo in records)
-using Content.Shared.StationRecords; // Pirate: general/security record decoupling
+using Content.Shared.Preferences; // Pirate: records photos
+using Content.Shared.StationRecords; // Pirate: records photos
 using Robust.Shared.Serialization;
 
 namespace Content.Shared.CriminalRecords;
@@ -38,16 +38,13 @@ public sealed partial record CriminalRecord
     [DataField]
     public string? InitiatorName;
 
-    #region Pirate: general/security record decoupling
+    #region Pirate: Pirate: records photos
     /// <summary>
     /// Snapshot of the linked general record data.
     /// Used when a criminal record temporarily exists without a general record entry.
     /// </summary>
     [DataField]
     public GeneralStationRecord? GeneralRecordSnapshot;
-    #endregion
-
-    #region Pirate: cameras (photo in records)
     /// <summary>
     /// Snapshot of the character profile taken when the criminal record is first created.
     /// Used to render a stable portrait that does not change with later appearance changes.

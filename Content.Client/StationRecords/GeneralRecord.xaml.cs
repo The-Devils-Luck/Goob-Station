@@ -1,12 +1,39 @@
-// SPDX-FileCopyrightText: 2024 12rabbits <53499656+12rabbits@users.noreply.github.com>
-// SPDX-FileCopyrightText: 2024 Alzore <140123969+Blackern5000@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2024 ArtisticRoomba <145879011+ArtisticRoomba@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2024 Brandon Hu <103440971+Brandon-Huu@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2024 Dimastra <65184747+Dimastra@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 Dimastra <dimastra@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2024 Ed <96445749+TheShuEd@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 Emisse <99158783+Emisse@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2024 Eoin Mcloughlin <helloworld@eoinrul.es>
+// SPDX-FileCopyrightText: 2024 IProduceWidgets <107586145+IProduceWidgets@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 JIPDawg <51352440+JIPDawg@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 JIPDawg <JIPDawg93@gmail.com>
+// SPDX-FileCopyrightText: 2024 Mervill <mervills.email@gmail.com>
+// SPDX-FileCopyrightText: 2024 Moomoobeef <62638182+Moomoobeef@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2024 Nemanja <98561806+EmoGarbage404@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 PJBot <pieterjan.briers+bot@gmail.com>
+// SPDX-FileCopyrightText: 2024 Pieter-Jan Briers <pieterjan.briers+git@gmail.com>
 // SPDX-FileCopyrightText: 2024 Pieter-Jan Briers <pieterjan.briers@gmail.com>
+// SPDX-FileCopyrightText: 2024 Piras314 <p1r4s@proton.me>
+// SPDX-FileCopyrightText: 2024 PopGamer46 <yt1popgamer@gmail.com>
+// SPDX-FileCopyrightText: 2024 PursuitInAshes <pursuitinashes@gmail.com>
+// SPDX-FileCopyrightText: 2024 QueerNB <176353696+QueerNB@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 Saphire Lattice <lattice@saphi.re>
+// SPDX-FileCopyrightText: 2024 ShadowCommander <10494922+ShadowCommander@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 Simon <63975668+Simyon264@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 Spessmann <156740760+Spessmann@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 Thomas <87614336+Aeshus@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 Winkarst <74284083+Winkarst-cpu@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 deltanedas <39013340+deltanedas@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 deltanedas <@deltanedas:kde.org>
+// SPDX-FileCopyrightText: 2024 eoineoineoin <github@eoinrul.es>
+// SPDX-FileCopyrightText: 2024 github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 lzk <124214523+lzk228@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 metalgearsloth <31366439+metalgearsloth@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 nikthechampiongr <32041239+nikthechampiongr@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 slarticodefast <161409025+slarticodefast@users.noreply.github.com>
+// SPDX-FileCopyrightText: 2024 stellar-novas <stellar_novas@riseup.net>
+// SPDX-FileCopyrightText: 2024 themias <89101928+themias@users.noreply.github.com>
 // SPDX-FileCopyrightText: 2025 Aiden <28298836+Aidenkrz@users.noreply.github.com>
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
@@ -155,24 +182,39 @@ public sealed partial class GeneralRecord : Control
         GenderButton.AddItem(Loc.GetString("humanoid-profile-editor-pronouns-neuter-text"), (int) Gender.Neuter);
     }
 
+    #region Pirate: preserve unset identity fields
     private HumanoidCharacterProfile BuildRecordIdentityProfile(GeneralStationRecord record)
     {
-        var effectiveSpecies = string.IsNullOrWhiteSpace(record.Species)
-            ? (string) SharedHumanoidAppearanceSystem.DefaultSpecies
-            : record.Species;
-
-        return HumanoidCharacterProfile.DefaultWithSpecies(effectiveSpecies)
+        var profile = new HumanoidCharacterProfile
+        {
+            Species = string.Empty,
+            Nationality = string.Empty,
+            Employer = string.Empty,
+            Age = 0,
+        }
             .WithName(record.Name)
-            .WithSpecies(effectiveSpecies)
-            .WithAge(record.Age <= 0 ? 18 : record.Age)
-            .WithGender(record.Gender)
-            .WithNationality(record.Nationality)
-            .WithEmployer(record.Employer);
+            .WithGender(record.Gender);
+
+        if (!string.IsNullOrWhiteSpace(record.Species))
+            profile = profile.WithSpecies(record.Species);
+
+        if (!string.IsNullOrWhiteSpace(record.Nationality))
+            profile = profile.WithNationality(record.Nationality);
+
+        if (!string.IsNullOrWhiteSpace(record.Employer))
+            profile = profile.WithEmployer(record.Employer);
+
+        if (record.Age > 0)
+            profile = profile.WithAge(record.Age);
+
+        return profile;
     }
+    #endregion
 
     private void UpdateRecordIdentityProfile(HumanoidCharacterProfile profile, bool sendUpdate, GeneralStationRecord? rawRecord = null)
     {
-        profile = NormalizeRecordIdentityProfile(profile);
+        // Pirate: keep raw profile values for round-tripping unset fields while using normalized values for UI options
+        var normalizedProfile = NormalizeRecordIdentityProfile(profile);
         _recordProfile = profile;
 
         if (rawRecord != null)
@@ -186,18 +228,18 @@ public sealed partial class GeneralRecord : Control
         _suppressEvents = true;
         try
         {
-            PopulateSpeciesSelector(profile.Species, _speciesUnset);
-            PopulateNationalitySelector(profile, _nationalityUnset);
-            PopulateEmployerSelector(profile, _employerUnset);
+            PopulateSpeciesSelector(normalizedProfile.Species, _speciesUnset);
+            PopulateNationalitySelector(normalizedProfile, _nationalityUnset);
+            PopulateEmployerSelector(normalizedProfile, _employerUnset);
 
             if (_genderUnset)
                 ApplyOptionButtonPlaceholder(GenderButton, Loc.GetString("generic-not-available-shorthand"));
             else
-                GenderButton.SelectId((int) profile.Gender);
+                GenderButton.SelectId((int) normalizedProfile.Gender);
 
             AgeEdit.Text = rawRecord != null && rawRecord.Age <= 0
                 ? string.Empty
-                : profile.Age.ToString();
+                : normalizedProfile.Age.ToString();
         }
         finally
         {
@@ -341,10 +383,10 @@ public sealed partial class GeneralRecord : Control
 
     private static bool IsIdentitySelectorBlank(string? value)
     {
-        return value != null && string.IsNullOrWhiteSpace(value);
+        // Pirate: null and whitespace both represent unset identity values
+        return string.IsNullOrWhiteSpace(value);
     }
 
-    // Pirate: shared option button placeholder helper
     private static void ApplyOptionButtonPlaceholder(OptionButton button, string placeholder)
     {
         OptionButtonHelpers.SetPlaceholder(button, placeholder);

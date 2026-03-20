@@ -28,11 +28,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                               Margin="0 0 10 0" />
                 <!-- Populated in constructor -->
                 <!-- Pirate: records photos -->
+                <LineEdit Name="FilterText"
+                           PlaceHolder="{Loc 'criminal-records-filter-placeholder'}"
+                           HorizontalExpand="True"
+                           Margin="0 0 10 0" />
+                <!-- Pirate: localize criminal console toolbar actions -->
                 <Button Name="DeleteRecordButton"
                         MaxSize="32 32"
                         StyleClasses="OpenBoth"
                         Margin="0 0 4 0"
-                        ToolTip="delete">
+                        ToolTip="{Loc 'criminal-records-console-delete-record'}">
                     <TextureRect StyleClasses="ButtonSquare"
                                  TexturePath="/Textures/Interface/VerbIcons/delete_transparent.svg.192dpi.png"
                                  Stretch="KeepAspectCentered"
@@ -42,15 +47,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                         MaxSize="32 32"
                         StyleClasses="OpenBoth"
                         Margin="0 0 10 0"
-                        ToolTip="Add record">
+                        ToolTip="{Loc 'criminal-records-console-add-record'}">
                     <TextureRect StyleClasses="ButtonSquare"
                                  TexturePath="/Textures/Interface/VerbIcons/plus.svg.192dpi.png"
                                  Stretch="KeepAspectCentered"
                                  MinSize="18 18" />
                 </Button>
-                <LineEdit Name="FilterText"
-                           PlaceHolder="{Loc 'criminal-records-filter-placeholder'}"
-                           HorizontalExpand="True" />
             </BoxContainer>
             <BoxContainer Orientation="Horizontal"
                           VerticalExpand="True">
@@ -126,12 +128,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                             </LayoutContainer>
                             <BoxContainer Orientation="Horizontal"
                                           HorizontalExpand="True">
+                                <!-- Pirate: localize criminal console portrait actions -->
                                 <Button Name="PrintPortraitButton"
-                                        Text="Print"
+                                        Text="{Loc 'criminal-records-console-print'}"
                                         HorizontalExpand="True"
                                         SizeFlagsStretchRatio="1" />
                                 <Button Name="UploadPortraitButton"
-                                        Text="Upload"
+                                        Text="{Loc 'criminal-records-console-upload'}"
                                         HorizontalExpand="True"
                                         SizeFlagsStretchRatio="1" />
                             </BoxContainer>

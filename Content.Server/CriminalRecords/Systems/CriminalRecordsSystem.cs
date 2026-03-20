@@ -47,7 +47,7 @@ public sealed class CriminalRecordsSystem : SharedCriminalRecordsSystem
         SubscribeLocalEvent<WantedListCartridgeComponent, CriminalHistoryRemovedEvent>(OnHistoryRemoved);
     }
 
-    #region Pirate: security record decoupling
+    #region Pirate: records photos
     public void NotifyCriminalRecordDeleted(string name)
     {
         if (!string.IsNullOrWhiteSpace(name))
@@ -64,10 +64,9 @@ public sealed class CriminalRecordsSystem : SharedCriminalRecordsSystem
 
     private void OnGeneralRecordCreated(AfterGeneralRecordCreatedEvent ev)
     {
-        #region Pirate: cameras (photo in records)
+        #region Pirate: records photos
         var record = new CriminalRecord
         {
-            // Pirate: general/security record decoupling
             GeneralRecordSnapshot = ev.Record with { }
         };
         if (!string.IsNullOrWhiteSpace(ev.Record.Species))

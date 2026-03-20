@@ -14,6 +14,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     <BoxContainer Orientation="Vertical">
         <BoxContainer Margin="5 5 5 10" HorizontalExpand="true" VerticalAlignment="Center">
             <OptionButton Name="StationRecordsFilterType" MinWidth="200" Margin="0 0 10 0"/>
+            <LineEdit Name="StationRecordsFiltersValue"
+                PlaceHolder="{Loc 'general-station-record-for-filter-line-placeholder'}" HorizontalExpand="True" Margin="0 0 10 0"/>
             <!-- Pirate: general/security record decoupling (record toolbar start) -->
             <Button Name="DeleteRecordButton"
                     MaxSize="32 32"
@@ -36,8 +38,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                              MinSize="18 18" />
             </Button>
             <!-- Pirate: general/security record decoupling (record toolbar end) -->
-            <LineEdit Name="StationRecordsFiltersValue"
-                PlaceHolder="{Loc 'general-station-record-for-filter-line-placeholder'}" HorizontalExpand="True"/>
         </BoxContainer>
         <BoxContainer VerticalExpand="True">
             <!-- Record listing -->

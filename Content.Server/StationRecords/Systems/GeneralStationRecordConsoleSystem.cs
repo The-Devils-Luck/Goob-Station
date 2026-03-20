@@ -14,17 +14,19 @@
 using System.Linq;
 using Content.Server.Station.Systems;
 using Content.Server.StationRecords.Components;
+using Content.Shared.StationRecords;
+using Robust.Server.GameObjects;
+#region Pirate: records photos
+using Content.Shared._Pirate.Contractors.Prototypes;
 using Content.Shared.CriminalRecords;
 using Content.Shared.Customization.Systems;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.Preferences;
 using Content.Shared.Roles;
-using Content.Shared.StationRecords;
-using Content.Shared._Pirate.Contractors.Prototypes;
-using Robust.Server.GameObjects;
 using Robust.Shared.Enums;
 using Robust.Shared.Prototypes;
+#endregion
 
 namespace Content.Server.StationRecords.Systems;
 
@@ -33,7 +35,7 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
     [Dependency] private readonly UserInterfaceSystem _ui = default!;
     [Dependency] private readonly StationSystem _station = default!;
     [Dependency] private readonly StationRecordsSystem _stationRecords = default!;
-    #region Pirate: general/security record decoupling
+    #region Pirate: records photos
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     private static readonly IReadOnlyDictionary<string, TimeSpan> EmptyPlayTimes = new Dictionary<string, TimeSpan>();
     #endregion
@@ -49,7 +51,7 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
             subs.Event<BoundUIOpenedEvent>(UpdateUserInterface);
             subs.Event<SelectStationRecord>(OnKeySelected);
             subs.Event<SetStationRecordFilter>(OnFiltersChanged);
-            #region Pirate: general/security record decoupling
+            #region Pirate: records photos
             subs.Event<GeneralRecordCreateRecord>(OnCreateRecord);
             subs.Event<GeneralRecordEditIdentity>(OnEditIdentity);
             subs.Event<GeneralRecordEditForensics>(OnEditForensics);
@@ -64,6 +66,7 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
             return;
 
         var owning = _station.GetOwningStation(ent.Owner);
+        #region Pirate: records photos
         if (owning == null)
             return;
 
@@ -86,6 +89,7 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
             ent.Comp.ActiveKey = null;
 
         UpdateUserInterface(ent);
+        #endregion
     }
 
     private void UpdateUserInterface<T>(Entity<GeneralStationRecordConsoleComponent> ent, ref T args)
@@ -93,6 +97,9 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
         UpdateUserInterface(ent);
     }
 
+    // TODO: instead of copy paste shitcode for each record console, have a shared records console comp they all use
+    // then have this somehow play nicely with creating ui state
+    // if that gets done put it in StationRecordsSystem console helpers section :)
     private void OnKeySelected(Entity<GeneralStationRecordConsoleComponent> ent, ref SelectStationRecord msg)
     {
         ent.Comp.ActiveKey = msg.SelectedKey;
@@ -109,7 +116,7 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
         }
     }
 
-    #region Pirate: general/security record decoupling
+    #region Pirate: records photos
     private void OnCreateRecord(Entity<GeneralStationRecordConsoleComponent> ent, ref GeneralRecordCreateRecord msg)
     {
         if (!ent.Comp.CanDeleteEntries)
@@ -121,8 +128,12 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
             return;
         }
 
+        // Pirate: sanitize incoming record names instead of rejecting oversized input outright
         var name = msg.Name.Trim();
-        if (string.IsNullOrWhiteSpace(name) || name.Length > ent.Comp.MaxStringLength)
+        if (name.Length > ent.Comp.MaxStringLength)
+            name = name[..(int) ent.Comp.MaxStringLength];
+
+        if (string.IsNullOrWhiteSpace(name))
             return;
 
         var generalMatches = _stationRecords.GetRecordIdsByName(station, name, stationRecords);
@@ -354,8 +365,8 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
 
         if (!TryComp<StationRecordsComponent>(owningStation, out var stationRecords))
         {
-            _ui.SetUiState(uid, GeneralStationRecordConsoleKey.Key,
-                new GeneralStationRecordConsoleState(null, null, null, console.Filter, ent.Comp.CanDeleteEntries, ent.Comp.MaxStringLength));
+            _ui.SetUiState(uid, GeneralStationRecordConsoleKey.Key, // Pirate: records photos
+                new GeneralStationRecordConsoleState(null, null, null, console.Filter, ent.Comp.CanDeleteEntries, ent.Comp.MaxStringLength)); // Pirate: records photos
             return;
         }
 
@@ -364,8 +375,8 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
         switch (listing.Count)
         {
             case 0:
-                _ui.SetUiState(uid, GeneralStationRecordConsoleKey.Key,
-                    new GeneralStationRecordConsoleState(null, null, null, console.Filter, ent.Comp.CanDeleteEntries, ent.Comp.MaxStringLength));
+                _ui.SetUiState(uid, GeneralStationRecordConsoleKey.Key,  // Pirate: records photos
+                    new GeneralStationRecordConsoleState(null, null, null, console.Filter, ent.Comp.CanDeleteEntries, ent.Comp.MaxStringLength));  // Pirate: records photos
                 return;
             default:
                 if (console.ActiveKey == null)
@@ -379,11 +390,13 @@ public sealed class GeneralStationRecordConsoleSystem : EntitySystem
         var key = new StationRecordKey(id, owningStation.Value);
         _stationRecords.TryGetRecord<GeneralStationRecord>(key, out var record, stationRecords);
 
+        #region Pirate: records photos
         if (record == null)
             console.ActiveKey = null;
 
         var newState = new GeneralStationRecordConsoleState(console.ActiveKey, record, listing, console.Filter,
             ent.Comp.CanDeleteEntries, ent.Comp.MaxStringLength);
+        #endregion
         _ui.SetUiState(uid, GeneralStationRecordConsoleKey.Key, newState);
     }
 }

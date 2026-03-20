@@ -84,4 +84,3 @@ criminal-records-species-filter = Species
 ## Arrest auto history lines
 criminal-records-console-auto-history = ARRESTED: {$reason}
 criminal-records-console-unspecified-reason = <unspecified reason>
-

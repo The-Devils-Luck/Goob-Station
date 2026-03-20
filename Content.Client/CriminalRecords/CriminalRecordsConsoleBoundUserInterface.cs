@@ -50,7 +50,7 @@ public sealed class CriminalRecordsConsoleBoundUserInterface : BoundUserInterfac
             SendMessage(new CriminalRecordChangeStatus(status, reason));
         _window.OnStatusFilterPressed += (statusFilter) =>
             SendMessage(new CriminalRecordSetStatusFilter(statusFilter));
-        #region Pirate: cameras (photo in records)
+        #region Pirate: records photos
         _window.OnCreateRecord += name =>
             SendMessage(new CriminalRecordCreateRecord(name));
         _window.OnDeleteRecord += id =>
@@ -69,7 +69,7 @@ public sealed class CriminalRecordsConsoleBoundUserInterface : BoundUserInterfac
             }
             catch (Exception ex)
             {
-                Logger.ErrorS("criminal-records", ex, "Failed to build print photo message");
+                Logger.ErrorS("criminal-records", $"Failed to build print photo message: {ex}"); // Pirate: records photos
             }
         };
         _window.OnUploadPhoto += () =>

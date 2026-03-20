@@ -7,9 +7,8 @@
 
 using Content.Shared.Security;
 using Content.Shared.StationRecords;
-// Pirate: security record identity editor
-using Robust.Shared.Enums;
 using Robust.Shared.Serialization;
+using Robust.Shared.Enums; // Pirate: records photos
 
 namespace Content.Shared.CriminalRecords;
 
@@ -126,7 +125,7 @@ public sealed class CriminalRecordSetStatusFilter : BoundUserInterfaceMessage
     }
 }
 
-#region Pirate: security record identity editor
+#region Pirate: records photos
 [Serializable, NetSerializable]
 public sealed class CriminalRecordEditIdentity : BoundUserInterfaceMessage
 {
@@ -169,9 +168,7 @@ public sealed class CriminalRecordEditForensics : BoundUserInterfaceMessage
         Dna = dna;
     }
 }
-#endregion
 
-#region Pirate: cameras (photo in records)
 [Serializable, NetSerializable]
 public sealed class CriminalRecordPrintPhoto : BoundUserInterfaceMessage
 {

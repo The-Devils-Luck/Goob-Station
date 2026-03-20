@@ -48,8 +48,8 @@ public sealed class GeneralStationRecordConsoleState : BoundUserInterfaceState
     public readonly Dictionary<uint, string>? RecordListing;
     public readonly StationRecordsFilter? Filter;
     public readonly bool CanDeleteEntries;
-    #region Pirate: general/security record decoupling
-    public readonly uint MaxStringLength;
+    #region Pirate: records photos
+    public readonly uint MaxStringLength; // Pirate: records photos
     #endregion
 
     public GeneralStationRecordConsoleState(uint? key,
@@ -57,17 +57,17 @@ public sealed class GeneralStationRecordConsoleState : BoundUserInterfaceState
         Dictionary<uint, string>? recordListing,
         StationRecordsFilter? newFilter,
         bool canDeleteEntries,
-        uint maxStringLength)
+        uint maxStringLength) // Pirate: records photos
     {
         SelectedKey = key;
         Record = record;
         RecordListing = recordListing;
         Filter = newFilter;
         CanDeleteEntries = canDeleteEntries;
-        MaxStringLength = maxStringLength;
+        MaxStringLength = maxStringLength; // Pirate: records photos
     }
 
-    public GeneralStationRecordConsoleState() : this(null, null, null, null, false, 256)
+    public GeneralStationRecordConsoleState() : this(null, null, null, null, false, 256) // Pirate: records photos
     {
     }
 
@@ -102,7 +102,7 @@ public sealed class DeleteStationRecord : BoundUserInterfaceMessage
     public readonly uint Id;
 }
 
-#region Pirate: general/security record decoupling
+#region Pirate: records photos
 [Serializable, NetSerializable]
 public sealed class GeneralRecordCreateRecord : BoundUserInterfaceMessage
 {

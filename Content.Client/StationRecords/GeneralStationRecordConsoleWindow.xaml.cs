@@ -66,7 +66,8 @@ public sealed partial class GeneralStationRecordConsoleWindow : DefaultWindow
             if (_isPopulating)
                 return;
 
-            OnKeySelected?.Invoke(null);
+            if (!HasSelectedRecord()) // Pirate: avoid spurious null deselection events
+                OnKeySelected?.Invoke(null);
             #endregion
         };
 
@@ -78,6 +79,8 @@ public sealed partial class GeneralStationRecordConsoleWindow : DefaultWindow
             {
                 _currentFilterType = type;
                 FilterListingOfRecords(StationRecordsFiltersValue.Text); // Pirate: records photos
+                ClearCreateRecordValidation(); // Pirate: add-record validation
+                UpdateRecordActionButtons(); // Pirate: add-record validation
             }
         };
 
@@ -86,6 +89,7 @@ public sealed partial class GeneralStationRecordConsoleWindow : DefaultWindow
         StationRecordsFiltersValue.OnTextChanged += _ =>
         {
             ResetDeleteConfirmation();
+            ClearCreateRecordValidation(); // Pirate: add-record validation
             UpdateRecordActionButtons();
         };
 
@@ -116,6 +120,7 @@ public sealed partial class GeneralStationRecordConsoleWindow : DefaultWindow
         var previousSelectedKey = _selectedKey; // Pirate: records photos
         _maxLength = state.MaxStringLength; // Pirate: records photos
         _canManageRecords = state.CanDeleteEntries; // Pirate: records photos
+        StationRecordsFiltersValue.IsValid = null; // Pirate: add-record sanitization
 
         if (state.Filter != null)
         {
@@ -216,9 +221,13 @@ public sealed partial class GeneralStationRecordConsoleWindow : DefaultWindow
         if (_deleteConfirmationKey != _selectedKey)
             ResetDeleteConfirmation();
 
-        AddRecordButton.Disabled = !_canManageRecords || string.IsNullOrWhiteSpace(StationRecordsFiltersValue.Text);
+        // Pirate: allow creating records from any filter input after sanitizing the entered text
+        AddRecordButton.Disabled = !CanCreateRecordFromSearch();
+        AddRecordButton.ToolTip = Loc.GetString("general-station-record-console-add-record"); // Pirate: add-record sanitization
         DeleteRecordButton.Disabled = !_canManageRecords || _selectedKey == null;
-        DeleteRecordButton.ToolTip = _deleteConfirmationPending ? "confirm delete" : "delete";
+        DeleteRecordButton.ToolTip = _deleteConfirmationPending
+            ? Loc.GetString("general-station-record-console-confirm-delete")
+            : Loc.GetString("general-station-record-console-delete-record"); // Pirate: localize general console delete tooltip
 
         if (_deleteConfirmationPending)
         {
@@ -233,13 +242,49 @@ public sealed partial class GeneralStationRecordConsoleWindow : DefaultWindow
 
     private void CreateRecordFromSearch()
     {
-        var name = StationRecordsFiltersValue.Text.Trim();
-        if (name.Length == 0)
+        // Pirate: sanitize any current filter input into a record name and clamp it to the configured maximum
+        var name = SanitizeRecordName(StationRecordsFiltersValue.Text);
+        if (string.IsNullOrWhiteSpace(name))
             return;
 
+        ClearCreateRecordValidation(); // Pirate: add-record sanitization
         ResetDeleteConfirmation();
         OnCreateRecord?.Invoke(name);
     }
+
+    #region Pirate: add-record sanitization
+    private string SanitizeRecordName(string text)
+    {
+        var sanitized = text.Trim();
+        if (sanitized.Length > _maxLength)
+            sanitized = sanitized[..(int) _maxLength];
+
+        return sanitized;
+    }
+
+    private bool HasSelectedRecord()
+    {
+        foreach (var _ in RecordListing.GetSelected())
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool CanCreateRecordFromSearch()
+    {
+        var name = SanitizeRecordName(StationRecordsFiltersValue.Text);
+        return _canManageRecords
+            && !string.IsNullOrWhiteSpace(name);
+    }
+
+    private void ClearCreateRecordValidation()
+    {
+        if (RecordListing.Visible)
+            RecordListingStatus.Visible = false;
+    }
+    #endregion
 
     private void ResetDeleteConfirmation()
     {

@@ -124,9 +124,7 @@ public sealed partial class StationRecordsSystem : SharedStationRecordsSystem
         TryComp<FingerprintComponent>(player, out var fingerprintComponent);
         TryComp<DnaComponent>(player, out var dnaComponent);
 
-        #region Pirate: security record identity editor
         CreateGeneralRecord(station, idUid.Value, profile.Name, profile.Age, profile.Species, profile.Gender, jobId, fingerprintComponent?.Fingerprint, dnaComponent?.DNA, profile, records);
-        #endregion
     }
 
 
@@ -189,10 +187,8 @@ public sealed partial class StationRecordsSystem : SharedStationRecordsSystem
             JobTitle = alternativeJobPrototype?.LocalizedJobName ?? jobPrototype.LocalizedName, // Pirate - Alternative Jobs
             JobIcon = alternativeJobPrototype?.JobIconProtoId ?? jobPrototype.Icon, // Pirate - Alternative Jobs
             JobPrototype = jobId,
-            #region Pirate: security record identity editor
-            Nationality = profile.Nationality,
-            Employer = profile.Employer,
-            #endregion
+            Nationality = profile.Nationality, // Pirate: records photos
+            Employer = profile.Employer, // Pirate: records photos
             Species = species,
             Gender = gender,
             DisplayPriority = jobPrototype.RealDisplayWeight,
@@ -249,7 +245,7 @@ public sealed partial class StationRecordsSystem : SharedStationRecordsSystem
         return false;
     }
 
-    #region Pirate: security record decoupling
+    #region Pirate: records photos
     /// <summary>
     ///     Removes a single typed record entry from this station record key.
     /// </summary>
@@ -332,7 +328,7 @@ public sealed partial class StationRecordsSystem : SharedStationRecordsSystem
         return null;
     }
 
-    #region Pirate: security record decoupling
+    #region Pirate: records photos
     /// <remarks>
     /// Linear search so O(n) time complexity.
     /// </remarks>

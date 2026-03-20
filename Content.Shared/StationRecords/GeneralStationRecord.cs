@@ -45,7 +45,7 @@ public sealed record GeneralStationRecord
     [DataField]
     public string JobPrototype = string.Empty;
 
-    #region Pirate: security record identity editor
+    #region Pirate: records photos
     [DataField]
     public string Nationality = string.Empty;
 

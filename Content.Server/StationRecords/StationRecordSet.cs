@@ -178,11 +178,11 @@ public sealed partial class StationRecordSet
             table.Remove(key);
         }
 
-        _recentlyAccessed.Remove(key);
-        return true;
+        _recentlyAccessed.Remove(key); // Pirate: records photos
+        return true; // Pirate: records photos
     }
 
-    #region Pirate: security record decoupling
+    #region Pirate: records photos
     /// <summary>
     ///     Removes a single typed record entry from this key.
     /// </summary>
