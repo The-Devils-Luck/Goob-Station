@@ -176,7 +176,7 @@ public sealed partial class GeneralRecord : Control
             _speciesUnset = IsIdentitySelectorBlank(rawRecord.Species);
             _nationalityUnset = IsIdentitySelectorBlank(rawRecord.Nationality);
             _employerUnset = IsIdentitySelectorBlank(rawRecord.Employer);
-            _genderUnset = IsIdentitySelectorBlank(rawRecord.Species);
+            _genderUnset = _speciesUnset; // Гендер невстановлений, якщо вид невстановлений
         }
 
         _suppressEvents = true;
