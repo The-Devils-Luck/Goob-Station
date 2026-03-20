@@ -632,6 +632,9 @@ public sealed partial class CriminalRecordsConsoleSystem : SharedCriminalRecords
         if (recordChanged)
             _records.Synchronize(key.Value);
 
+        if (imageData is not { Length: > 0 })
+            return;
+
         string? printedName = null;
         if (_records.TryGetRecord<GeneralStationRecord>(key.Value, out var stationRecord))
             printedName = stationRecord.Name;
