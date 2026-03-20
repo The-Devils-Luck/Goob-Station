@@ -529,7 +529,16 @@ namespace Content.Server.Ghost
         public EntityUid? SpawnGhost(Entity<MindComponent?> mind, EntityUid targetEntity,
             bool canReturn = false)
         {
-            _transformSystem.TryGetMapOrGridCoordinates(targetEntity, out var spawnPosition);
+            EntityCoordinates? spawnPosition = null;
+            if (TryComp<TransformComponent>(targetEntity, out var xform)
+                && !TerminatingOrDeleted(targetEntity)
+                && xform.MapUid is { } mapUid
+                && !TerminatingOrDeleted(mapUid)
+                && (xform.GridUid is not { } gridUid || !TerminatingOrDeleted(gridUid)))
+            {
+                _transformSystem.TryGetMapOrGridCoordinates(targetEntity, out spawnPosition, xform);
+            }
+
             return SpawnGhost(mind, spawnPosition, canReturn);
         }
 
