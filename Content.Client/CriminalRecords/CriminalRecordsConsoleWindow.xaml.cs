@@ -87,6 +87,7 @@ using Content.Shared.Random.Helpers;
 using Content.Shared.Security;
 using Content.Shared.StationRecords;
 #region Pirate: records photos
+using Content.Client._Pirate.UserInterface.Controls; // Pirate: option button placeholder helper
 using Content.Shared.Customization.Systems;
 using Content.Shared.Humanoid;
 using Content.Shared.Humanoid.Prototypes;
@@ -748,13 +749,10 @@ public sealed partial class CriminalRecordsConsoleWindow : FancyWindow
         return value != null && string.IsNullOrWhiteSpace(value);
     }
 
+    // Pirate: shared option button placeholder helper
     private static void ApplyOptionButtonPlaceholder(OptionButton button, string placeholder)
     {
-        const int placeholderId = int.MinValue;
-
-        button.AddItem(placeholder, placeholderId);
-        button.SelectId(placeholderId);
-        button.RemoveItem(button.ItemCount - 1);
+        OptionButtonHelpers.SetPlaceholder(button, placeholder);
     }
     #endregion
 
@@ -1047,7 +1045,6 @@ public sealed partial class CriminalRecordsConsoleWindow : FancyWindow
         }
 
         return $"criminal-record-portrait-{recordKey}-{imageData.Length}-{signature}";
-    }
     }
 
     private void EnsureGeneratedPortraitImage(uint recordKey, HumanoidCharacterProfile? profileSnapshot, string? jobPrototype)

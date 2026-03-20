@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                     MaxSize="32 32"
                     StyleClasses="OpenBoth"
                     Margin="0 0 4 0"
-                    ToolTip="delete">
+                    ToolTip="{Loc 'general-station-record-console-delete-record'}">
                 <TextureRect StyleClasses="ButtonSquare"
                              TexturePath="/Textures/Interface/VerbIcons/delete_transparent.svg.192dpi.png"
                              Stretch="KeepAspectCentered"
@@ -29,7 +29,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                     MaxSize="32 32"
                     StyleClasses="OpenBoth"
                     Margin="0 0 10 0"
-                    ToolTip="Add record">
+                    ToolTip="{Loc 'general-station-record-console-add-record'}">
                 <TextureRect StyleClasses="ButtonSquare"
                              TexturePath="/Textures/Interface/VerbIcons/plus.svg.192dpi.png"
                              Stretch="KeepAspectCentered"

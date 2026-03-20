@@ -207,7 +207,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                     <BoxContainer Orientation="Horizontal"
                                   Margin="0 0 0 5"
                                   SeparationOverride="8">
-                        <Label Text="{Loc 'general-station-record-prints-filter'}"
+                        <!-- Pirate: criminal records-specific forensic label -->
+                        <Label Text="{Loc 'criminal-records-prints-filter'}"
                                FontColorOverride="DarkGray" />
                         <LineEdit Name="PersonPrintsEdit"
                                   HorizontalExpand="True" />
@@ -215,7 +216,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
                     <BoxContainer Orientation="Horizontal"
                                   Margin="0 0 0 5"
                                   SeparationOverride="8">
-                        <Label Text="{Loc 'general-station-record-dna-filter'}"
+                        <!-- Pirate: criminal records-specific forensic label -->
+                        <Label Text="{Loc 'criminal-records-dna-filter'}"
                                FontColorOverride="DarkGray" />
                         <LineEdit Name="PersonDnaEdit"
                                   HorizontalExpand="True" />

@@ -1,3 +1,3 @@
-criminal-records-console-photo-print-start = Printing photo copy...
-criminal-records-console-photo-print-complete = Photo copy printed.
-criminal-records-console-photo-print-busy = Printer is busy, wait for the current copy to finish.
+criminal-records-console-photo-print-start = Друк копії фото...
+criminal-records-console-photo-print-complete = Копію фото надруковано.
+criminal-records-console-photo-print-busy = Принтер зайнятий, зачекайте завершення поточної копії.

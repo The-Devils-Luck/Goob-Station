@@ -333,6 +333,9 @@ public sealed partial class StationRecordsSystem : SharedStationRecordsSystem
     }
 
     #region Pirate: security record decoupling
+    /// <remarks>
+    /// Linear search so O(n) time complexity.
+    /// </remarks>
     /// <summary>
     /// Returns all general-record ids with the exact same name.
     /// </summary>
