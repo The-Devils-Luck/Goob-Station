@@ -712,11 +712,11 @@ public sealed partial class CriminalRecordsConsoleSystem : SharedCriminalRecords
             return;
         }
 
-        if (ByteArraysEqual(record.PortraitImageData, preparedImageData) &&
-            ByteArraysEqual(record.PortraitPreviewData, preparedPreviewData))
-        {
-            return;
-        }
+        record.PortraitImageData = [.. preparedImageData];
+        record.PortraitPreviewData = preparedPreviewData == null ? null : [.. preparedPreviewData];
+        _records.Synchronize(key);
+
+        UpdateUserInterface(ent);
 
         record.PortraitImageData = [.. preparedImageData];
         record.PortraitPreviewData = preparedPreviewData == null ? null : [.. preparedPreviewData];
