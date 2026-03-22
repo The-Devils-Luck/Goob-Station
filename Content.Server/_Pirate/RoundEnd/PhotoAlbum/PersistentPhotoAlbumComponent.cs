@@ -1,4 +1,3 @@
-// SPDX-FileCopyrightText: 2026 Corvax Team Contributors
 // SPDX-FileCopyrightText: 2026 CyberLanos <cyber.lanos00@gmail.com>
 //
 // SPDX-License-Identifier: AGPL-3.0-only
@@ -24,4 +23,5 @@ public sealed partial class PersistentPhotoAlbumComponent : Component
 public static class PersistentPhotoAlbumOwnerKinds
 {
     public const string Profile = "profile";
+    public const string Department = "department";
 }

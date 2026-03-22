@@ -296,7 +296,8 @@ public sealed class PhotoAlbumSystem : EntitySystem
             }
 
             var latestActivity = GetPhotoSortTimestamp(sortedPhotos[0].PhotoCard);
-            sortableAlbums.Add((latestActivity, albumIndex++, new AlbumData(photos, authorCKey, authorName)));
+            var title = MetaData(uid).EntityName;
+            sortableAlbums.Add((latestActivity, albumIndex++, new AlbumData(photos, title, authorCKey, authorName)));
         }
 
         foreach (var (_, _, album) in sortableAlbums

@@ -703,6 +703,7 @@ namespace Content.Server.Database.Migrations.Postgres
                     b.ToTable("job", (string)null);
                 });
 
+            #region Pirate: cameras (photo persistence)
             modelBuilder.Entity("Content.Server.Database.PersistentPhotoAlbum", b =>
                 {
                     b.Property<int>("Id")
@@ -816,6 +817,7 @@ namespace Content.Server.Database.Migrations.Postgres
 
                     b.ToTable("pirate_persistent_photo_album_photos", (string)null);
                 });
+            #endregion
 
             modelBuilder.Entity("Content.Server.Database.PirateAdminHelpRating", b =>
                 {
@@ -2255,6 +2257,7 @@ namespace Content.Server.Database.Migrations.Postgres
                     b.Navigation("Profile");
                 });
 
+            #region Pirate: cameras (photo persistence)
             modelBuilder.Entity("Content.Server.Database.PersistentPhotoAlbumPhoto", b =>
                 {
                     b.HasOne("Content.Server.Database.PersistentPhotoAlbum", "Album")
@@ -2266,6 +2269,7 @@ namespace Content.Server.Database.Migrations.Postgres
 
                     b.Navigation("Album");
                 });
+            #endregion
 
             modelBuilder.Entity("Content.Server.Database.PirateAdminHelpRating", b =>
                 {
@@ -2750,10 +2754,12 @@ namespace Content.Server.Database.Migrations.Postgres
                     b.Navigation("BanHits");
                 });
 
+            #region Pirate: cameras (photo persistence)
             modelBuilder.Entity("Content.Server.Database.PersistentPhotoAlbum", b =>
                 {
                     b.Navigation("Photos");
                 });
+            #endregion
 
             modelBuilder.Entity("Content.Server.Database.Player", b =>
                 {

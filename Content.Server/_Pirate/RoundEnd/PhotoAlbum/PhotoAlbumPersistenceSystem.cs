@@ -1,4 +1,3 @@
-// SPDX-FileCopyrightText: 2026 Corvax Team Contributors
 // SPDX-FileCopyrightText: 2026 CyberLanos <cyber.lanos00@gmail.com>
 //
 // SPDX-License-Identifier: AGPL-3.0-only
@@ -31,6 +30,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
     {
         base.Initialize();
 
+        SubscribeLocalEvent<PersistentPhotoAlbumComponent, ComponentStartup>(OnPersistentPhotoAlbumStartup);
         SubscribeLocalEvent<PersistentPhotoAlbumComponent, SelectedLoadoutEntitySpawnedEvent>(OnSelectedLoadoutAlbumSpawned);
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(OnPlayerSpawnComplete);
         SubscribeLocalEvent<RoundEndTextAppendEvent>(OnRoundEndTextAppend);
@@ -41,6 +41,17 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
     {
         WaitForPendingPersistence();
         base.Shutdown();
+    }
+
+    private void OnPersistentPhotoAlbumStartup(
+        EntityUid uid,
+        PersistentPhotoAlbumComponent component,
+        ref ComponentStartup args)
+    {
+        if (string.IsNullOrWhiteSpace(component.OwnerId) || HasComp<PhotoAlbumPersistenceStateComponent>(uid))
+            return;
+
+        RestoreStaticAlbumSnapshot(uid, component);
     }
 
     private void OnSelectedLoadoutAlbumSpawned(
@@ -212,6 +223,35 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
 
         var profileId = await _db.GetCharacterProfileIdAsync(userId, selectedSlot);
         return profileId == null ? null : $"profile:{profileId.Value}";
+    }
+
+    private async void RestoreStaticAlbumSnapshot(EntityUid uid, PersistentPhotoAlbumComponent persistence)
+    {
+        if (!TryComp<PhotoAlbumComponent>(uid, out var album))
+            return;
+
+        var ownerId = persistence.OwnerId;
+        if (string.IsNullOrWhiteSpace(ownerId))
+            return;
+
+        var state = EnsureComp<PhotoAlbumPersistenceStateComponent>(uid);
+        state.OwnerKind = persistence.OwnerKind;
+        state.OwnerId = ownerId;
+        state.AlbumKey = persistence.AlbumKey;
+
+        try
+        {
+            var snapshot = await _db.GetPersistentPhotoAlbumSnapshotAsync(persistence.OwnerKind, ownerId, persistence.AlbumKey);
+            if (snapshot == null || Deleted(uid) || !TryComp<PhotoAlbumComponent>(uid, out album))
+                return;
+
+            persistence.IsPublic = snapshot.IsPublic;
+            RestoreAlbumSnapshot(uid, album, snapshot);
+        }
+        catch (Exception ex)
+        {
+            Log.Error($"Failed to restore persistent photo album {ToPrettyString(uid)}: {ex}");
+        }
     }
 
     private bool IsOwnedBy(EntityUid uid, EntityUid owner)

@@ -200,7 +200,7 @@ namespace Content.Server.Database
 
         //Pirate Changes
         public DbSet<PirateAdminHelpRating> PirateAdminHelpRatings { get; set; } = default!;
-        #region Pirate: persistent photo albums
+        #region Pirate: cameras (photo persistence)
         public DbSet<PersistentPhotoAlbum> PersistentPhotoAlbums { get; set; } = default!;
         public DbSet<PersistentPhotoAlbumPhoto> PersistentPhotoAlbumPhotos { get; set; } = default!;
         #endregion
@@ -629,9 +629,7 @@ namespace Content.Server.Database
                 .HasPrincipalKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             //Pirate Changes End
-            #region Pirate: persistent photo albums
-            PersistentPhotoAlbumModelConfiguration.Configure(modelBuilder);
-            #endregion
+            PersistentPhotoAlbumModelConfiguration.Configure(modelBuilder); //Pirate: cameras (photo persistence)
         }
 
         public virtual IQueryable<AdminLog> SearchLogs(IQueryable<AdminLog> query, string searchText)

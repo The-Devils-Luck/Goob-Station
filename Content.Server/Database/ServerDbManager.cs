@@ -79,7 +79,6 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Net;
@@ -87,7 +86,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Administration.Logs;
-using Content.Shared._Pirate.Photo; // Pirate: persistent photo albums
 using Content.Shared.Administration.Logs;
 using Content.Shared.CCVar;
 using Content.Shared.Construction.Prototypes;
@@ -105,6 +103,8 @@ using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
 using LogLevel = Robust.Shared.Log.LogLevel;
 using MSLogLevel = Microsoft.Extensions.Logging.LogLevel;
+using Content.Shared._Pirate.Photo; // Pirate: persistent photo albums
+using System.Collections.Generic; // Pirate: persistent photo albums
 
 namespace Content.Server.Database
 {
@@ -486,7 +486,7 @@ namespace Content.Server.Database
 
         #endregion
 
-        #region Pirate: persistent photo albums
+        #region Pirate: cameras (photo persistence)
         Task<int?> GetCharacterProfileIdAsync(NetUserId userId, int slot, CancellationToken cancel = default);
         Task<PersistentPhotoAlbumSnapshot?> GetPersistentPhotoAlbumSnapshotAsync(
             string ownerKind,
@@ -1397,7 +1397,7 @@ namespace Content.Server.Database
 
         #endregion
 
-        #region Pirate: persistent photo albums
+        #region Pirate: cameras (photo persistence)
 
         public Task<int?> GetCharacterProfileIdAsync(NetUserId userId, int slot, CancellationToken cancel = default)
         {

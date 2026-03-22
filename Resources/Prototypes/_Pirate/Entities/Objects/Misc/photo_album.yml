@@ -101,74 +101,74 @@
     state: album_blue
 
 - type: entity
-  id: PhotoAlbumHeadCaptain
-  parent: PhotoAlbumBlue
-  name: "фотоальбом капітана"
+  id: PhotoAlbumDepartmentService
+  parent: PhotoAlbumGreen
+  name: "фотоальбом сервісного відділу"
   components:
-  - type: PhotoAlbum
-    isSigned: true
-    signerName: Captain
-    usePossessiveSignerName: false
+  - type: PersistentPhotoAlbum
+    ownerKind: department
+    ownerId: service
+    albumKey: default
 
 - type: entity
-  id: PhotoAlbumHeadHop
-  parent: PhotoAlbumBlue
-  name: "фотоальбом голови персоналу"
+  id: PhotoAlbumDepartmentSecurity
+  parent: PhotoAlbumRed
+  name: "фотоальбом охорони"
   components:
-  - type: PhotoAlbum
-    isSigned: true
-    signerName: Head of Personnel
-    usePossessiveSignerName: false
+  - type: PersistentPhotoAlbum
+    ownerKind: department
+    ownerId: security
+    albumKey: default
 
 - type: entity
-  id: PhotoAlbumHeadHos
+  id: PhotoAlbumDepartmentSupply
   parent: PhotoAlbumBlue
-  name: "фотоальбом голови служби безпеки"
+  name: "фотоальбом постачання"
   components:
-  - type: PhotoAlbum
-    isSigned: true
-    signerName: Head of Security
-    usePossessiveSignerName: false
+  - type: PersistentPhotoAlbum
+    ownerKind: department
+    ownerId: supply
+    albumKey: default
 
 - type: entity
-  id: PhotoAlbumHeadRd
+  id: PhotoAlbumDepartmentScience
   parent: PhotoAlbumBlue
-  name: "фотоальбом наукового керівника"
+  name: "фотоальбом наукового відділу"
   components:
-  - type: PhotoAlbum
-    isSigned: true
-    signerName: Research Director
-    usePossessiveSignerName: false
+  - type: PersistentPhotoAlbum
+    ownerKind: department
+    ownerId: science
+    albumKey: default
 
 - type: entity
-  id: PhotoAlbumHeadCmo
+  id: PhotoAlbumDepartmentCommand
   parent: PhotoAlbumBlue
-  name: "фотоальбом головного лікаря"
+  name: "фотоальбом командування"
   components:
-  - type: PhotoAlbum
-    isSigned: true
-    signerName: Chief Medical Officer
-    usePossessiveSignerName: false
+  - type: PersistentPhotoAlbum
+    ownerKind: department
+    ownerId: command
+    albumKey: default
 
 - type: entity
-  id: PhotoAlbumHeadQm
+  id: PhotoAlbumDepartmentEngineering
   parent: PhotoAlbumBlue
-  name: "фотоальбом квартирмейстера"
+  name: "фотоальбом інженерного відділу"
   components:
-  - type: PhotoAlbum
-    isSigned: true
-    signerName: Quartermaster
-    usePossessiveSignerName: false
+  - type: PersistentPhotoAlbum
+    ownerKind: department
+    ownerId: engineering
+    albumKey: default
 
 - type: entity
-  id: PhotoAlbumHeadCe
+  id: PhotoAlbumDepartmentMedical
   parent: PhotoAlbumBlue
-  name: "фотоальбом головного інженера"
+  name: "фотоальбом медичного відділу"
   components:
-  - type: PhotoAlbum
-    isSigned: true
-    signerName: Chief Engineer
-    usePossessiveSignerName: false
+  - type: PersistentPhotoAlbum
+    ownerKind: department
+    ownerId: medical
+    albumKey: default
 
 - type: entity
   id: PhotoAlbumMakeshift

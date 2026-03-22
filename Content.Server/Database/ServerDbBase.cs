@@ -127,7 +127,6 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -138,7 +137,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Content.Pirate.Common.AlternativeJobs; // Pirate - Alternative Jobs
 using Content.Server.Administration.Logs;
-using Content.Shared._Pirate.Photo; // Pirate: persistent photo albums
 using Content.Server.Administration.Managers;
 using Content.Shared._RMC14.LinkAccount;
 using Content.Shared.Administration.Logs;
@@ -155,15 +153,15 @@ using Robust.Shared.Enums;
 using Robust.Shared.Network;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Utility;
+using System.Collections.Generic; // Pirate: cameras (photo persistence)
+using Content.Shared._Pirate.Photo; // Pirate: cameras (photo persistence)
 
 namespace Content.Server.Database
 {
     public abstract class ServerDbBase
     {
-        #region Pirate: persistent photo albums
-        private const int PiratePersistentPhotoBaseDescriptionMaxLength = 2000;
-        private const int PiratePersistentPhotoCaptureDataJsonMaxLength = 10000;
-        #endregion
+        private const int PiratePersistentPhotoBaseDescriptionMaxLength = 2000; // Pirate: cameras (photo persistence)
+        private const int PiratePersistentPhotoCaptureDataJsonMaxLength = 10000; // Pirate: cameras (photo persistence)
 
         private readonly ISawmill _opsLog;
 
@@ -2379,8 +2377,7 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
 
         #endregion
 
-        #region Pirate: persistent photo albums
-
+        #region Pirate: cameras (photo persistence)
         public async Task<int?> GetCharacterProfileIdAsync(NetUserId userId, int slot, CancellationToken cancel = default)
         {
             await using var db = await GetDb(cancel);
@@ -2420,12 +2417,9 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
                     CustomName = photo.CustomName,
                     CustomDescription = photo.CustomDescription,
                     Caption = photo.Caption,
-                    // Pirate: persistent photo albums
                     BaseDescription = TruncatePersistentPhotoText(photo.BaseDescription, PiratePersistentPhotoBaseDescriptionMaxLength),
                     CaptureData = DeserializeCaptureData(photo.CaptureDataJson),
-                    // Pirate: persistent photo albums
                     CreatedAt = NormalizeDatabaseTime(photo.CreatedAt),
-                    // Pirate: persistent photo albums
                     UpdatedAt = NormalizeDatabaseTime(photo.UpdatedAt)
                 });
             }
@@ -2436,7 +2430,6 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
                 OwnerId = album.OwnerId,
                 AlbumKey = album.AlbumKey,
                 IsPublic = album.IsPublic,
-                // Pirate: persistent photo albums
                 SavedAt = NormalizeDatabaseTime(album.SavedAt),
                 Photos = photos
             };
@@ -2490,9 +2483,7 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
                     CustomName = photo.CustomName,
                     CustomDescription = photo.CustomDescription,
                     Caption = photo.Caption,
-                    // Pirate: persistent photo albums
                     BaseDescription = TruncatePersistentPhotoText(photo.BaseDescription, PiratePersistentPhotoBaseDescriptionMaxLength),
-                    // Pirate: persistent photo albums
                     CaptureDataJson = SerializeCaptureData(photo.CaptureData),
                     CreatedAt = photo.CreatedAt,
                     UpdatedAt = photo.UpdatedAt
@@ -2502,11 +2493,9 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
             await db.DbContext.SaveChangesAsync(cancel);
         }
 
-        #endregion
 
         private static string? SerializeCaptureData(PhotoCaptureData? data)
         {
-            // Pirate: persistent photo albums
             return data == null
                 ? null
                 : TruncatePersistentPhotoText(
@@ -2514,7 +2503,6 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
                     PiratePersistentPhotoCaptureDataJsonMaxLength);
         }
 
-        // Pirate: persistent photo albums
         private static string? TruncatePersistentPhotoText(string? value, int maxLength)
         {
             if (string.IsNullOrEmpty(value) || value.Length <= maxLength)
@@ -2537,6 +2525,7 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
                 return null;
             }
         }
+        #endregion
 
         public abstract Task SendNotification(DatabaseNotification notification);
 
