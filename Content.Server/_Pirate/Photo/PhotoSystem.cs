@@ -372,6 +372,7 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
         component.DeadSeen = new List<EntityUid>();
         component.CreatedAt = createdAt;
         component.UpdatedAt = updatedAt ?? createdAt;
+        component.IsArchivedAlbumPhoto = false;
 
         UpdatePhotoCardAppearance(uid, component);
         UpdatePhotoCardExamineDescription(uid, component);
@@ -890,22 +891,28 @@ public sealed partial class PhotoSystem : SharedPhotoSystem
         return trimmed;
     }
 
-    private void UpdatePhotoCardExamineDescription(EntityUid uid, PhotoCardComponent component)
+    public void UpdatePhotoCardExamineDescription(EntityUid uid, PhotoCardComponent component)
     {
         var baseDescription = component.BaseDescription;
         var customDescription = component.CustomDescription;
 
-        string? composedDescription = null;
+        var descriptionParts = new List<string>();
+
+        if (component.IsArchivedAlbumPhoto)
+            descriptionParts.Add(Loc.GetString("photo-card-archived-description"));
+
         if (!string.IsNullOrWhiteSpace(customDescription))
         {
-            composedDescription = string.IsNullOrWhiteSpace(baseDescription)
+            descriptionParts.Add(string.IsNullOrWhiteSpace(baseDescription)
                 ? customDescription
-                : $"{customDescription} - {baseDescription}";
+                : $"{customDescription} - {baseDescription}");
         }
         else if (!string.IsNullOrWhiteSpace(baseDescription))
         {
-            composedDescription = baseDescription;
+            descriptionParts.Add(baseDescription);
         }
+
+        var composedDescription = string.Join(" ", descriptionParts);
 
         if (!string.IsNullOrWhiteSpace(composedDescription))
             _metaData.SetEntityDescription(uid, composedDescription);

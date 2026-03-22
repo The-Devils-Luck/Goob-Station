@@ -108,7 +108,9 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
                 if (snapshot == null)
                     continue;
 
-                persistence.IsPublic = snapshot.IsPublic;
+                persistence.IsPublic = persistence.SupportsPrivacy
+                    ? snapshot.IsPublic
+                    : true;
                 RestoreAlbumSnapshot(uid, album, snapshot);
             }
             catch (Exception ex)
@@ -199,7 +201,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
                 ProfileId = state.ProfileId,
                 OwnerId = state.OwnerId,
                 AlbumKey = state.AlbumKey,
-                IsPublic = persistence.IsPublic,
+                IsPublic = persistence.EffectiveIsPublic,
                 SavedAt = DateTime.UtcNow,
                 Photos = photos
             };
@@ -225,7 +227,11 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
                 !_container.Insert(photoUid, container))
             {
                 Del(photoUid);
+                continue;
             }
+
+            photoCard.IsArchivedAlbumPhoto = true;
+            _photo.UpdatePhotoCardExamineDescription(photoUid, photoCard);
         }
     }
 
@@ -275,7 +281,9 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
             if (snapshot == null || Deleted(uid) || !TryComp<PhotoAlbumComponent>(uid, out album))
                 return;
 
-            persistence.IsPublic = snapshot.IsPublic;
+            persistence.IsPublic = persistence.SupportsPrivacy
+                ? snapshot.IsPublic
+                : true;
             RestoreAlbumSnapshot(uid, album, snapshot);
         }
         catch (Exception ex)

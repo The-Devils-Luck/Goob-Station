@@ -18,6 +18,12 @@ public sealed partial class PersistentPhotoAlbumComponent : Component
 
     [DataField]
     public bool IsPublic = true;
+
+    public bool SupportsPrivacy => OwnerKind == PersistentPhotoAlbumOwnerKinds.Profile && AlbumKey == "personal";
+
+    public bool EffectiveIsPublic => !SupportsPrivacy || IsPublic;
+
+    public bool SupportsSigning => OwnerKind != PersistentPhotoAlbumOwnerKinds.Department;
 }
 
 public static class PersistentPhotoAlbumOwnerKinds

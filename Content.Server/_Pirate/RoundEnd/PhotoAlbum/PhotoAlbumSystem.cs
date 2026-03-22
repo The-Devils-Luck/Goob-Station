@@ -96,7 +96,8 @@ public sealed class PhotoAlbumSystem : EntitySystem
     {
         if (!Resolve(uid, ref photoAlbum, false) ||
             photoAlbum.IsSigned ||
-            !HasComp<AutoSignPhotoAlbumComponent>(uid))
+            !HasComp<AutoSignPhotoAlbumComponent>(uid) ||
+            !SupportsSigning(uid))
         {
             _unsignedAutoSignAlbums.Remove(uid);
             return;
@@ -115,7 +116,8 @@ public sealed class PhotoAlbumSystem : EntitySystem
         {
             if (!TryComp<PhotoAlbumComponent>(uid, out var photoAlbum) ||
                 !HasComp<AutoSignPhotoAlbumComponent>(uid) ||
-                photoAlbum.IsSigned)
+                photoAlbum.IsSigned ||
+                !SupportsSigning(uid))
             {
                 _unsignedAutoSignAlbums.Remove(uid);
                 continue;
@@ -155,7 +157,7 @@ public sealed class PhotoAlbumSystem : EntitySystem
 
         var user = args.User;
 
-        if (!entity.Comp.IsSigned)
+        if (!entity.Comp.IsSigned && SupportsSigning(entity.Owner))
         {
             var signVerb = new Verb
             {
@@ -165,14 +167,14 @@ public sealed class PhotoAlbumSystem : EntitySystem
             args.Verbs.Add(signVerb);
         }
 
-        if (TryComp<PersistentPhotoAlbumComponent>(entity, out var persistent))
+        if (TryComp<PersistentPhotoAlbumComponent>(entity, out var persistent) && persistent.SupportsPrivacy)
         {
             var privacyVerb = new Verb
             {
-                Text = persistent.IsPublic
+                Text = persistent.EffectiveIsPublic
                     ? Loc.GetString("photoalbum-make-private-verb")
                     : Loc.GetString("photoalbum-make-public-verb"),
-                Icon = persistent.IsPublic
+                Icon = persistent.EffectiveIsPublic
                     ? new SpriteSpecifier.Texture(new("/Textures/Interface/VerbIcons/lock.svg.192dpi.png"))
                     : new SpriteSpecifier.Texture(new("/Textures/Interface/VerbIcons/unlock.svg.192dpi.png")),
                 Act = () => VerbToggleAlbumPrivacy(entity, persistent, user)
@@ -187,16 +189,19 @@ public sealed class PhotoAlbumSystem : EntitySystem
         {
             args.PushMarkup(Loc.GetString("photoalbum-persistent-examine"));
 
-            if (!persistent.IsPublic)
+            if (persistent.SupportsPrivacy && !persistent.EffectiveIsPublic)
                 args.PushMarkup(Loc.GetString("photoalbum-private-examine"));
         }
 
-        if (entity.Comp.IsSigned)
+        if (entity.Comp.IsSigned && SupportsSigning(entity.Owner))
             args.PushMarkup(Loc.GetString("photoalbum-signed-examine"));
     }
 
     private void VerbSignPhotoAlbum(Entity<PhotoAlbumComponent> entity, EntityUid user)
     {
+        if (!SupportsSigning(entity.Owner))
+            return;
+
         string? username = null;
         if (_player.TryGetSessionByEntity(user, out var session))
             username = session.Data.UserName;
@@ -231,14 +236,22 @@ public sealed class PhotoAlbumSystem : EntitySystem
         _metaData.SetEntityName(entity, albumName);
     }
 
+    private bool SupportsSigning(EntityUid uid)
+    {
+        return !TryComp<PersistentPhotoAlbumComponent>(uid, out var persistent) || persistent.SupportsSigning;
+    }
+
     private void VerbToggleAlbumPrivacy(
         Entity<PhotoAlbumComponent> entity,
         PersistentPhotoAlbumComponent persistent,
         EntityUid user)
     {
-        persistent.IsPublic = !persistent.IsPublic;
+        if (!persistent.SupportsPrivacy)
+            return;
 
-        var popup = persistent.IsPublic
+        persistent.IsPublic = !persistent.EffectiveIsPublic;
+
+        var popup = persistent.EffectiveIsPublic
             ? Loc.GetString("photoalbum-made-public", ("user", user))
             : Loc.GetString("photoalbum-made-private", ("user", user));
         _popup.PopupEntity(popup, entity);
@@ -256,7 +269,7 @@ public sealed class PhotoAlbumSystem : EntitySystem
 
         while (query.MoveNext(out var uid, out var photoAlbum)) // query all photoalbums and send photos them to players
         {
-            if (TryComp<PersistentPhotoAlbumComponent>(uid, out var persistentAlbum) && !persistentAlbum.IsPublic)
+            if (TryComp<PersistentPhotoAlbumComponent>(uid, out var persistentAlbum) && !persistentAlbum.EffectiveIsPublic)
                 continue;
 
             if (!_container.TryGetContainer(uid, photoAlbum.ContainerId, out var container))
@@ -295,7 +308,7 @@ public sealed class PhotoAlbumSystem : EntitySystem
             if (photos.Count == 0)
                 continue;
 
-            if (photoAlbum.IsSigned)
+            if (photoAlbum.IsSigned && SupportsSigning(uid))
             {
                 if (photoAlbum.SignerUid is not null && Exists(photoAlbum.SignerUid))
                     authorName = MetaData(photoAlbum.SignerUid.Value).EntityName;

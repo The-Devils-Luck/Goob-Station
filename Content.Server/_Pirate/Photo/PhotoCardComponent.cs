@@ -75,6 +75,12 @@ public sealed partial class PhotoCardComponent : Component
     /// Runtime metadata only; not serialized for persistence.
     /// </summary>
     public List<string> NamesSeen = new();
+
+    /// <summary>
+    /// True when this photo card was recreated from a persistent album snapshot.
+    /// Runtime metadata only; not serialized for persistence.
+    /// </summary>
+    public bool IsArchivedAlbumPhoto;
 }
 
 

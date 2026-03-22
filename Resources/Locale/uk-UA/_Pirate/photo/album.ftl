@@ -25,7 +25,7 @@ photoalbum-made-public = {THE($user)} { GENDER($user) ->
     [neuter] позначило
    *[other] позначили
 } фотоальбом як публічний
-photoalbum-persistent-examine = Фото, покладені в цей альбом, зберігаються між раундами.
+photoalbum-persistent-examine = Містить старі фотографії.
 photoalbum-private-examine = Цей альбом позначено як приватний.
 photoalbum-signed-examine = На цьому альбомі видно підпис.
 photoalbum-signed-name-possessive = фотоальбом {$name}
