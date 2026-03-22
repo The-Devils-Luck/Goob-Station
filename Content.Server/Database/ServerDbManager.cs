@@ -490,12 +490,14 @@ namespace Content.Server.Database
         Task<int?> GetCharacterProfileIdAsync(NetUserId userId, int slot, CancellationToken cancel = default);
         Task<PersistentPhotoAlbumSnapshot?> GetPersistentPhotoAlbumSnapshotAsync(
             string ownerKind,
-            string ownerId,
+            int? profileId,
+            string? ownerId,
             string albumKey,
             CancellationToken cancel = default);
         Task UpsertPersistentPhotoAlbumSnapshotAsync(
             string ownerKind,
-            string ownerId,
+            int? profileId,
+            string? ownerId,
             string albumKey,
             bool isPublic,
             IReadOnlyCollection<PersistentPhotoData> photos,
@@ -1407,24 +1409,26 @@ namespace Content.Server.Database
 
         public Task<PersistentPhotoAlbumSnapshot?> GetPersistentPhotoAlbumSnapshotAsync(
             string ownerKind,
-            string ownerId,
+            int? profileId,
+            string? ownerId,
             string albumKey,
             CancellationToken cancel = default)
         {
             DbReadOpsMetric.Inc();
-            return RunDbCommand(() => _db.GetPersistentPhotoAlbumSnapshotAsync(ownerKind, ownerId, albumKey, cancel));
+            return RunDbCommand(() => _db.GetPersistentPhotoAlbumSnapshotAsync(ownerKind, profileId, ownerId, albumKey, cancel));
         }
 
         public Task UpsertPersistentPhotoAlbumSnapshotAsync(
             string ownerKind,
-            string ownerId,
+            int? profileId,
+            string? ownerId,
             string albumKey,
             bool isPublic,
             IReadOnlyCollection<PersistentPhotoData> photos,
             CancellationToken cancel = default)
         {
             DbWriteOpsMetric.Inc();
-            return RunDbCommand(() => _db.UpsertPersistentPhotoAlbumSnapshotAsync(ownerKind, ownerId, albumKey, isPublic, photos, cancel));
+            return RunDbCommand(() => _db.UpsertPersistentPhotoAlbumSnapshotAsync(ownerKind, profileId, ownerId, albumKey, isPublic, photos, cancel));
         }
 
         #endregion

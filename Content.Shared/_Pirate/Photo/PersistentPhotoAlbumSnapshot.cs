@@ -10,7 +10,8 @@ namespace Content.Shared._Pirate.Photo;
 public sealed class PersistentPhotoAlbumSnapshot
 {
     public string OwnerKind { get; init; } = string.Empty;
-    public string OwnerId { get; init; } = string.Empty;
+    public int? ProfileId { get; init; }
+    public string? OwnerId { get; init; }
     public string AlbumKey { get; init; } = string.Empty;
     public bool IsPublic { get; init; } = true;
     public DateTime SavedAt { get; init; }

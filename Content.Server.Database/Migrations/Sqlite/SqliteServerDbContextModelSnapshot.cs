@@ -665,7 +665,6 @@ namespace Content.Server.Database.Migrations.Sqlite
                     b.ToTable("job", (string)null);
                 });
 
-            #region Pirate: cameras (photo persistence)
             modelBuilder.Entity("Content.Server.Database.PersistentPhotoAlbum", b =>
                 {
                     b.Property<int>("Id")
@@ -684,7 +683,6 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnName("is_public");
 
                     b.Property<string>("OwnerId")
-                        .IsRequired()
                         .HasMaxLength(128)
                         .HasColumnType("TEXT")
                         .HasColumnName("owner_id");
@@ -695,6 +693,10 @@ namespace Content.Server.Database.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("owner_kind");
 
+                    b.Property<int?>("ProfileId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("profile_id");
+
                     b.Property<DateTime>("SavedAt")
                         .HasColumnType("TEXT")
                         .HasColumnName("saved_at");
@@ -702,9 +704,16 @@ namespace Content.Server.Database.Migrations.Sqlite
                     b.HasKey("Id")
                         .HasName("PK_pirate_persistent_photo_albums");
 
+                    b.HasIndex("ProfileId")
+                        .HasDatabaseName("IX_pirate_persistent_photo_albums_profile_id");
+
                     b.HasIndex("OwnerKind", "OwnerId", "AlbumKey")
                         .IsUnique()
                         .HasDatabaseName("IX_pirate_persistent_photo_albums_owner_kind_owner_id_album_key");
+
+                    b.HasIndex("OwnerKind", "ProfileId", "AlbumKey")
+                        .IsUnique()
+                        .HasDatabaseName("IX_pirate_persistent_photo_albums_owner_kind_profile_id_album_key");
 
                     b.ToTable("pirate_persistent_photo_albums", (string)null);
                 });
@@ -775,7 +784,6 @@ namespace Content.Server.Database.Migrations.Sqlite
 
                     b.ToTable("pirate_persistent_photo_album_photos", (string)null);
                 });
-            #endregion
 
             modelBuilder.Entity("Content.Server.Database.PirateAdminHelpRating", b =>
                 {
@@ -2164,7 +2172,17 @@ namespace Content.Server.Database.Migrations.Sqlite
                     b.Navigation("Profile");
                 });
 
-            #region Pirate: cameras (photo persistence)
+            modelBuilder.Entity("Content.Server.Database.PersistentPhotoAlbum", b =>
+                {
+                    b.HasOne("Content.Server.Database.Profile", "Profile")
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_pirate_persistent_photo_albums_profile_profile_id");
+
+                    b.Navigation("Profile");
+                });
+
             modelBuilder.Entity("Content.Server.Database.PersistentPhotoAlbumPhoto", b =>
                 {
                     b.HasOne("Content.Server.Database.PersistentPhotoAlbum", "Album")
@@ -2176,7 +2194,6 @@ namespace Content.Server.Database.Migrations.Sqlite
 
                     b.Navigation("Album");
                 });
-            #endregion
 
             modelBuilder.Entity("Content.Server.Database.PirateAdminHelpRating", b =>
                 {
@@ -2661,13 +2678,10 @@ namespace Content.Server.Database.Migrations.Sqlite
                     b.Navigation("BanHits");
                 });
 
-            #region Pirate: cameras (photo persistence)
             modelBuilder.Entity("Content.Server.Database.PersistentPhotoAlbum", b =>
                 {
                     b.Navigation("Photos");
                 });
-            #endregion
-
 
             modelBuilder.Entity("Content.Server.Database.Player", b =>
                 {

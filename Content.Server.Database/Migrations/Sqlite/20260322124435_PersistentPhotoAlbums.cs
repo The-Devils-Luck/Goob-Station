@@ -18,7 +18,8 @@ namespace Content.Server.Database.Migrations.Sqlite
                     pirate_persistent_photo_albums_id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     owner_kind = table.Column<string>(type: "TEXT", maxLength: 32, nullable: false),
-                    owner_id = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
+                    owner_id = table.Column<string>(type: "TEXT", maxLength: 128, nullable: true),
+                    profile_id = table.Column<int>(type: "INTEGER", nullable: true),
                     album_key = table.Column<string>(type: "TEXT", maxLength: 64, nullable: false),
                     saved_at = table.Column<DateTime>(type: "TEXT", nullable: false),
                     is_public = table.Column<bool>(type: "INTEGER", nullable: false)
@@ -26,6 +27,12 @@ namespace Content.Server.Database.Migrations.Sqlite
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_pirate_persistent_photo_albums", x => x.pirate_persistent_photo_albums_id);
+                    table.ForeignKey(
+                        name: "FK_pirate_persistent_photo_albums_profile_profile_id",
+                        column: x => x.profile_id,
+                        principalTable: "profile",
+                        principalColumn: "profile_id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -68,6 +75,17 @@ namespace Content.Server.Database.Migrations.Sqlite
                 table: "pirate_persistent_photo_albums",
                 columns: new[] { "owner_kind", "owner_id", "album_key" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_pirate_persistent_photo_albums_owner_kind_profile_id_album_key",
+                table: "pirate_persistent_photo_albums",
+                columns: new[] { "owner_kind", "profile_id", "album_key" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_pirate_persistent_photo_albums_profile_id",
+                table: "pirate_persistent_photo_albums",
+                column: "profile_id");
         }
 
         /// <inheritdoc />

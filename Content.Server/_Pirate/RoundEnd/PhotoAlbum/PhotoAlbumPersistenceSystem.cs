@@ -50,7 +50,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
         PersistentPhotoAlbumComponent component,
         ref ComponentStartup args)
     {
-        if (string.IsNullOrWhiteSpace(component.OwnerId) || _resolvedAlbumStates.ContainsKey(uid))
+        if (string.IsNullOrWhiteSpace(component.OwnerId))
             return;
 
         RestoreStaticAlbumSnapshot(uid, component);
@@ -91,19 +91,19 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
         {
             try
             {
-                var ownerId = await ResolveOwnerIdAsync(ev.Player.UserId, selectedSlot, persistence);
-                if (ownerId == null || Deleted(uid))
+                var state = await ResolvePersistenceStateAsync(ev.Player.UserId, selectedSlot, persistence);
+                if (state == null || Deleted(uid))
                     continue;
 
-                var snapshot = await _db.GetPersistentPhotoAlbumSnapshotAsync(persistence.OwnerKind, ownerId, persistence.AlbumKey);
+                var snapshot = await _db.GetPersistentPhotoAlbumSnapshotAsync(
+                    state.Value.OwnerKind,
+                    state.Value.ProfileId,
+                    state.Value.OwnerId,
+                    state.Value.AlbumKey);
                 if (Deleted(uid) || !IsOwnedBy(uid, ev.Mob))
                     continue;
 
-                var state = new ResolvedAlbumPersistenceState(
-                    persistence.OwnerKind,
-                    ownerId,
-                    persistence.AlbumKey);
-                _resolvedAlbumStates[uid] = state;
+                _resolvedAlbumStates[uid] = state.Value;
 
                 if (snapshot == null)
                     continue;
@@ -140,6 +140,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
             {
                 await _db.UpsertPersistentPhotoAlbumSnapshotAsync(
                     snapshot.OwnerKind,
+                    snapshot.ProfileId,
                     snapshot.OwnerId,
                     snapshot.AlbumKey,
                     snapshot.IsPublic,
@@ -147,7 +148,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
             }
             catch (Exception ex)
             {
-                Log.Error($"Failed to persist photo album {snapshot.OwnerKind}/{snapshot.OwnerId}/{snapshot.AlbumKey}: {ex}");
+                Log.Error($"Failed to persist photo album {FormatSnapshotIdentity(snapshot)}: {ex}");
             }
         }
     }
@@ -169,7 +170,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
 
     private List<PersistentPhotoAlbumSnapshot> CollectAlbumSnapshots()
     {
-        var snapshots = new Dictionary<(string OwnerKind, string OwnerId, string AlbumKey), PersistentPhotoAlbumSnapshot>();
+        var snapshots = new Dictionary<(string OwnerKind, int? ProfileId, string? OwnerId, string AlbumKey), PersistentPhotoAlbumSnapshot>();
         var query = EntityQueryEnumerator<PhotoAlbumComponent, PersistentPhotoAlbumComponent>();
         while (query.MoveNext(out var uid, out var album, out var persistence))
         {
@@ -191,10 +192,11 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
                 photos.Add(data);
             }
 
-            var key = (state.OwnerKind, state.OwnerId, state.AlbumKey);
+            var key = (state.OwnerKind, state.ProfileId, state.OwnerId, state.AlbumKey);
             snapshots[key] = new PersistentPhotoAlbumSnapshot
             {
                 OwnerKind = state.OwnerKind,
+                ProfileId = state.ProfileId,
                 OwnerId = state.OwnerId,
                 AlbumKey = state.AlbumKey,
                 IsPublic = persistence.IsPublic,
@@ -227,16 +229,31 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
         }
     }
 
-    private async Task<string?> ResolveOwnerIdAsync(NetUserId userId, int selectedSlot, PersistentPhotoAlbumComponent component)
+    private async Task<ResolvedAlbumPersistenceState?> ResolvePersistenceStateAsync(
+        NetUserId userId,
+        int selectedSlot,
+        PersistentPhotoAlbumComponent component)
     {
         if (!string.IsNullOrWhiteSpace(component.OwnerId))
-            return component.OwnerId;
+        {
+            return new ResolvedAlbumPersistenceState(
+                component.OwnerKind,
+                null,
+                component.OwnerId,
+                component.AlbumKey);
+        }
 
         if (!string.Equals(component.OwnerKind, PersistentPhotoAlbumOwnerKinds.Profile, StringComparison.Ordinal))
             return null;
 
         var profileId = await _db.GetCharacterProfileIdAsync(userId, selectedSlot);
-        return profileId == null ? null : $"profile:{profileId.Value}";
+        return profileId == null
+            ? null
+            : new ResolvedAlbumPersistenceState(
+                component.OwnerKind,
+                profileId.Value,
+                null,
+                component.AlbumKey);
     }
 
     private async void RestoreStaticAlbumSnapshot(EntityUid uid, PersistentPhotoAlbumComponent persistence)
@@ -248,14 +265,13 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
         if (string.IsNullOrWhiteSpace(ownerId))
             return;
 
-        _resolvedAlbumStates[uid] = new ResolvedAlbumPersistenceState(
-            persistence.OwnerKind,
-            ownerId,
-            persistence.AlbumKey);
-
         try
         {
-            var snapshot = await _db.GetPersistentPhotoAlbumSnapshotAsync(persistence.OwnerKind, ownerId, persistence.AlbumKey);
+            var snapshot = await _db.GetPersistentPhotoAlbumSnapshotAsync(
+                persistence.OwnerKind,
+                null,
+                ownerId,
+                persistence.AlbumKey);
             if (snapshot == null || Deleted(uid) || !TryComp<PhotoAlbumComponent>(uid, out album))
                 return;
 
@@ -277,6 +293,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
         {
             state = new ResolvedAlbumPersistenceState(
                 persistence.OwnerKind,
+                null,
                 persistence.OwnerId,
                 persistence.AlbumKey);
             return true;
@@ -290,6 +307,11 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
 
         state = default;
         return false;
+    }
+
+    private static string FormatSnapshotIdentity(PersistentPhotoAlbumSnapshot snapshot)
+    {
+        return $"{snapshot.OwnerKind}/{snapshot.ProfileId?.ToString() ?? snapshot.OwnerId ?? "<none>"}/{snapshot.AlbumKey}";
     }
 
     private bool IsOwnedBy(EntityUid uid, EntityUid owner)
@@ -311,6 +333,7 @@ public sealed class PhotoAlbumPersistenceSystem : EntitySystem
 
     private readonly record struct ResolvedAlbumPersistenceState(
         string OwnerKind,
-        string OwnerId,
+        int? ProfileId,
+        string? OwnerId,
         string AlbumKey);
 }

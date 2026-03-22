@@ -2387,19 +2387,29 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
 
         public async Task<PersistentPhotoAlbumSnapshot?> GetPersistentPhotoAlbumSnapshotAsync(
             string ownerKind,
-            string ownerId,
+            int? profileId,
+            string? ownerId,
             string albumKey,
             CancellationToken cancel = default)
         {
             await using var db = await GetDb(cancel);
 
-            var album = await db.DbContext.PersistentPhotoAlbums
+            var albums = db.DbContext.PersistentPhotoAlbums
                 .Include(entry => entry.Photos)
-                .SingleOrDefaultAsync(
-                    entry => entry.OwnerKind == ownerKind &&
-                             entry.OwnerId == ownerId &&
-                             entry.AlbumKey == albumKey,
+                .Where(entry => entry.OwnerKind == ownerKind &&
+                                entry.AlbumKey == albumKey);
+
+            PersistentPhotoAlbum? album;
+            if (profileId != null)
+            {
+                album = await albums.SingleOrDefaultAsync(entry => entry.ProfileId == profileId, cancel);
+            }
+            else
+            {
+                album = await albums.SingleOrDefaultAsync(
+                    entry => entry.ProfileId == null && entry.OwnerId == ownerId,
                     cancel);
+            }
 
             if (album == null)
                 return null;
@@ -2424,6 +2434,7 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
             return new PersistentPhotoAlbumSnapshot
             {
                 OwnerKind = album.OwnerKind,
+                ProfileId = album.ProfileId,
                 OwnerId = album.OwnerId,
                 AlbumKey = album.AlbumKey,
                 IsPublic = album.IsPublic,
@@ -2434,7 +2445,8 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
 
         public async Task UpsertPersistentPhotoAlbumSnapshotAsync(
             string ownerKind,
-            string ownerId,
+            int? profileId,
+            string? ownerId,
             string albumKey,
             bool isPublic,
             IReadOnlyCollection<PersistentPhotoData> photos,
@@ -2442,20 +2454,30 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
         {
             await using var db = await GetDb(cancel);
 
-            var album = await db.DbContext.PersistentPhotoAlbums
+            var albums = db.DbContext.PersistentPhotoAlbums
                 .Include(entry => entry.Photos)
-                .SingleOrDefaultAsync(
-                    entry => entry.OwnerKind == ownerKind &&
-                             entry.OwnerId == ownerId &&
-                             entry.AlbumKey == albumKey,
+                .Where(entry => entry.OwnerKind == ownerKind &&
+                                entry.AlbumKey == albumKey);
+
+            PersistentPhotoAlbum? album;
+            if (profileId != null)
+            {
+                album = await albums.SingleOrDefaultAsync(entry => entry.ProfileId == profileId, cancel);
+            }
+            else
+            {
+                album = await albums.SingleOrDefaultAsync(
+                    entry => entry.ProfileId == null && entry.OwnerId == ownerId,
                     cancel);
+            }
 
             if (album == null)
             {
                 album = new PersistentPhotoAlbum
                 {
                     OwnerKind = ownerKind,
-                    OwnerId = ownerId,
+                    ProfileId = profileId,
+                    OwnerId = profileId == null ? ownerId : null,
                     AlbumKey = albumKey
                 };
                 db.DbContext.PersistentPhotoAlbums.Add(album);
@@ -2468,6 +2490,8 @@ INSERT INTO player_round (players_id, rounds_id) VALUES ({players[player]}, {id}
 
             album.SavedAt = DateTime.UtcNow;
             album.IsPublic = isPublic;
+            album.ProfileId = profileId;
+            album.OwnerId = profileId == null ? ownerId : null;
 
             var sortOrder = 0;
             foreach (var photo in photos)

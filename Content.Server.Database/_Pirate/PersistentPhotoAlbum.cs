@@ -8,6 +8,7 @@ namespace Content.Server.Database;
 
 [Table("pirate_persistent_photo_albums")]
 [Index(nameof(OwnerKind), nameof(OwnerId), nameof(AlbumKey), IsUnique = true)]
+[Index(nameof(OwnerKind), nameof(ProfileId), nameof(AlbumKey), IsUnique = true)]
 public sealed class PersistentPhotoAlbum
 {
     [Key]
@@ -16,8 +17,13 @@ public sealed class PersistentPhotoAlbum
     [Required, StringLength(32)]
     public string OwnerKind { get; set; } = default!;
 
-    [Required, StringLength(128)]
-    public string OwnerId { get; set; } = default!;
+    [StringLength(128)]
+    public string? OwnerId { get; set; }
+
+    [ForeignKey(nameof(Profile))]
+    public int? ProfileId { get; set; }
+
+    public Profile? Profile { get; set; }
 
     [Required, StringLength(64)]
     public string AlbumKey { get; set; } = default!;
