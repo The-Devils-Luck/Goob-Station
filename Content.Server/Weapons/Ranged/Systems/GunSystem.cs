@@ -546,32 +546,8 @@ public sealed partial class GunSystem : SharedGunSystem
 
     private Angle GetRecoilAngle(TimeSpan curTime, GunComponent component, Angle direction, EntityUid? user = null) // Goobstation user
     {
-        var timeSinceLastFire = (curTime - component.LastFire).TotalSeconds;
-        var minTheta = Math.Min(component.MinAngleModified.Theta, component.MaxAngleModified.Theta); // goob edit make min max work properly
-        var maxTheta = Math.Max(component.MinAngleModified.Theta, component.MaxAngleModified.Theta); // goob edit reverse recoil direction for funny mechanics
-        var newTheta = MathHelper.Clamp(component.CurrentAngle.Theta + component.AngleIncreaseModified.Theta - component.AngleDecayModified.Theta * timeSinceLastFire, minTheta, maxTheta); // goob edit
-        component.CurrentAngle = new Angle(newTheta);
-        component.LastFire = component.NextFire;
-
-        // Convert it so angle can go either side.
-        var random = Random.NextFloat(-0.5f, 0.5f);
-
-        // Goobstation start
-        var angleEv = new GetRecoilModifiersEvent()
-        {
-            Gun = component.Owner,
-            User = user ?? component.Owner
-        };
-        if (user != null)
-            RaiseLocalEvent(user.Value, angleEv);
-        RaiseLocalEvent(component.Owner, angleEv);
-        random *= angleEv.Modifier;
-        // Goobstation end
-
-        var spread = component.CurrentAngle.Theta * random;
-        var angle = new Angle(direction.Theta + component.CurrentAngle.Theta * random);
-        DebugTools.Assert(Math.Abs(spread) <= maxTheta); // goob edit
-        return angle;
+        // Pirate: gunplay
+        return GetPredictedRecoilAngle(curTime, (component.Owner, component), direction, user);
     }
 
     protected override void Popup(string message, EntityUid? uid, EntityUid? user) { }

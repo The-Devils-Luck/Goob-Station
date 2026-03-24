@@ -43,6 +43,7 @@ using Content.Shared._Goobstation.Heretic.Components;
 using Content.Shared.Camera;
 using Content.Shared.CombatMode;
 using Content.Shared.Mech.Components; // Goobstation
+using Content.Shared.Projectiles;
 using Content.Shared.Weapons.Ranged;
 using Content.Shared.Weapons.Ranged.Components;
 using Content.Shared.Weapons.Ranged.Events;
@@ -261,21 +262,34 @@ public sealed partial class GunSystem : SharedGunSystem
     {
         userImpulse = true;
 
-        // Rather than splitting client / server for every ammo provider it's easier
-        // to just delete the spawned entities. This is for programmer sanity despite the wasted perf.
-        // This also means any ammo specific stuff can be grabbed as necessary.
-        var direction = TransformSystem.ToMapCoordinates(fromCoordinates).Position - TransformSystem.ToMapCoordinates(toCoordinates).Position;
-        var worldAngle = direction.ToAngle().Opposite();
+        // Pirate: gunplay
+        var fromMap = TransformSystem.ToMapCoordinates(fromCoordinates);
+        var toMap = TransformSystem.ToMapCoordinates(toCoordinates).Position;
+        var mapDirection = toMap - fromMap.Position;
+        if (mapDirection == Vector2.Zero)
+        {
+            userImpulse = false;
+            return;
+        }
+
+        var mapAngle = mapDirection.ToAngle();
+        var angle = GetPredictedRecoilAngle(Timing.CurTime, (gunUid, gun), mapAngle, user);
+        var fromEnt = MapManager.TryFindGridAt(fromMap, out var gridUid, out _)
+            ? TransformSystem.WithEntityId(fromCoordinates, gridUid)
+            : new EntityCoordinates(_maps.GetMapOrInvalid(fromMap.MapId), fromMap.Position);
+        var toMapBeforeRecoil = toMap;
+        toMap = fromMap.Position + angle.ToVec() * mapDirection.Length();
+        mapDirection = toMap - fromMap.Position;
+        var gunVelocity = Physics.GetMapLinearVelocity(fromEnt);
+        var worldAngle = mapDirection.ToAngle();
 
         foreach (var (ent, shootable) in ammo)
         {
             if (throwItems)
             {
-                Recoil(user, direction, gun.CameraRecoilScalarModified);
-                if (IsClientSide(ent!.Value))
-                    Del(ent.Value);
-                else
-                    RemoveShootable(ent.Value);
+                // Pirate: gunplay
+                ShootOrThrowPredicted(ent!.Value, mapDirection, gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+                Recoil(user, mapDirection, gun.CameraRecoilScalarModified);
                 continue;
             }
 
@@ -284,13 +298,20 @@ public sealed partial class GunSystem : SharedGunSystem
                 case CartridgeAmmoComponent cartridge:
                     if (!cartridge.Spent)
                     {
+                        // Pirate: gunplay
                         SetCartridgeSpent(ent!.Value, cartridge, true);
-                        MuzzleFlash(gunUid, cartridge, worldAngle, user);
-                        Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
-                        Recoil(user, direction, gun.CameraRecoilScalarModified);
-                        // TODO: Can't predict entity deletions.
-                        //if (cartridge.DeleteOnSpawn)
-                        //    Del(cartridge.Owner);
+
+                        var projectile = PredictedSpawnAtPosition(cartridge.Prototype, fromEnt);
+                        CreateAndFireProjectiles(projectile, cartridge);
+
+                        if (cartridge.DeleteOnSpawn)
+                        {
+                            PredictedDel(ent.Value);
+                        }
+                        else if (!Containers.IsEntityInContainer(ent.Value))
+                        {
+                            EjectCartridgePredicted(PredictedRandom(gunUid), user, ent.Value, angle);
+                        }
                     }
                     else
                     {
@@ -298,24 +319,47 @@ public sealed partial class GunSystem : SharedGunSystem
                         Audio.PlayPredicted(gun.SoundEmpty, gunUid, user);
                     }
 
-                    if (IsClientSide(ent!.Value))
-                        Del(ent.Value);
-
                     break;
                 case AmmoComponent newAmmo:
-                    MuzzleFlash(gunUid, newAmmo, worldAngle, user);
-                    Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
-                    Recoil(user, direction, gun.CameraRecoilScalarModified);
-                    if (IsClientSide(ent!.Value))
-                        Del(ent.Value);
-                    else
-                        RemoveShootable(ent.Value);
+                    // Pirate: gunplay
+                    CreateAndFireProjectiles(ent!.Value, newAmmo);
                     break;
                 case HitscanPrototype:
                     Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
-                    Recoil(user, direction, gun.CameraRecoilScalarModified);
+                    Recoil(user, mapDirection, gun.CameraRecoilScalarModified);
                     break;
             }
+        }
+
+        // Pirate: gunplay
+        void CreateAndFireProjectiles(EntityUid ammoEnt, AmmoComponent ammoComp)
+        {
+            if (TryComp<ProjectileSpreadComponent>(ammoEnt, out var ammoSpreadComp))
+            {
+                var spreadEvent = new GunGetAmmoSpreadEvent(ammoSpreadComp.Spread);
+                RaiseLocalEvent(gunUid, ref spreadEvent);
+
+                var angles = LinearSpreadPredicted(
+                    mapAngle - spreadEvent.Spread / 2,
+                    mapAngle + spreadEvent.Spread / 2,
+                    ammoSpreadComp.Count);
+
+                ShootOrThrowPredicted(ammoEnt, angles[0].ToVec(), gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+
+                for (var i = 1; i < ammoSpreadComp.Count; i++)
+                {
+                    var pellet = PredictedSpawnAtPosition(ammoSpreadComp.Proto, fromEnt);
+                    ShootOrThrowPredicted(pellet, angles[i].ToVec(), gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+                }
+            }
+            else
+            {
+                ShootOrThrowPredicted(ammoEnt, mapDirection, gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+            }
+
+            MuzzleFlash(gunUid, ammoComp, worldAngle, user);
+            Audio.PlayPredicted(gun.SoundGunshotModified, gunUid, user);
+            Recoil(user, mapDirection, gun.CameraRecoilScalarModified);
         }
     }
 

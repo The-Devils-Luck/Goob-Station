@@ -57,7 +57,8 @@ public partial class SharedGunSystem
         args.Handled = true;
 
         Cycle(component);
-        UpdateAmmoCount(uid, prediction: false);
+        // Pirate: gunplay
+        UpdateAmmoCount(uid);
         Dirty(uid, component);
     }
 
@@ -105,7 +106,8 @@ public partial class SharedGunSystem
         // Handle spins
         if (oldIndex != state.CurrentIndex)
         {
-            UpdateAmmoCount(uid, prediction: false);
+            // Pirate: gunplay
+            UpdateAmmoCount(uid);
         }
     }
 
@@ -183,6 +185,9 @@ public partial class SharedGunSystem
         }
 
         // Try to insert the entity directly.
+        // Pirate: gunplay
+        var rand = PredictedRandom(revolverUid);
+
         for (var i = 0; i < component.Capacity; i++)
         {
             var index = (component.CurrentIndex + i) % component.Capacity;
@@ -301,6 +306,9 @@ public partial class SharedGunSystem
         var mapCoordinates = TransformSystem.GetMapCoordinates(revolverUid);
         var anyEmpty = false;
 
+        // Pirate: gunplay
+        var rand = PredictedRandom(revolverUid);
+
         for (var i = 0; i < component.Capacity; i++)
         {
             var chamber = component.Chambers[i];
@@ -311,16 +319,13 @@ public partial class SharedGunSystem
                 if (chamber == null)
                     continue;
 
-                // Too lazy to make a new method don't sue me.
-                if (!_netManager.IsClient)
-                {
-                    var uid = Spawn(component.FillPrototype, mapCoordinates);
+                // Pirate: gunplay
+                var uid = EntityManager.PredictedSpawn(component.FillPrototype, mapCoordinates);
 
-                    if (TryComp<CartridgeAmmoComponent>(uid, out var cartridge))
-                        SetCartridgeSpent(uid, cartridge, !(bool) chamber);
+                if (TryComp<CartridgeAmmoComponent>(uid, out var cartridge))
+                    SetCartridgeSpent(uid, cartridge, !(bool) chamber);
 
-                    EjectCartridge(uid);
-                }
+                EjectCartridgePredicted(rand, user, uid);
 
                 component.Chambers[i] = null;
                 anyEmpty = true;
@@ -331,8 +336,8 @@ public partial class SharedGunSystem
                 Containers.Remove(slot.Value, component.AmmoContainer);
                 component.Chambers[i] = null;
 
-                if (!_netManager.IsClient)
-                    EjectCartridge(slot.Value);
+                // Pirate: gunplay
+                EjectCartridgePredicted(rand, user, slot.Value);
 
                 anyEmpty = true;
             }
@@ -341,7 +346,8 @@ public partial class SharedGunSystem
         if (anyEmpty)
         {
             Audio.PlayPredicted(component.SoundEject, revolverUid, user);
-            UpdateAmmoCount(revolverUid, prediction: false);
+            // Pirate: gunplay
+            UpdateAmmoCount(revolverUid);
             UpdateRevolverAppearance(revolverUid, component);
             Dirty(revolverUid, component);
         }
@@ -362,6 +368,14 @@ public partial class SharedGunSystem
     {
         Audio.PlayPredicted(component.SoundSpin, revolverUid, user);
         Popup(Loc.GetString("gun-revolver-spun"), revolverUid, user);
+
+        // Pirate: gunplay
+        var index = PredictedRandom(revolverUid).Next(component.Capacity);
+        if (component.CurrentIndex == index)
+            return;
+
+        component.CurrentIndex = index;
+        Dirty(revolverUid, component);
     }
 
     private void OnRevolverTakeAmmo(EntityUid uid, RevolverAmmoProviderComponent component, TakeAmmoEvent args)
@@ -388,13 +402,10 @@ public partial class SharedGunSystem
                 if (chamber == true)
                 {
                     // Pretend it's always been there.
-                    ent = Spawn(component.FillPrototype, args.Coordinates);
-
-                    if (!_netManager.IsClient)
-                    {
-                        component.AmmoSlots[index] = ent;
-                        Containers.Insert(ent.Value, component.AmmoContainer);
-                    }
+                    // Pirate: gunplay
+                    ent = PredictedSpawnAtPosition(component.FillPrototype, args.Coordinates);
+                    component.AmmoSlots[index] = ent;
+                    Containers.Insert(ent.Value, component.AmmoContainer);
 
                     component.Chambers[index] = false;
                 }
@@ -411,7 +422,8 @@ public partial class SharedGunSystem
 
                 // Mark cartridge as spent and if it's caseless delete from the chamber slot.
                 SetCartridgeSpent(ent.Value, cartridge, true);
-                var spawned = Spawn(cartridge.Prototype, args.Coordinates);
+                // Pirate: gunplay
+                var spawned = PredictedSpawnAtPosition(cartridge.Prototype, args.Coordinates);
                 args.Ammo.Add((spawned, EnsureComp<AmmoComponent>(spawned)));
 
                 if (cartridge.DeleteOnSpawn)
@@ -427,14 +439,11 @@ public partial class SharedGunSystem
                 args.Ammo.Add((ent.Value, EnsureComp<AmmoComponent>(ent.Value)));
             }
 
-            // Delete the cartridge entity on client
-            if (_netManager.IsClient)
-            {
-                QueueDel(ent);
-            }
+            // Pirate: gunplay
         }
 
-        UpdateAmmoCount(uid, prediction: false);
+        // Pirate: gunplay
+        UpdateAmmoCount(uid);
         UpdateRevolverAppearance(uid, component);
         Dirty(uid, component);
     }
@@ -472,6 +481,8 @@ public partial class SharedGunSystem
         }
 
         DebugTools.Assert(component.AmmoSlots.Count == component.Capacity);
+        // Pirate: gunplay
+        UpdateAmmoCount(uid);
     }
 
     [Serializable, NetSerializable]

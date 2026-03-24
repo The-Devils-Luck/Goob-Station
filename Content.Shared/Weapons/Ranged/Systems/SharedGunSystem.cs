@@ -574,9 +574,19 @@ public abstract partial class SharedGunSystem : EntitySystem
         if (shooter != null)
             Projectiles.SetShooter(uid, projectile, shooter.Value);
 
+        // Pirate: gunplay
+        Physics.UpdateIsPredicted(uid, physics);
+
         TransformSystem.SetWorldRotation(uid, direction.ToWorldAngle() + projectile.Angle);
         if (targetCoordinates.HasValue) // Goobstation
             projectile.TargetCoordinates = targetCoordinates.Value; // Goobstation
+
+        // Pirate: gunplay
+        if (user is { } userUid)
+        {
+            var ev = new Content.Shared._Pirate.Projectiles.PlayerShotProjectileEvent(uid, userUid);
+            RaiseLocalEvent(ref ev);
+        }
     }
 
     protected abstract void Popup(string message, EntityUid? uid, EntityUid? user);

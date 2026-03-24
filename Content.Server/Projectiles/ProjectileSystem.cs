@@ -75,6 +75,9 @@ using Content.Shared.Database;
 using Content.Goobstation.Maths.FixedPoint;
 using Content.Shared._Shitmed.Targeting;
 using Content.Shared.Projectiles;
+using Robust.Shared.Physics;
+using Robust.Shared.Physics.Components;
+using Robust.Shared.Physics.Dynamics;
 using Robust.Shared.Physics.Events;
 using Robust.Shared.Player;
 
@@ -103,7 +106,43 @@ public sealed class ProjectileSystem : SharedProjectileSystem
             || component.ProjectileSpent || component is { Weapon: null, OnlyCollideWhenShot: true })
             return;
 
-        var target = args.OtherEntity;
+        // Pirate: gunplay
+        DoHit(uid, component, args.OurBody, args.OtherEntity, args.OtherFixture);
+    }
+
+    // Pirate: gunplay
+    public void DoHit(EntityUid uid, EntityUid target)
+    {
+        if (!TryComp(uid, out ProjectileComponent? component) ||
+            !TryComp(uid, out PhysicsComponent? body) ||
+            component.ProjectileSpent ||
+            component is { Weapon: null, OnlyCollideWhenShot: true } ||
+            FindHardFixture(target) is not { } fixture)
+        {
+            return;
+        }
+
+        DoHit(uid, component, body, target, fixture);
+    }
+
+    // Pirate: gunplay
+    private Fixture? FindHardFixture(EntityUid uid)
+    {
+        if (!TryComp<FixturesComponent>(uid, out var fixtures) || fixtures == null)
+            return null;
+
+        foreach (var fixture in fixtures.Fixtures.Values)
+        {
+            if (fixture.Hard)
+                return fixture;
+        }
+
+        return null;
+    }
+
+    // Pirate: gunplay
+    private void DoHit(EntityUid uid, ProjectileComponent component, PhysicsComponent ourBody, EntityUid target, Fixture otherFixture)
+    {
         // it's here so this check is only done once before possible hit
         var attemptEv = new ProjectileReflectAttemptEvent(uid, component, false);
         RaiseLocalEvent(target, ref attemptEv);
@@ -219,11 +258,11 @@ public sealed class ProjectileSystem : SharedProjectileSystem
         {
             _guns.PlayImpactSound(target, modifiedDamage, component.SoundHit, component.ForceSound);
 
-            if (!args.OurBody.LinearVelocity.IsLengthZero())
-                _sharedCameraRecoil.KickCamera(target, args.OurBody.LinearVelocity.Normalized());
+            if (!ourBody.LinearVelocity.IsLengthZero())
+                _sharedCameraRecoil.KickCamera(target, ourBody.LinearVelocity.Normalized());
         }
 
-        if ((component.DeleteOnCollide && component.ProjectileSpent) || (component.NoPenetrateMask & args.OtherFixture.CollisionLayer) != 0) // Goobstation - Make x-ray arrows not penetrate blob
+        if ((component.DeleteOnCollide && component.ProjectileSpent) || (component.NoPenetrateMask & otherFixture.CollisionLayer) != 0) // Goobstation - Make x-ray arrows not penetrate blob
             QueueDel(uid);
 
         if (component.ImpactEffect != null && TryComp(uid, out TransformComponent? xform))
