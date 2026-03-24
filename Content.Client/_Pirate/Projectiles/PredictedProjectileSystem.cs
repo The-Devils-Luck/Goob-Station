@@ -1,5 +1,7 @@
 using Content.Shared.Projectiles;
 using Content.Shared._Pirate.Projectiles;
+using Robust.Client.GameObjects;
+
 namespace Content.Client._Pirate.Projectiles;
 
 public sealed class PredictedProjectileSystem : EntitySystem
@@ -11,12 +13,19 @@ public sealed class PredictedProjectileSystem : EntitySystem
         base.Initialize();
 
         SubscribeLocalEvent<ProjectileComponent, Robust.Client.Physics.UpdateIsPredictedEvent>(OnUpdateIsPredicted);
+        SubscribeLocalEvent<DeletingProjectileEvent>(OnDeletingProjectile);
         SubscribeNetworkEvent<ShotPredictedProjectileEvent>(OnShotPredictedProjectile);
     }
 
     private void OnUpdateIsPredicted(Entity<ProjectileComponent> ent, ref Robust.Client.Physics.UpdateIsPredictedEvent args)
     {
         args.IsPredicted = true;
+    }
+
+    private void OnDeletingProjectile(ref DeletingProjectileEvent args)
+    {
+        RemComp<SpriteComponent>(args.Entity);
+        RemComp<PointLightComponent>(args.Entity);
     }
 
     private void OnShotPredictedProjectile(ShotPredictedProjectileEvent args)

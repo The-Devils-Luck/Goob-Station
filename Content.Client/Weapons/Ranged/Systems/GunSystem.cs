@@ -43,6 +43,7 @@ using Content.Shared._Goobstation.Heretic.Components;
 using Content.Shared.Camera;
 using Content.Shared.CombatMode;
 using Content.Shared.Mech.Components; // Goobstation
+using Content.Goobstation.Common.Weapons.Ranged;
 using Content.Shared.Projectiles;
 using Content.Shared.Weapons.Ranged;
 using Content.Shared.Weapons.Ranged.Components;
@@ -261,6 +262,8 @@ public sealed partial class GunSystem : SharedGunSystem
         EntityCoordinates fromCoordinates, EntityCoordinates toCoordinates, out bool userImpulse, EntityUid? user = null, bool throwItems = false)
     {
         userImpulse = true;
+        // Pirate: gunplay
+        var shotProjectiles = new List<EntityUid>();
 
         // Pirate: gunplay
         var fromMap = TransformSystem.ToMapCoordinates(fromCoordinates);
@@ -289,6 +292,7 @@ public sealed partial class GunSystem : SharedGunSystem
             {
                 // Pirate: gunplay
                 ShootOrThrowPredicted(ent!.Value, mapDirection, gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+                shotProjectiles.Add(ent.Value);
                 Recoil(user, mapDirection, gun.CameraRecoilScalarModified);
                 continue;
             }
@@ -332,6 +336,23 @@ public sealed partial class GunSystem : SharedGunSystem
         }
 
         // Pirate: gunplay
+        RaiseLocalEvent(gunUid, new AmmoShotEvent
+        {
+            FiredProjectiles = shotProjectiles,
+        });
+
+        // Pirate: gunplay
+        if (user is { } userUid)
+        {
+            var userEv = new AmmoShotUserEvent
+            {
+                Gun = gunUid,
+                FiredProjectiles = shotProjectiles,
+            };
+            RaiseLocalEvent(userUid, userEv);
+        }
+
+        // Pirate: gunplay
         void CreateAndFireProjectiles(EntityUid ammoEnt, AmmoComponent ammoComp)
         {
             if (TryComp<ProjectileSpreadComponent>(ammoEnt, out var ammoSpreadComp))
@@ -345,16 +366,21 @@ public sealed partial class GunSystem : SharedGunSystem
                     ammoSpreadComp.Count);
 
                 ShootOrThrowPredicted(ammoEnt, angles[0].ToVec(), gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+                shotProjectiles.Add(ammoEnt);
 
                 for (var i = 1; i < ammoSpreadComp.Count; i++)
                 {
                     var pellet = PredictedSpawnAtPosition(ammoSpreadComp.Proto, fromEnt);
+                    // Pirate: gunplay
+                    SetProjectilePerfectHitEntitiesPredicted(pellet, user, new MapCoordinates(toMap, fromMap.MapId));
                     ShootOrThrowPredicted(pellet, angles[i].ToVec(), gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+                    shotProjectiles.Add(pellet);
                 }
             }
             else
             {
                 ShootOrThrowPredicted(ammoEnt, mapDirection, gunVelocity, gun, gunUid, user, toMapBeforeRecoil);
+                shotProjectiles.Add(ammoEnt);
             }
 
             MuzzleFlash(gunUid, ammoComp, worldAngle, user);

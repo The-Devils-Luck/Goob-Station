@@ -73,6 +73,7 @@ using Content.Shared.Camera;
 using Content.Shared.Damage;
 using Content.Shared.Database;
 using Content.Goobstation.Maths.FixedPoint;
+using Content.Shared._Pirate.Projectiles;
 using Content.Shared._Shitmed.Targeting;
 using Content.Shared.Projectiles;
 using Robust.Shared.Physics;
@@ -263,7 +264,12 @@ public sealed class ProjectileSystem : SharedProjectileSystem
         }
 
         if ((component.DeleteOnCollide && component.ProjectileSpent) || (component.NoPenetrateMask & otherFixture.CollisionLayer) != 0) // Goobstation - Make x-ray arrows not penetrate blob
+        {
+            // Pirate: gunplay
+            var deleteEv = new DeletingProjectileEvent(uid);
+            RaiseLocalEvent(ref deleteEv);
             QueueDel(uid);
+        }
 
         if (component.ImpactEffect != null && TryComp(uid, out TransformComponent? xform))
         {

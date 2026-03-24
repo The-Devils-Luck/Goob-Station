@@ -65,6 +65,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using Content.Shared._Shitmed.Weapons.Ranged.Events; // Shitmed Change
+using Content.Shared._Lavaland.Weapons.Ranged.Events;
 using Content.Shared.ActionBlocker;
 using Content.Shared.Actions;
 using Content.Shared.Administration.Logs;
@@ -586,6 +587,16 @@ public abstract partial class SharedGunSystem : EntitySystem
         {
             var ev = new Content.Shared._Pirate.Projectiles.PlayerShotProjectileEvent(uid, userUid);
             RaiseLocalEvent(ref ev);
+        }
+
+        // Pirate: gunplay
+        if (gunUid is { } gun)
+        {
+            var shotEv = new ProjectileShotEvent
+            {
+                FiredProjectile = uid,
+            };
+            RaiseLocalEvent(gun, shotEv);
         }
     }
 
