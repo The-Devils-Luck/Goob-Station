@@ -6,7 +6,8 @@ namespace Content.Client._Pirate.Projectiles;
 
 public sealed class PredictedProjectileSystem : EntitySystem
 {
-    [Dependency] private readonly Robust.Client.Physics.PhysicsSystem _physics = default!;
+    [Dependency] private readonly SpriteSystem _sprite = default!;
+    [Dependency] private readonly SharedPointLightSystem _lights = default!;
 
     public override void Initialize()
     {
@@ -34,6 +35,18 @@ public sealed class PredictedProjectileSystem : EntitySystem
         if (!uid.IsValid())
             return;
 
-        _physics.UpdateIsPredicted(uid);
+        HideAuthoritativeVisuals(uid);
+    }
+
+    private void HideAuthoritativeVisuals(EntityUid uid)
+    {
+        if (!HasComp<ProjectileComponent>(uid))
+            return;
+
+        if (TryComp<SpriteComponent>(uid, out var sprite))
+            _sprite.SetVisible((uid, sprite), false);
+
+        if (TryComp<PointLightComponent>(uid, out var light))
+            _lights.SetEnabled(uid, false, light);
     }
 }
