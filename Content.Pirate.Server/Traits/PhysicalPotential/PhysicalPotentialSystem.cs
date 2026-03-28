@@ -1,5 +1,6 @@
 using Content.Goobstation.Maths.FixedPoint;
 using Content.Goobstation.Shared.Sprinting;
+using Content.Shared._Pirate.Stunnable;
 using Content.Shared.Damage;
 using Content.Shared.Damage.Components;
 using Content.Shared.Cloning.Events;
@@ -7,7 +8,6 @@ using Content.Shared.Mobs;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Nutrition.Components;
 using Content.Shared.Nutrition.EntitySystems;
-using Content.Shared.Standing;
 using Content.Shared.Weapons.Melee;
 using Content.Shared.Weapons.Melee.Events;
 using Content.Pirate.Shared.Traits.PhysicalPotential;
@@ -28,7 +28,7 @@ namespace Content.Pirate.Server.Traits.PhysicalPotential
             SubscribeLocalEvent<MeleeHitEvent>(OnMeleeHit);
             SubscribeLocalEvent<PhysicalPotentialComponent, CloningEvent>(OnClone);
             SubscribeLocalEvent<PhysicalPotentialComponent, DamageModifyEvent>(OnDamageModify);
-            SubscribeLocalEvent<PhysicalPotentialComponent, StoodEvent>(OnStood);
+            SubscribeLocalEvent<PhysicalPotentialComponent, ForcedStandSucceededEvent>(OnForcedStandSucceeded);
         }
 
         public override void Update(float frameTime)
@@ -146,36 +146,28 @@ namespace Content.Pirate.Server.Traits.PhysicalPotential
         // -- DAMAGE --
         private void OnDamageModify(EntityUid uid, PhysicalPotentialComponent comp, DamageModifyEvent args)
         {
-            if (args.Origin == null) return;
-
             var trainsDefense = false;
 
             //Reduces incoming damage
             if (args.Damage.DamageDict.TryGetValue("Blunt", out var blunt))
             {
                 trainsDefense |= blunt > FixedPoint2.Zero;
-                args.Damage.DamageDict["Blunt"] = FixedPoint2.Max(
-                    blunt - comp.DefenseBonus,
-                    FixedPoint2.Zero);
+                args.Damage.DamageDict["Blunt"] = ApplyDefenseReduction(blunt, comp.DefenseBonus);
             }
 
             if (args.Damage.DamageDict.TryGetValue("Slash", out var slash))
             {
                 trainsDefense |= slash > FixedPoint2.Zero;
-                args.Damage.DamageDict["Slash"] = FixedPoint2.Max(
-                    slash - comp.DefenseBonus,
-                    FixedPoint2.Zero);
+                args.Damage.DamageDict["Slash"] = ApplyDefenseReduction(slash, comp.DefenseBonus);
             }
 
             if (args.Damage.DamageDict.TryGetValue("Piercing", out var piercing))
             {
                 trainsDefense |= piercing > FixedPoint2.Zero;
-                args.Damage.DamageDict["Piercing"] = FixedPoint2.Max(
-                    piercing - comp.DefenseBonus,
-                    FixedPoint2.Zero);
+                args.Damage.DamageDict["Piercing"] = ApplyDefenseReduction(piercing, comp.DefenseBonus);
             }
 
-            if (trainsDefense)
+            if (args.Origin != null && trainsDefense)
             {
                 var newStrain = new TrainingStrain { Defense = comp.DefenseRisingSpeed };
                 AddStrain(comp, newStrain);
@@ -183,7 +175,7 @@ namespace Content.Pirate.Server.Traits.PhysicalPotential
         }
 
         // -- PUSH-UP --
-        private void OnStood(EntityUid uid, PhysicalPotentialComponent comp, StoodEvent args)
+        private void OnForcedStandSucceeded(EntityUid uid, PhysicalPotentialComponent comp, ForcedStandSucceededEvent args)
         {
             if (!TryComp<MeleeWeaponComponent>(uid, out var melee)) return;
 
@@ -198,6 +190,14 @@ namespace Content.Pirate.Server.Traits.PhysicalPotential
             };
 
             AddStrain(comp, newStrain);
+        }
+
+        private static FixedPoint2 ApplyDefenseReduction(FixedPoint2 damage, FixedPoint2 defenseBonus)
+        {
+            if (damage <= FixedPoint2.Zero)
+                return damage;
+
+            return FixedPoint2.Max(damage - defenseBonus, FixedPoint2.Zero);
         }
 
         // -- STAMINA AND SPRINT --
