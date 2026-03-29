@@ -81,7 +81,7 @@
   id: Standard
   iconPriority: 100
   stylePaths:
-    atmospherics: _PirateStructures/Doors/Airlocks/Standard/atmospherics.rsi # Pirate Changes
+    atmospherics: _Pirate/Structures/Doors/Airlocks/Standard/atmospherics.rsi # Pirate Changes
     basic:       _Pirate/Structures/Doors/Airlocks/Standard/basic.rsi # Pirate Changes
     cargo:       _Pirate/Structures/Doors/Airlocks/Standard/cargo.rsi # Pirate Changes
     chemistry:   _Pirate/Structures/Doors/Airlocks/Standard/chemistry.rsi # Pirate Changes
@@ -112,11 +112,11 @@
     glass:       _Pirate/Structures/Doors/Airlocks/Glass/glass.rsi # Pirate Changes
     hydroponics: _Pirate/Structures/Doors/Airlocks/Glass/hydroponics.rsi # Pirate Changes
     janitor:     _Pirate/Structures/Doors/Airlocks/Glass/janitor.rsi # Pirate Changes
-    maintenance: _Pirate//Doors/Airlocks/Glass/maint.rsi # Pirate Changes
-    medical:     _Pirate//Doors/Airlocks/Glass/medical.rsi # Pirate Changes
-    salvage:     _Pirate//Doors/Airlocks/Glass/salvage.rsi # Pirate Changes
-    security:    _Pirate//Doors/Airlocks/Glass/security.rsi # Pirate Changes
-    virology:    _Pirate//Doors/Airlocks/Glass/virology.rsi # Pirate Changes
+    maintenance: _Pirate/Doors/Airlocks/Glass/maint.rsi # Pirate Changes
+    medical:     _Pirate/Doors/Airlocks/Glass/medical.rsi # Pirate Changes
+    salvage:     _Pirate/Doors/Airlocks/Glass/salvage.rsi # Pirate Changes
+    security:    _Pirate/Doors/Airlocks/Glass/security.rsi # Pirate Changes
+    virology:    _Pirate/Doors/Airlocks/Glass/virology.rsi # Pirate Changes
 
 - type: AirlockGroup
   id: Windoor
