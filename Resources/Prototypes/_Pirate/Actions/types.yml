@@ -1,8 +1,9 @@
 - type: entity
   parent: BaseAction
   id: ActionHydrakinCoolOff
-  name: hydrakin-action-name-cool-off
-  description: hydrakin-action-description-cool-off
+  name: Cool Off
+  description: Dissipate some of your body heat.
+
   categories: [ HideSpawnMenu ]
   components:
   - type: Action
