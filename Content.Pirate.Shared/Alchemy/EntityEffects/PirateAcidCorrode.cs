@@ -4,7 +4,7 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Pirate.Shared.Alchemy.EntityEffects;
 
-[UsedImplicitly]
+[UsedImplicitly, DataDefinition]
 public sealed partial class PirateAcidCorrode : EventEntityEffect<PirateAcidCorrode>
 {
     [DataField]

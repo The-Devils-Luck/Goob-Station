@@ -12,6 +12,8 @@ namespace Content.Pirate.Server.Alchemy.Systems;
 
 public sealed class AlchemistDirectApplicationSystem : EntitySystem
 {
+    private const float DirectAcidDamage = 8f;
+
     [Dependency] private readonly PirateEntityEffectSystem _effects = default!;
     [Dependency] private readonly ReactiveSystem _reactive = default!;
     [Dependency] private readonly SharedSolutionContainerSystem _solutions = default!;
@@ -74,7 +76,7 @@ public sealed class AlchemistDirectApplicationSystem : EntitySystem
             return false;
 
         if (solution.GetReagentQuantity(new ReagentId("AlchemistAcid", null)) >= ApplicationAmount &&
-            _effects.TryApplyDirectAcid(target, 8f))
+            _effects.TryApplyDirectAcid(target, DirectAcidDamage))
         {
             _solutions.Drain(drainableComponent, drainableSolution, ApplicationAmount);
             return true;

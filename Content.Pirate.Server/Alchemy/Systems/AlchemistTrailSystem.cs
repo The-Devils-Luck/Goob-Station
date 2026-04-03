@@ -20,7 +20,7 @@ public sealed class AlchemistTrailSystem : EntitySystem
 
     private void OnMove(Entity<AlchemistTrailComponent> ent, ref MoveEvent args)
     {
-        if (args.OldPosition == Transform(ent).Coordinates)
+        if (args.OldPosition == args.NewPosition)
             return;
 
         var quantity = FixedPoint2.New(ent.Comp.SpillQuantity);

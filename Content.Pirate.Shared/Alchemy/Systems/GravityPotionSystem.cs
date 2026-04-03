@@ -40,7 +40,7 @@ public sealed class GravityPotionSystem : EntitySystem
                 if (distance < 0.1f)
                     continue;
 
-                var impulse = Vector2.Normalize(displacement) * (MathF.Abs(comp.PullStrength) / MathF.Max(distance, 0.75f)) * physics.Mass;
+                var impulse = Vector2.Normalize(displacement) * (comp.PullStrength / MathF.Max(distance, 0.75f)) * physics.Mass;
                 _physics.ApplyLinearImpulse(nearby, impulse, body: physics);
             }
         }

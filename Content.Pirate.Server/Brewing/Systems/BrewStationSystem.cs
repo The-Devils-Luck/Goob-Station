@@ -133,7 +133,7 @@ public sealed class BrewStationSystem : EntitySystem
                 containerName = solution.Name;
                 volume = solution.Volume;
                 maxVolume = solution.MaxVolume;
-                reagents = solution.Contents;
+                reagents = solution.Contents.ToList();
             }
         }
 

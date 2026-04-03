@@ -39,7 +39,7 @@ public sealed class AlchemistBubbleGasSystem : EntitySystem
             var direction = angle.ToVec() * 1.5f;
             _throwing.TryThrow(uid, direction, comp.JumpSpeed, uid, recoil: false, compensateFriction: true);
 
-            if (comp.JumpEffect != string.Empty)
+            if (!string.IsNullOrEmpty(comp.JumpEffect))
                 Spawn(comp.JumpEffect, Transform(uid).Coordinates);
         }
     }

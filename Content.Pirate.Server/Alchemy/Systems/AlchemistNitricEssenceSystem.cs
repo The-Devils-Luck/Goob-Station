@@ -9,6 +9,8 @@ namespace Content.Pirate.Server.Alchemy.Systems;
 
 public sealed class AlchemistNitricEssenceSystem : EntitySystem
 {
+    private const float MinimumIntervalSeconds = 0.1f;
+
     [Dependency] private readonly AtmosphereSystem _atmosphere = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
@@ -25,7 +27,9 @@ public sealed class AlchemistNitricEssenceSystem : EntitySystem
             if (_timing.CurTime < comp.NextUpdate)
                 continue;
 
-            comp.NextUpdate = _timing.CurTime + TimeSpan.FromSeconds(comp.Interval);
+            var interval = MathF.Max(comp.Interval, MinimumIntervalSeconds);
+            comp.NextUpdate = _timing.CurTime + TimeSpan.FromSeconds(interval);
+            var slowdownSpan = TimeSpan.FromSeconds(comp.SlowdownSeconds);
 
             if (_atmosphere.GetContainingMixture(uid, excite: true) is { } air)
                 _atmosphere.AddHeat(air, comp.AtmosphereHeatDelta);
@@ -34,7 +38,7 @@ public sealed class AlchemistNitricEssenceSystem : EntitySystem
                 if (nearby == uid || !TryComp<MobStateComponent>(nearby, out _))
                     continue;
 
-                _statusEffects.TryAddStatusEffectDuration(nearby, comp.SlowdownEffect, TimeSpan.FromSeconds(comp.SlowdownSeconds));
+                _statusEffects.TryAddStatusEffectDuration(nearby, comp.SlowdownEffect, slowdownSpan);
                 _temperature.ChangeHeat(nearby, comp.TemperatureDelta, true);
             }
         }

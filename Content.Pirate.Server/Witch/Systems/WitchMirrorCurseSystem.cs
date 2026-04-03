@@ -63,14 +63,13 @@ public sealed class WitchMirrorCurseSystem : EntitySystem
 
     private void OnShutdown(Entity<WitchMirrorCurseComponent> ent, ref ComponentShutdown args)
     {
-        if (!TryComp<EyeComponent>(ent.Owner, out var eye))
-            return;
-
         _previousTargets.TryGetValue(ent.Owner, out var previous);
         _previousTargets.Remove(ent.Owner);
         _currentTargets.Remove(ent.Owner);
         _nextRetarget.Remove(ent.Owner);
-        _eye.SetTarget(ent.Owner, previous, eye);
+
+        if (TryComp<EyeComponent>(ent.Owner, out var eye))
+            _eye.SetTarget(ent.Owner, previous, eye);
     }
 
     private void TryUpdateTarget(Entity<WitchMirrorCurseComponent> ent, EyeComponent eye)

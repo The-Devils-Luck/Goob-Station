@@ -15,6 +15,5 @@ public sealed partial class GravityPotionComponent : Component
     [DataField]
     public float Interval = 0.7f;
 
-    [DataField]
     public TimeSpan NextUpdate;
 }

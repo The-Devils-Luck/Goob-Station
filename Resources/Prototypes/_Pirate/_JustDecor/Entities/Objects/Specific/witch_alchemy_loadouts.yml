@@ -97,6 +97,81 @@
           Quantity: 100
 
 - type: entity
+  id: PirateBrewingBeakerGreyMatter
+  parent: LargeBeaker
+  suffix: JustDecor
+  components:
+  - type: Label
+    currentLabel: "сіра матерія"
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        maxVol: 100
+        reagents:
+        - ReagentId: GreyMatter
+          Quantity: 100
+
+- type: entity
+  id: PirateBrewingBeakerNutriment
+  parent: LargeBeaker
+  suffix: JustDecor
+  components:
+  - type: Label
+    currentLabel: "нутрієнт"
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        maxVol: 100
+        reagents:
+        - ReagentId: Nutriment
+          Quantity: 100
+
+- type: entity
+  id: PirateBrewingBeakerCharcoal
+  parent: LargeBeaker
+  suffix: JustDecor
+  components:
+  - type: Label
+    currentLabel: "вугілля"
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        maxVol: 100
+        reagents:
+        - ReagentId: Charcoal
+          Quantity: 100
+
+- type: entity
+  id: PirateBrewingBeakerIchor
+  parent: LargeBeaker
+  suffix: JustDecor
+  components:
+  - type: Label
+    currentLabel: "іхор"
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        maxVol: 100
+        reagents:
+        - ReagentId: Ichor
+          Quantity: 100
+
+- type: entity
+  id: PirateBrewingBeakerOil
+  parent: LargeBeaker
+  suffix: JustDecor
+  components:
+  - type: Label
+    currentLabel: "олія"
+  - type: SolutionContainerManager
+    solutions:
+      beaker:
+        maxVol: 100
+        reagents:
+        - ReagentId: Oil
+          Quantity: 100
+
+- type: entity
   id: ClothingBackpackSatchelLeatherImproved
   parent: ClothingBackpackSatchelLeather
   name: покращена шкіряна сумка
@@ -108,7 +183,7 @@
     sprite: Clothing/Back/Satchels/leather.rsi
   - type: Storage
     grid:
-    - 0,0,10,7
+    - 0,0,9,9
 
 - type: entity
   id: ClothingBackpackSatchelLeatherWitchImprovedFilled
@@ -127,7 +202,13 @@
       - id: PirateBrewingBeakerBlood
       - id: PirateBrewingBeakerHolyWater
       - id: PirateBrewingBeakerAsh
+      - id: PirateBrewingBeakerPlasma
+      - id: PirateBrewingBeakerGreyMatter
+      - id: PirateBrewingBeakerNutriment
       - id: ChemistryBottleSugar
+      - id: ChemistryBottleIron
+      - id: ChemistryBottleSaline
+      - id: ChemistryBottleEphedrine
       - id: ChemistryBottleCognizine
       - id: ChemistryBottleNocturine
       - id: ChemistryBottleMercury
@@ -136,6 +217,7 @@
       - id: ChemistryBottleMindbreakerToxin
       - id: ChemistryBottleIpecac
       - id: ChemistryBottleHappiness
+      - id: ChemistryBottleSpaceDrugs
       - id: PirateVialWitchLove
       - id: PirateVialWitchParanoia
       - id: PirateVialWitchRage
@@ -175,13 +257,32 @@
       - id: PirateBrewingBeakerPlasma
       - id: PirateBrewingBeakerSulfuricAcid
       - id: PirateBrewingBeakerHolyWater
+      - id: PirateBrewingBeakerCharcoal
+      - id: PirateBrewingBeakerIchor
+      - id: PirateBrewingBeakerOil
       - id: JugWeldingFuel
+      - id: GoldChemistryVial
       - id: ChemistryBottleMercury
       - id: ChemistryBottleIron
+      - id: ChemistryBottleCopper
       - id: ChemistryBottleOxygen
       - id: ChemistryBottleFluorine
+      - id: ChemistryBottleNitrogen
+      - id: ChemistryBottlePhosphorus
+      - id: ChemistryBottlePotassium
+      - id: ChemistryBottleRadium
       - id: ChemistryBottleSaline
+      - id: ChemistryBottleSulfur
       - id: ChemistryBottleEphedrine
+      - id: ChemistryBottleSynaptizine
+      - id: ChemistryBottleCryptobiolin
+      - id: ChemistryBottleCryoxadone
+      - id: ChemistryBottleCognizine
+      - id: ChemistryBottleDexalinPlus
+      - id: ChemistryBottleBruizine
+      - id: ChemistryBottlePuncturase
+      - id: ChemistryBottleRazorium
+      - id: ChemistryBottlePyrazine
       - id: SyringeStimulants
       - id: FoodShakerSalt
       - id: PirateVialAlchemistAcid

@@ -28,12 +28,13 @@ public sealed class WitchEchoSystem : EntitySystem
 
         var baseType = args.IsWhisper ? InGameICChatType.Whisper : InGameICChatType.Speak;
         var originalMessage = args.Message;
+        var totalRepeats = ent.Comp.Repeats;
 
-        for (var i = 0; i < ent.Comp.Repeats; i++)
+        for (var i = 0; i < totalRepeats; i++)
         {
             var echoIndex = i;
             var delay = TimeSpan.FromSeconds(ent.Comp.DelaySeconds * (i + 1));
-            Timer.Spawn(delay, () => SendEcho(ent.Owner, originalMessage, baseType, echoIndex, ent.Comp.Repeats));
+            Timer.Spawn(delay, () => SendEcho(ent.Owner, originalMessage, baseType, echoIndex, totalRepeats));
         }
     }
 

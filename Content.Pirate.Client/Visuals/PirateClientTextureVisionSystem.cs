@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Linq;
 using Content.Pirate.Shared.Visuals;
 using Content.Pirate.Shared.Visuals.Components;
@@ -134,10 +135,25 @@ public sealed class PirateClientTextureVisionSystem : EntitySystem
             EnsureOverride((uid, sprite), vision.Mode);
         }
 
-        foreach (var uid in _states.Keys.ToArray())
+        var restoreBuffer = ArrayPool<EntityUid>.Shared.Rent(Math.Max(_states.Count, 1));
+        var restoreCount = 0;
+
+        try
         {
-            if (!active.Contains(uid))
-                RestoreOverride(uid);
+            foreach (var uid in _states.Keys)
+            {
+                if (!active.Contains(uid))
+                    restoreBuffer[restoreCount++] = uid;
+            }
+
+            for (var i = 0; i < restoreCount; i++)
+            {
+                RestoreOverride(restoreBuffer[i]);
+            }
+        }
+        finally
+        {
+            ArrayPool<EntityUid>.Shared.Return(restoreBuffer);
         }
     }
 
@@ -254,8 +270,9 @@ public sealed class PirateClientTextureVisionSystem : EntitySystem
 
     private static bool[] CaptureOriginalVisibility(SpriteComponent sprite)
     {
-        var visibility = new bool[sprite.AllLayers.Count()];
-        for (var i = 0; i < visibility.Length; i++)
+        var count = sprite.AllLayers.Count();
+        var visibility = new bool[count];
+        for (var i = 0; i < count; i++)
         {
             visibility[i] = sprite[i].Visible;
         }

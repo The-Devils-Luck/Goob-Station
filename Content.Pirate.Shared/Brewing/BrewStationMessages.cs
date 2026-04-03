@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Content.Goobstation.Maths.FixedPoint;
 using Content.Shared.Chemistry.Reagent;
 using Robust.Shared.GameObjects;
@@ -19,7 +20,7 @@ public sealed class BrewStationBoundUserInterfaceState : BoundUserInterfaceState
     public string? ContainerName { get; }
     public FixedPoint2? Volume { get; }
     public FixedPoint2? MaxVolume { get; }
-    public List<ReagentQuantity>? Reagents { get; }
+    public IReadOnlyList<ReagentQuantity>? Reagents { get; }
     public bool Mixing { get; }
 
     public BrewStationBoundUserInterfaceState(
@@ -29,7 +30,7 @@ public sealed class BrewStationBoundUserInterfaceState : BoundUserInterfaceState
         string? containerName,
         FixedPoint2? volume,
         FixedPoint2? maxVolume,
-        List<ReagentQuantity>? reagents,
+        IEnumerable<ReagentQuantity>? reagents,
         bool mixing)
     {
         Title = title;
@@ -38,7 +39,7 @@ public sealed class BrewStationBoundUserInterfaceState : BoundUserInterfaceState
         ContainerName = containerName;
         Volume = volume;
         MaxVolume = maxVolume;
-        Reagents = reagents;
+        Reagents = reagents?.ToList();
         Mixing = mixing;
     }
 }

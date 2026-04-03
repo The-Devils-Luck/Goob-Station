@@ -46,17 +46,17 @@ public sealed class AlchemistCatalystSystem : EntitySystem
 
         try
         {
-            if (MetaData(ent).EntityPrototype is not { } proto || proto.ID == CatalystEffect)
+            if (MetaData(ent).EntityPrototype is not { } effectProto || effectProto.ID == CatalystEffect)
                 return;
 
-            if (_pendingEffects.TryGetValue(args.Target, out var pending) && pending != proto.ID)
+            if (_pendingEffects.TryGetValue(args.Target, out var pending) && pending != effectProto.ID)
                 return;
 
             var remaining = args.EndTime.Value - _timing.CurTime;
             if (remaining <= TimeSpan.Zero)
                 return;
 
-            _statusEffects.TryAddTime(args.Target, proto.ID, remaining);
+            _statusEffects.TryAddTime(args.Target, effectProto.ID, remaining);
             _pendingEffects.Remove(args.Target);
             _statusEffects.TryRemoveStatusEffect(args.Target, CatalystEffect);
         }

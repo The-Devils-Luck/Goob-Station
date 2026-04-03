@@ -281,16 +281,7 @@ public sealed class PirateEntityEffectSystem : EntitySystem
             if (TryComp<AcidCorrodingComponent>(target, out var existing))
             {
                 existing.AcidExpiresAt = _timing.CurTime + TimeSpan.FromSeconds(8);
-                existing.DamagePerSecond = new DamageSpecifier
-                (
-                    _prototype.Index<DamageTypePrototype>("Caustic"), FixedPoint2.New(amount * 1.5f)
-                )
-                {
-                    DamageDict =
-                    {
-                        [_prototype.Index<DamageTypePrototype>("Heat").ID] = FixedPoint2.New(amount)
-                    }
-                };
+                existing.DamagePerSecond = CreateStructureAcidDamage(amount);
                 Dirty(target, existing);
                 return true;
             }
@@ -300,16 +291,7 @@ public sealed class PirateEntityEffectSystem : EntitySystem
             {
                 Acid = acid,
                 AcidExpiresAt = _timing.CurTime + TimeSpan.FromSeconds(8),
-                DamagePerSecond = new DamageSpecifier
-                (
-                    _prototype.Index<DamageTypePrototype>("Caustic"), FixedPoint2.New(amount * 1.5f)
-                )
-                {
-                    DamageDict =
-                    {
-                        [_prototype.Index<DamageTypePrototype>("Heat").ID] = FixedPoint2.New(amount)
-                    }
-                }
+                DamagePerSecond = CreateStructureAcidDamage(amount)
             };
 
             AddComp(target, corroding);
@@ -422,7 +404,7 @@ public sealed class PirateEntityEffectSystem : EntitySystem
         _humanoid.SetSkinColor(target, furColor, false, false, humanoid);
         _humanoid.AddMarking(target, _random.Pick(PhilosopherStoneEarMarkings), furColor, false, forced: true, humanoid);
         _humanoid.AddMarking(target, _random.Pick(PhilosopherStoneTailMarkings), furColor, false, forced: true, humanoid);
-        ApplyVulpSpeech(target, humanoid.Sex);
+        ApplyVulpSpeech(target, humanoid.Sex, humanoid);
         Dirty(target, humanoid);
         return true;
     }
@@ -496,10 +478,16 @@ public sealed class PirateEntityEffectSystem : EntitySystem
         return true;
     }
 
-    private void ApplyVulpSpeech(EntityUid target, Sex sex)
+    private DamageSpecifier CreateStructureAcidDamage(float amount)
     {
-        if (TryComp<HumanoidAppearanceComponent>(target, out var humanoid))
-            _humanoid.SetBarkVoice(target, "Vulpkanin", humanoid);
+        var damage = new DamageSpecifier(_prototype.Index<DamageTypePrototype>("Caustic"), FixedPoint2.New(amount * 1.5f));
+        damage.DamageDict[_prototype.Index<DamageTypePrototype>("Heat").ID] = FixedPoint2.New(amount);
+        return damage;
+    }
+
+    private void ApplyVulpSpeech(EntityUid target, Sex sex, HumanoidAppearanceComponent humanoid)
+    {
+        _humanoid.SetBarkVoice(target, "Vulpkanin", humanoid);
 
         if (TryComp<SpeechComponent>(target, out var speech))
         {

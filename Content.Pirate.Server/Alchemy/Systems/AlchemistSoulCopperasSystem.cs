@@ -33,7 +33,7 @@ public sealed class AlchemistSoulCopperasSystem : EntitySystem
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly IGameTiming _timing = default!;
 
-    private readonly Dictionary<EntityUid, float> _corrosion = [];
+    private readonly Dictionary<EntityUid, CorrosionState> _corrosion = [];
 
     public override void Update(float frameTime)
     {
@@ -70,8 +70,22 @@ public sealed class AlchemistSoulCopperasSystem : EntitySystem
                 continue;
             }
 
-            _corrosion[target] = _corrosion.GetValueOrDefault(target) + comp.DamagePerTick;
-            if (_corrosion[target] < comp.CorrodeThreshold)
+            if (!TryGetTrackedEquipLocation(target, out var equippedOwner, out var equippedSlot))
+            {
+                _corrosion.Remove(target);
+                continue;
+            }
+
+            if (_corrosion.TryGetValue(target, out var corrosion) &&
+                (corrosion.EquippedOwner != equippedOwner || corrosion.SlotName != equippedSlot))
+            {
+                _corrosion.Remove(target);
+                corrosion = default;
+            }
+
+            corrosion = new CorrosionState(corrosion.Amount + comp.DamagePerTick, equippedOwner, equippedSlot);
+            _corrosion[target] = corrosion;
+            if (corrosion.Amount < comp.CorrodeThreshold)
                 continue;
 
             _corrosion.Remove(target);
@@ -82,7 +96,18 @@ public sealed class AlchemistSoulCopperasSystem : EntitySystem
         foreach (var item in _corrosion.Keys.ToArray())
         {
             if (!Exists(item) || Deleted(item) || Terminating(item))
+            {
                 _corrosion.Remove(item);
+                continue;
+            }
+
+            if (!_corrosion.TryGetValue(item, out var corrosion)
+                || !TryGetTrackedEquipLocation(item, out var equippedOwner, out var equippedSlot)
+                || corrosion.EquippedOwner != equippedOwner
+                || corrosion.SlotName != equippedSlot)
+            {
+                _corrosion.Remove(item);
+            }
         }
     }
 
@@ -98,4 +123,23 @@ public sealed class AlchemistSoulCopperasSystem : EntitySystem
             _container.EmptyContainer(container, true, coordinates);
         }
     }
+
+    private bool TryGetTrackedEquipLocation(EntityUid item, out EntityUid owner, out string slotName)
+    {
+        owner = EntityUid.Invalid;
+        slotName = string.Empty;
+
+        if (!_container.TryGetContainingContainer(item, out var container)
+            || !_inventory.TryGetSlot(container.Owner, container.ID, out var slot)
+            || (slot.SlotFlags & CorrodedSlots) != slot.SlotFlags)
+        {
+            return false;
+        }
+
+        owner = container.Owner;
+        slotName = slot.Name;
+        return true;
+    }
+
+    private readonly record struct CorrosionState(float Amount, EntityUid EquippedOwner, string SlotName);
 }

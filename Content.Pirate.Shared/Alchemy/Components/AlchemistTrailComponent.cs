@@ -8,7 +8,7 @@ namespace Content.Pirate.Shared.Alchemy.Components;
 public sealed partial class AlchemistTrailComponent : Component
 {
     [DataField, AutoNetworkedField]
-    public EntProtoId TrailStatusEffect = "";
+    public EntProtoId? TrailStatusEffect;
 
     [DataField, AutoNetworkedField]
     public ProtoId<ReagentPrototype> TrailReagent = "Water";

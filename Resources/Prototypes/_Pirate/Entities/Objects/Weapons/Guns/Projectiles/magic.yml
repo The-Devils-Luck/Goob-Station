@@ -133,6 +133,7 @@
   description: "Бррррр."
   parent: BaseBullet
   components:
+  - type: MagicDamageSource
   - type: Projectile
     damage:
       types:
@@ -151,6 +152,7 @@
   name: "магічна куля тесла"
   description: "2 баджільйони вольт"
   components:
+  - type: MagicDamageSource
   - type: TimedDespawn
     lifetime: 5
   - type: Sprite
@@ -180,6 +182,7 @@
   id: SpellswordBolt
   parent: BaseBullet
   components:
+  - type: MagicDamageSource
   - type: Sprite
     sprite: Objects/Weapons/Guns/Projectiles/projectiles_tg.rsi
     layers:

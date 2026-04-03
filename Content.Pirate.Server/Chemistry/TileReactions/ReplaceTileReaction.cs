@@ -4,6 +4,7 @@ using Content.Shared.Chemistry.Reaction;
 using Content.Shared.Chemistry.Reagent;
 using Content.Shared.Maps;
 using JetBrains.Annotations;
+using Robust.Shared.Log;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
 
@@ -21,6 +22,12 @@ public sealed partial class ReplaceTileReaction : ITileReaction
 
     public FixedPoint2 TileReact(TileRef tile, ReagentPrototype reagent, FixedPoint2 reactVolume, IEntityManager entityManager, List<ReagentData>? data = null)
     {
+        if (RequiredVolume <= 0)
+        {
+            Logger.WarningS("pirate.tile-reaction", $"Skipping {nameof(ReplaceTileReaction)} for tile '{Tile}' because {nameof(RequiredVolume)} is {RequiredVolume}.");
+            return FixedPoint2.Zero;
+        }
+
         var required = FixedPoint2.New(RequiredVolume);
         if (reactVolume < required)
             return FixedPoint2.Zero;

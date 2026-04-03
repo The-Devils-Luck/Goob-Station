@@ -31,11 +31,20 @@ public sealed class AlchemistMimicJuiceSystem : EntitySystem
 
     private void OnShutdown(Entity<AlchemistMimicJuiceComponent> ent, ref ComponentShutdown args)
     {
-        if (ent.Comp.ProjectorEntity is { } projector && TryComp<ChameleonProjectorComponent>(projector, out var projectorComp))
-            _chameleon.RevealProjector((projector, projectorComp));
+        if (ent.Comp.ProjectorEntity is not { } projector)
+            return;
 
-        if (ent.Comp.ProjectorEntity is { } existingProjector && Exists(existingProjector))
-            QueueDel(existingProjector);
+        if (!Exists(projector) || Terminating(projector))
+            return;
+
+        if (!Deleted(ent.Owner)
+            && !Terminating(ent.Owner)
+            && TryComp<ChameleonProjectorComponent>(projector, out var projectorComp))
+        {
+            _chameleon.RevealProjector((projector, projectorComp));
+        }
+
+        QueueDel(projector);
     }
 
     private void ApplyDisguise(Entity<AlchemistMimicJuiceComponent> ent)

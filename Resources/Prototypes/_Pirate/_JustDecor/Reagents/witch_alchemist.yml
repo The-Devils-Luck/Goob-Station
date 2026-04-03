@@ -34,15 +34,15 @@
         - witch-love-effect-poem
         probability: 0.16
       - !type:Emote
-        emote: Hug
+        emote: Laugh
         showInChat: true
         probability: 0.12
       - !type:Emote
-        emote: Wink
+        emote: Whistle
         showInChat: true
         probability: 0.2
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -80,7 +80,7 @@
         - witch-paranoia-effect-foes
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -113,7 +113,7 @@
         - witch-rage-effect-snap
         probability: 0.2
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -146,7 +146,7 @@
         - witch-invisibility-effect-fade
         probability: 0.12
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -187,7 +187,7 @@
         - witch-mind-fog-effect-dizzy
         probability: 0.2
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -220,7 +220,7 @@
         - witch-mirror-curse-effect-shift
         probability: 0.16
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -253,7 +253,7 @@
         - witch-blood-bond-effect-throb
         probability: 0.14
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -286,7 +286,7 @@
         - witch-soul-shadow-effect-following
         probability: 0.12
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -319,7 +319,7 @@
         - witch-substitution-effect-lurch
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -353,7 +353,7 @@
         - witch-black-bile-effect-dead
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -386,7 +386,7 @@
         - witch-echo-effect-ringing
         probability: 0.12
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -419,7 +419,7 @@
         - witch-name-curse-effect-strange
         probability: 0.12
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -455,7 +455,7 @@
         - witch-hunger-potion-effect-food
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -493,7 +493,7 @@
         - alchemist-acid-effect-burn
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:PirateAcidCorrode
@@ -524,7 +524,7 @@
         - alchemist-philosopher-stone-effect-shimmer
         probability: 0.2
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:PhilosopherStoneEffect
@@ -551,7 +551,7 @@
         - alchemist-magic-neutralizer-effect-calm
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:CleanseWitchEffects
@@ -581,7 +581,7 @@
         - alchemist-catalyst-effect-surge
         probability: 0.16
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -614,7 +614,7 @@
         - alchemist-soul-copperas-effect-creak
         probability: 0.16
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -646,7 +646,7 @@
         time: 10
         type: Add
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -666,7 +666,7 @@
   meltingPoint: -10.0
   recognizable: false
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -704,7 +704,7 @@
         - alchemist-gravity-potion-effect-heavy
         probability: 0.2
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -737,7 +737,7 @@
         - alchemist-clown-trail-effect-slip
         probability: 0.16
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -766,7 +766,7 @@
         - alchemist-chaos-salt-effect-crackle
         probability: 0.14
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ExplosionReactionEffect
@@ -801,7 +801,7 @@
         - alchemist-mimic-juice-effect-smoke
         probability: 0.16
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -834,7 +834,7 @@
         - alchemist-nitric-essence-effect-cold
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -891,7 +891,7 @@
         - alchemist-magnus-elixir-effect-fury
         probability: 0.18
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -905,7 +905,7 @@
   group: PirateEmotions
   desc: reagent-desc-witch-serenity
   physicalDesc: reagent-physical-desc-witch-serenity
-  flavor: herbal
+  flavor: tea
   color: "#87CEEB"
   boilingPoint: 95.0
   meltingPoint: 5.0
@@ -917,14 +917,14 @@
         type: Local
         visualType: Medium
         messages:
-        - "Ви відчуваєте глибокий спокій, що охоплює вас."
-        - "Усі турботи здаються далекими та неважливими."
-        - "Ваш розум стає чистим і ясним."
-        - "Ви дихаєте глибоко і спокійно."
-        - "Світ навколо вас стає м'яким і гармонійним."
-        - "Ви відчуваєте, як напруга залишає ваше тіло."
-        - "Все, що вас турбувало, тепер здається дрібницею."
-        - "Ви знаходитесь у стані ідеального балансу."
+        - witch-serenity-message-1
+        - witch-serenity-message-2
+        - witch-serenity-message-3
+        - witch-serenity-message-4
+        - witch-serenity-message-5
+        - witch-serenity-message-6
+        - witch-serenity-message-7
+        - witch-serenity-message-8
         probability: 0.12
       - !type:MovespeedModifier
         walkSpeedModifier: 0.9
@@ -975,7 +975,7 @@
         sprintSpeedModifier: 1.05
         statusLifetime: 12
       - !type:Emote
-        emote: Cheer
+        emote: Clap
         showInChat: true
         probability: 0.12
 
@@ -1012,7 +1012,7 @@
             Poison: -0.2
             Asphyxiation: -0.1
       - !type:Emote
-        emote: Nod
+        emote: Salute
         showInChat: true
         probability: 0.1
 
@@ -1075,7 +1075,7 @@
             Poison: -0.2
             Asphyxiation: -0.1
       - !type:Emote
-        emote: Smile
+        emote: Laugh
         showInChat: true
         probability: 0.15
 
@@ -1110,7 +1110,7 @@
           types:
             Poison: -0.25
       - !type:Emote
-        emote: Hug
+        emote: Laugh
         showInChat: true
         probability: 0.12
 
@@ -1146,7 +1146,7 @@
             Poison: -0.15
             Asphyxiation: -0.15
       - !type:Emote
-        emote: Nod
+        emote: Salute
         showInChat: true
         probability: 0.1
 
@@ -1318,7 +1318,7 @@
           types:
             Blunt: 1.2
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ExplosionReactionEffect
@@ -1378,7 +1378,7 @@
         - interaction-anti-magic-effect-ward
         probability: 0.14
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:ModifyStatusEffect
@@ -1412,7 +1412,7 @@
         - interaction-holy-remedy-effect-soothe
         probability: 0.16
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:HealthChange
@@ -1486,11 +1486,10 @@
   - !type:FlammableTileReaction
     temperatureMultiplier: 2
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:Ignite
-        fireStacks: 0.8
       - !type:HealthChange
         damage:
           types:
@@ -1514,11 +1513,10 @@
   - !type:FlammableTileReaction
     temperatureMultiplier: 5
   reactiveEffects:
-    Touch:
+    Acidic:
       methods: [ Touch ]
       effects:
       - !type:Ignite
-        fireStacks: 1
       - !type:HealthChange
         damage:
           types:

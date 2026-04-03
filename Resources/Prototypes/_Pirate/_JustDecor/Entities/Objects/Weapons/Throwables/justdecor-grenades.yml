@@ -34,7 +34,7 @@
 
 - type: entity
   parent: SmokeGrenade
-  id: SmokeGrenade Serenity
+  id: SmokeGrenadeSerenity
   name: serenity grenade
   description: A grenade that releases a cloud of calming smoke. Induces peace and tranquility.
   components:

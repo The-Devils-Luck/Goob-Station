@@ -26,6 +26,8 @@ namespace Content.Pirate.Server.Witch.Systems;
 
 public sealed class WitchHungerPotionSystem : EntitySystem
 {
+    private const string StasiziumReagentId = "Stasizium";
+
     [Dependency] private readonly SharedDoAfterSystem _doAfter = default!;
     [Dependency] private readonly SharedContainerSystem _container = default!;
     [Dependency] private readonly EntityLookupSystem _lookup = default!;
@@ -129,7 +131,7 @@ public sealed class WitchHungerPotionSystem : EntitySystem
             return;
 
         var boost = new Solution();
-        boost.AddReagent("Stasizium", FixedPoint2.New(ent.Comp.StasiziumPerVictim));
+        boost.AddReagent(StasiziumReagentId, FixedPoint2.New(ent.Comp.StasiziumPerVictim));
         _bloodstream.TryAddToChemicals((ent.Owner, bloodstream), boost);
     }
 

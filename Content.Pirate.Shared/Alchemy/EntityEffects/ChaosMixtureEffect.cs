@@ -5,7 +5,7 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Pirate.Shared.Alchemy.EntityEffects;
 
-[UsedImplicitly]
+[UsedImplicitly, DataDefinition]
 public sealed partial class ChaosMixtureEffect : EventEntityEffect<ChaosMixtureEffect>
 {
     [DataField]
@@ -16,6 +16,6 @@ public sealed partial class ChaosMixtureEffect : EventEntityEffect<ChaosMixtureE
 
     protected override string? ReagentEffectGuidebookText(IPrototypeManager prototype, IEntitySystemManager entSys)
     {
-        return null;
+        return Loc.GetString("chaos-mixture-effect-guidebook");
     }
 }

@@ -29,21 +29,30 @@ public sealed class WitchBloodBondSystem : EntitySystem
         if (copiedDamage.Empty || copiedDamage.GetTotal() <= FixedPoint2.Zero)
             return;
 
-        foreach (var entity in _lookup.GetEntitiesInRange(ent.Owner, ent.Comp.Radius, LookupFlags.Dynamic | LookupFlags.Sundries))
+        _suppressed.Add(ent.Owner);
+
+        try
         {
-            if (entity == ent.Owner || !HasComp<MobStateComponent>(entity) || !HasComp<DamageableComponent>(entity))
-                continue;
-
-            _suppressed.Add(entity);
-
-            try
+            foreach (var entity in _lookup.GetEntitiesInRange(ent.Owner, ent.Comp.Radius, LookupFlags.Dynamic | LookupFlags.Sundries))
             {
-                _damageable.TryChangeDamage(entity, copiedDamage, true, origin: ent.Owner, ignoreBlockers: true);
+                if (entity == ent.Owner || !HasComp<MobStateComponent>(entity) || !HasComp<DamageableComponent>(entity))
+                    continue;
+
+                _suppressed.Add(entity);
+
+                try
+                {
+                    _damageable.TryChangeDamage(entity, copiedDamage, true, origin: ent.Owner, ignoreBlockers: true);
+                }
+                finally
+                {
+                    _suppressed.Remove(entity);
+                }
             }
-            finally
-            {
-                _suppressed.Remove(entity);
-            }
+        }
+        finally
+        {
+            _suppressed.Remove(ent.Owner);
         }
     }
 }

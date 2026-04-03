@@ -21,7 +21,7 @@ public sealed class WitchRageSystem : EntitySystem
     [Dependency] private readonly NpcFactionSystem _npcFaction = default!;
 
     private readonly Dictionary<EntityUid, RageState> _states = new();
-    private static readonly ProtoId<HTNCompoundPrototype> TakeoverRootTask = "SimpleHostileCompound";
+    private static readonly ProtoId<HTNCompoundPrototype> TakeoverRootTask = "SimpleHumanoidHostileCompound";
 
     public override void Initialize()
     {
@@ -92,7 +92,7 @@ public sealed class WitchRageSystem : EntitySystem
             }
         }
 
-        if (state.StolenMind != null && Exists(ent.Owner))
+        if (state.StolenMind != null && Exists(state.StolenMind.Value) && Exists(ent.Owner))
             _mind.TransferTo(state.StolenMind.Value, ent.Owner, ghostCheckOverride: true);
 
         if (state.TemporaryGhost != null && Exists(state.TemporaryGhost.Value))

@@ -29,6 +29,13 @@
   name: guide-entry-pirate-magic-chemicals-guide
   text: "/ServerInfo/_Pirate/Guidebook/WitchAlchemy/MagicChemicals.xml"
   filterEnabled: True
+  children:
+  - PirateMagicEmotionsGuide
+  - PirateMagicWitchcraftGuide
+  - PirateMagicAlchemyGuide
+  - PirateMagicElixirsGuide
+  - PirateMagicOccultGuide
+  - PirateMagicResiduesGuide
 
 - type: guideEntry
   id: PirateMagicEmotionsGuide

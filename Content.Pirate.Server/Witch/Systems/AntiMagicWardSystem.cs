@@ -5,6 +5,8 @@ using Content.Shared.Damage.Components;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Magic.Components;
 using Content.Shared.StatusEffectNew;
+using Content.Shared.Weapons.Ranged.Components;
+using Content.Shared.Weapons.Reflect;
 using Robust.Shared.Prototypes;
 
 namespace Content.Pirate.Server.Witch.Systems;
@@ -78,16 +80,13 @@ public sealed class AntiMagicWardSystem : EntitySystem
         if (origin == null || !Exists(origin.Value))
             return false;
 
-        if (HasComp<MagicComponent>(origin.Value))
+        if (HasComp<MagicDamageSourceComponent>(origin.Value))
             return true;
 
-        var protoId = MetaData(origin.Value).EntityPrototype?.ID;
-        if (protoId == null)
-            return false;
+        if (TryComp<ReflectiveComponent>(origin.Value, out var reflective) &&
+            (reflective.Reflective & ReflectType.Magic) != 0)
+            return true;
 
-        return protoId.Contains("Magic", StringComparison.OrdinalIgnoreCase)
-            || protoId.Contains("Spell", StringComparison.OrdinalIgnoreCase)
-            || protoId.Contains("Wizard", StringComparison.OrdinalIgnoreCase)
-            || protoId.Contains("Spellsword", StringComparison.OrdinalIgnoreCase);
+        return HasComp<MagicComponent>(origin.Value);
     }
 }

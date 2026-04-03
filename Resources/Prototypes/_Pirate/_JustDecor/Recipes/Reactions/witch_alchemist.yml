@@ -503,9 +503,7 @@
   requiredMixerCategories:
   - AlchemistDistill
   reactants:
-    Bruizine:
-      amount: 1
-    Lacerinol:
+    Razorium:
       amount: 1
     Puncturase:
       amount: 1

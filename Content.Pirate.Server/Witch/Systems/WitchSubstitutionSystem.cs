@@ -44,8 +44,14 @@ public sealed class WitchSubstitutionSystem : EntitySystem
 
     private void OnStartup(Entity<WitchSubstitutionStatusEffectComponent> ent, ref ComponentStartup args)
     {
+        if (!TryComp<StatusEffectComponent>(ent.Owner, out var status)
+            || status.AppliedTo is not { } target)
+        {
+            return;
+        }
+
         ent.Comp.NextAttempt = _timing.CurTime + TimeSpan.FromSeconds(ent.Comp.Interval);
-        TrySubstitute(ent.Owner, ent.Comp);
+        TrySubstitute(target, ent.Comp);
     }
 
     private void TrySubstitute(EntityUid target, WitchSubstitutionStatusEffectComponent comp)
