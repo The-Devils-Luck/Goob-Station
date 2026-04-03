@@ -1,4 +1,3 @@
-using System.Buffers;
 using System.Linq;
 using Content.Pirate.Shared.Visuals;
 using Content.Pirate.Shared.Visuals.Components;
@@ -135,25 +134,18 @@ public sealed class PirateClientTextureVisionSystem : EntitySystem
             EnsureOverride((uid, sprite), vision.Mode);
         }
 
-        var restoreBuffer = ArrayPool<EntityUid>.Shared.Rent(Math.Max(_states.Count, 1));
+        var restoreBuffer = new EntityUid[Math.Max(_states.Count, 1)];
         var restoreCount = 0;
 
-        try
+        foreach (var uid in _states.Keys)
         {
-            foreach (var uid in _states.Keys)
-            {
-                if (!active.Contains(uid))
-                    restoreBuffer[restoreCount++] = uid;
-            }
-
-            for (var i = 0; i < restoreCount; i++)
-            {
-                RestoreOverride(restoreBuffer[i]);
-            }
+            if (!active.Contains(uid))
+                restoreBuffer[restoreCount++] = uid;
         }
-        finally
+
+        for (var i = 0; i < restoreCount; i++)
         {
-            ArrayPool<EntityUid>.Shared.Return(restoreBuffer);
+            RestoreOverride(restoreBuffer[i]);
         }
     }
 
