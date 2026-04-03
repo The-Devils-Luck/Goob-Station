@@ -76,6 +76,7 @@
   <Box>
     <GuideEntityEmbed Entity="GuidebookDisarm" Caption=""/>
     <GuideEntityEmbed Entity="GuidebookHarm" Caption=""/>
+    <GuideEntityEmbed Entity="GuidebookGrab" Caption=""/>
   </Box>
   Безшумно знешкоджує ціль ззаду (працює лише якщо ціль не в бойовому режимі).
 
@@ -96,7 +97,6 @@
     <GuideEntityEmbed Entity="GuidebookHarm" Caption=""/>
     <GuideEntityEmbed Entity="GuidebookHarm" Caption=""/>
     <GuideEntityEmbed Entity="GuidebookDisarm" Caption=""/>
-    <GuideEntityEmbed Entity="GuidebookHarm" Caption=""/>
   </Box>
   Смертельна техніка для критично поранених ворогів. Може призвести до зламу шиї при ухваті в голову.
 

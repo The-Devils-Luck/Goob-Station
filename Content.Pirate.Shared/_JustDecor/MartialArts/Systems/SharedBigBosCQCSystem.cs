@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
 using System.Diagnostics.CodeAnalysis;
+using Content.Goobstation.Common.Grab;
 using Content.Goobstation.Common.MartialArts;
+using Content.Goobstation.Shared.GrabIntent;
 using Content.Goobstation.Shared.MartialArts.Components;
 using Content.Pirate.Shared._JustDecor.MartialArts.Events;
 using Content.Pirate.Shared._JustDecor.MartialArts.Components;
@@ -509,9 +511,10 @@ public sealed class SharedBigBosCQCSystem : EntitySystem
 
                 // Потенційний перелом шиї, якщо умови виконані
                 if (TryComp(ent, out PullerComponent? puller) && puller.Pulling == target &&
+                    TryComp(ent, out GrabIntentComponent? grabIntent) &&
                     TryComp(target, out PullableComponent? pullable) &&
                     TryComp(target, out BodyComponent? body) &&
-                    puller.GrabStage == GrabStage.Suffocate &&
+                    grabIntent.GrabStage == GrabStage.Suffocate &&
                     TryComp(ent, out TargetingComponent? targeting) &&
                     targeting.Target == TargetBodyPart.Head &&
                     _mobThreshold.TryGetDeadThreshold(target, out var damageToKill))
@@ -863,8 +866,6 @@ public sealed class SharedBigBosCQCSystem : EntitySystem
 
     private bool IsDown(EntityUid uid)
     {
-        if (!TryComp<StandingStateComponent>(uid, out var standing))
-            return false;
-        return standing.CurrentState != StandingState.Standing;
+        return _standingState.IsDown(uid);
     }
 }
