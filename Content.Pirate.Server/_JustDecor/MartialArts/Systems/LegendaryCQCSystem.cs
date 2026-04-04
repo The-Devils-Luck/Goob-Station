@@ -78,6 +78,10 @@ public sealed class LegendaryCQCSystem : EntitySystem
             }
         }
 
-        RemCompDeferred<Content.Shared.CombatMode.Pacification.PacifiedComponent>(uid);
+        if (HasComp<LegendaryCQCPacifiedComponent>(uid))
+        {
+            RemCompDeferred<Content.Shared.CombatMode.Pacification.PacifiedComponent>(uid);
+            RemCompDeferred<LegendaryCQCPacifiedComponent>(uid);
+        }
     }
 }

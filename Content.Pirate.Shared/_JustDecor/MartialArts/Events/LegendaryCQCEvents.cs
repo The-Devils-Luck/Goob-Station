@@ -3,25 +3,35 @@ using Robust.Shared.Serialization;
 
 namespace Content.Pirate.Shared._JustDecor.MartialArts.Events;
 
-public sealed partial class LegendaryCQCTakedownPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCTakedownPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCDisarmPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCDisarmPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCThrowPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCThrowPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCChokePerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCChokePerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCChainPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCChainPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCCounterPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCCounterPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCInterrogationPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCInterrogationPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCStealthTakedownPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCStealthTakedownPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCRushPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCRushPerformedEvent : EntityEventArgs;
 
-public sealed partial class LegendaryCQCFinisherPerformedEvent : EntityEventArgs { }
+[Serializable, NetSerializable, DataDefinition]
+public sealed partial class LegendaryCQCFinisherPerformedEvent : EntityEventArgs;
 
 [Serializable, NetSerializable]
 public sealed partial class LegendaryCQCInterrogationDoAfterEvent : DoAfterEvent

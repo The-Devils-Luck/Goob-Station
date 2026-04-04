@@ -75,6 +75,14 @@ public sealed partial class NpcEliminatedComponent : Component
     public TimeSpan Duration = TimeSpan.FromSeconds(15);
 }
 
+/// <summary>
+/// Marks pacification that was applied specifically by Legendary CQC.
+/// </summary>
+[RegisterComponent]
+public sealed partial class LegendaryCQCPacifiedComponent : Component
+{
+}
+
 [DataDefinition, Serializable]
 public sealed partial class NpcInterrogationLinkedEntry
 {

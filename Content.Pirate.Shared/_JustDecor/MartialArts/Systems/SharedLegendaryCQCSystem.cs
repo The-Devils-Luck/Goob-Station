@@ -346,9 +346,14 @@ public sealed class SharedLegendaryCQCSystem : EntitySystem
             NeedHand = false
         };
 
-        EnsureComp<Content.Shared.CombatMode.Pacification.PacifiedComponent>(target);
+        ApplyLegendaryPacification(target);
 
-        _doAfter.TryStartDoAfter(doAfterArgs);
+        if (!_doAfter.TryStartDoAfter(doAfterArgs))
+        {
+            ClearLegendaryPacification(target);
+            return;
+        }
+
         ComboPopup(ent, target, "legendary-cqc-popup-interrogation-started");
         SetCooldown(ent, "Interrogation", TimeSpan.FromSeconds(2));
         ClearLastAttacks(ent);
@@ -356,52 +361,63 @@ public sealed class SharedLegendaryCQCSystem : EntitySystem
 
     private void OnInterrogationComplete(LegendaryCQCInterrogationDoAfterEvent args)
     {
-        if (args.Cancelled || args.Args.Target == null)
+        if (args.Args.Target == null)
             return;
 
-        var ent = args.Args.User;
         var target = args.Args.Target.Value;
+
+        if (args.Cancelled)
+        {
+            ClearLegendaryPacification(target);
+            return;
+        }
+
+        var ent = args.Args.User;
 
         var staminaDamage = new DamageSpecifier();
         staminaDamage.DamageDict.Add("Stamina", 40f);
         _damageable.TryChangeDamage(target, staminaDamage, origin: ent);
 
-        if (TryComp<NpcInterrogatableComponent>(target, out var interrogatable))
+        if (!TryComp<NpcInterrogatableComponent>(target, out var interrogatable))
         {
-            string? answer = null;
+            ClearLegendaryPacification(target);
+            return;
+        }
 
-            if (interrogatable.Prototype != null && _proto.TryIndex(interrogatable.Prototype.Value, out var interrogationProto))
+        string? answer = null;
+
+        if (interrogatable.Prototype != null && _proto.TryIndex(interrogatable.Prototype.Value, out var interrogationProto))
+        {
+            var potentialAnswers = interrogatable.PendingLinkedAnswers ?? interrogationProto.Answers;
+            if (potentialAnswers.Count > 0)
             {
-                var potentialAnswers = interrogatable.PendingLinkedAnswers ?? interrogationProto.Answers;
-                if (potentialAnswers.Count > 0)
-                {
-                    answer = _random.Pick(potentialAnswers);
-                }
+                answer = _random.Pick(potentialAnswers);
             }
+        }
 
-            if (string.IsNullOrEmpty(answer))
+        if (string.IsNullOrEmpty(answer))
+        {
+            answer = Loc.GetString("legendary-cqc-say-interrogation-default-answer");
+        }
+
+        if (_netManager.IsServer)
+        {
+            Timer.Spawn(TimeSpan.FromMilliseconds(400), () =>
             {
-                answer = Loc.GetString("legendary-cqc-say-interrogation-default-answer");
-            }
+                if (TerminatingOrDeleted(target))
+                    return;
+                TrySay(target, answer);
+            });
+        }
 
-            if (_netManager.IsServer)
-            {
-                Timer.Spawn(TimeSpan.FromMilliseconds(400), () =>
-                {
-                    if (TerminatingOrDeleted(target))
-                        return;
-                    TrySay(target, answer);
-                });
-            }
+        interrogatable.Interrogated = true;
+        interrogatable.PendingLinkedAnswers = null;
 
-            interrogatable.Interrogated = true;
-            interrogatable.PendingLinkedAnswers = null;
-
-            EnsureComp<NpcEliminatedComponent>(target);
+        EnsureComp<NpcEliminatedComponent>(target);
+        if (HasComp<LegendaryCQCPacifiedComponent>(target))
             EnsureComp<Content.Shared.CombatMode.Pacification.PacifiedComponent>(target);
 
-            _popup.PopupEntity(Loc.GetString("legendary-cqc-popup-interrogation-success"), ent, ent);
-        }
+        _popup.PopupEntity(Loc.GetString("legendary-cqc-popup-interrogation-success"), ent, ent);
 
         ComboPopup(ent, target, "legendary-cqc-popup-interrogation-complete");
     }
@@ -469,31 +485,32 @@ public sealed class SharedLegendaryCQCSystem : EntitySystem
         {
             damageable.Damage.DamageDict.TryGetValue("Stamina", out var staminaDamageValue);
             var staminaDamageAmount = staminaDamageValue;
-            if (staminaDamageAmount > 80f)
+
+            if (staminaDamageAmount <= 80f)
+                return;
+
+            DoDamage(ent, target, "Blunt", 40f);
+            _stun.TryKnockdown(target, TimeSpan.FromSeconds(20), true);
+            _statusEffects.TryAddStatusEffectDuration(target, "StatusEffectForcedSleeping", out _, TimeSpan.FromSeconds(15));
+
+            if (TryComp(ent, out PullerComponent? puller) && puller.Pulling == target &&
+                TryComp(ent, out GrabIntentComponent? grabIntent) &&
+                TryComp(target, out PullableComponent? pullable) &&
+                TryComp(target, out BodyComponent? body) &&
+                grabIntent.GrabStage == GrabStage.Suffocate &&
+                TryComp(ent, out TargetingComponent? targeting) &&
+                targeting.Target == TargetBodyPart.Head &&
+                _mobThreshold.TryGetDeadThreshold(target, out var damageToKill))
             {
-                DoDamage(ent, target, "Blunt", 40f);
-                _stun.TryKnockdown(target, TimeSpan.FromSeconds(20), true);
-                _statusEffects.TryAddStatusEffectDuration(target, "StatusEffectForcedSleeping", out _, TimeSpan.FromSeconds(15));
+                _pulling.TryStopPull(target, pullable);
+                var blunt = new DamageSpecifier(_proto.Index<DamageTypePrototype>("Blunt"), damageToKill.Value);
+                _damageable.TryChangeDamage(target, blunt, true, targetPart: TargetBodyPart.Head);
 
-                if (TryComp(ent, out PullerComponent? puller) && puller.Pulling == target &&
-                    TryComp(ent, out GrabIntentComponent? grabIntent) &&
-                    TryComp(target, out PullableComponent? pullable) &&
-                    TryComp(target, out BodyComponent? body) &&
-                    grabIntent.GrabStage == GrabStage.Suffocate &&
-                    TryComp(ent, out TargetingComponent? targeting) &&
-                    targeting.Target == TargetBodyPart.Head &&
-                    _mobThreshold.TryGetDeadThreshold(target, out var damageToKill))
-                {
-                    _pulling.TryStopPull(target, pullable);
-                    var blunt = new DamageSpecifier(_proto.Index<DamageTypePrototype>("Blunt"), damageToKill.Value);
-                    _damageable.TryChangeDamage(target, blunt, true, targetPart: TargetBodyPart.Head);
-
-                    ComboPopup(ent, target, "legendary-cqc-popup-finishing-move");
-                }
-                else
-                {
-                    ComboPopup(ent, target, "legendary-cqc-popup-devastator");
-                }
+                ComboPopup(ent, target, "legendary-cqc-popup-finishing-move");
+            }
+            else
+            {
+                ComboPopup(ent, target, "legendary-cqc-popup-devastator");
             }
         }
         else
@@ -585,7 +602,7 @@ public sealed class SharedLegendaryCQCSystem : EntitySystem
     {
         if (_timing.CurTime < comp.EndTime)
         {
-            args.ModifySpeed(1.5f, 1.5f);
+            args.ModifySpeed(comp.SpeedMultiplier, comp.SpeedMultiplier);
         }
     }
 
@@ -601,7 +618,7 @@ public sealed class SharedLegendaryCQCSystem : EntitySystem
     {
         if (_timing.CurTime < comp.EndTime)
         {
-            args.Damage *= 0.25f;
+            args.Damage *= comp.DamageReduction;
         }
     }
 
@@ -615,6 +632,14 @@ public sealed class SharedLegendaryCQCSystem : EntitySystem
 
     private void OnKnowledgeShutdown(EntityUid uid, LegendaryCQCKnowledgeComponent comp, ComponentShutdown args)
     {
+        if (comp.OriginalAttackRate != null &&
+            TryComp<MeleeWeaponComponent>(uid, out var melee))
+        {
+            melee.AttackRate = comp.OriginalAttackRate.Value;
+            Dirty(uid, melee);
+        }
+
+        comp.OriginalAttackRate = null;
         _cooldowns.Remove(uid);
     }
 
@@ -740,6 +765,24 @@ public sealed class SharedLegendaryCQCSystem : EntitySystem
         }
 
         return stoleAnyItems;
+    }
+
+    private void ApplyLegendaryPacification(EntityUid target)
+    {
+        if (HasComp<Content.Shared.CombatMode.Pacification.PacifiedComponent>(target))
+            return;
+
+        EnsureComp<Content.Shared.CombatMode.Pacification.PacifiedComponent>(target);
+        EnsureComp<LegendaryCQCPacifiedComponent>(target);
+    }
+
+    private void ClearLegendaryPacification(EntityUid target)
+    {
+        if (!HasComp<LegendaryCQCPacifiedComponent>(target))
+            return;
+
+        RemComp<LegendaryCQCPacifiedComponent>(target);
+        RemComp<Content.Shared.CombatMode.Pacification.PacifiedComponent>(target);
     }
 
     private bool TryGetTarget(Entity<CanPerformComboComponent> ent, out EntityUid target, [NotNullWhen(true)] out ComboPrototype? proto)
