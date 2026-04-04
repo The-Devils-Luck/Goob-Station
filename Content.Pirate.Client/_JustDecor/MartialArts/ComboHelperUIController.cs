@@ -1,5 +1,6 @@
 using Content.Client.Gameplay;
 using Content.Client.UserInterface.Systems.Gameplay;
+using Content.Goobstation.Common.MartialArts;
 using Content.Pirate.Shared._JustDecor.MartialArts.Components;
 using Robust.Shared.Player;
 using Robust.Client.Player;
@@ -31,6 +32,8 @@ public sealed class ComboHelperUIController : UIController, IOnStateEntered<Game
         EntityManager.EventBus.SubscribeLocalEvent<ComboHelperComponent, AfterAutoHandleStateEvent>(OnHandleState);
         EntityManager.EventBus.SubscribeLocalEvent<ComboHelperComponent, ComponentAdd>(OnComponentAdd);
         EntityManager.EventBus.SubscribeLocalEvent<ComboHelperComponent, ComponentRemove>(OnComponentRemove);
+        EntityManager.EventBus.SubscribeLocalEvent<MartialArtsKnowledgeComponent, ComponentAdd>(OnMartialArtsAdded);
+        EntityManager.EventBus.SubscribeLocalEvent<MartialArtsKnowledgeComponent, ComponentRemove>(OnMartialArtsRemoved);
 
         // LocalPlayerAttachedEvent - це глобальна подія
         SubscribeLocalEvent<LocalPlayerAttachedEvent>(OnPlayerAttached);
@@ -60,6 +63,22 @@ public sealed class ComboHelperUIController : UIController, IOnStateEntered<Game
     }
 
     private void OnHandleState(EntityUid uid, ComboHelperComponent component, ref AfterAutoHandleStateEvent args)
+    {
+        if (uid != _player.LocalEntity)
+            return;
+
+        UpdateWidget();
+    }
+
+    private void OnMartialArtsAdded(EntityUid uid, MartialArtsKnowledgeComponent component, ComponentAdd args)
+    {
+        if (uid != _player.LocalEntity)
+            return;
+
+        UpdateWidget();
+    }
+
+    private void OnMartialArtsRemoved(EntityUid uid, MartialArtsKnowledgeComponent component, ComponentRemove args)
     {
         if (uid != _player.LocalEntity)
             return;

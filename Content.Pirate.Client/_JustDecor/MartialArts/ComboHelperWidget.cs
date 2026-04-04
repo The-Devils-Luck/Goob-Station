@@ -1,15 +1,17 @@
+using System.Numerics;
 using Content.Client.UserInterface.Controls;
-using Content.Pirate.Shared._JustDecor.MartialArts.Components;
 using Content.Goobstation.Common.MartialArts;
-using Robust.Client.Graphics;
+using Content.Goobstation.Shared.MartialArts;
+using Content.Pirate.Shared._JustDecor.MartialArts.Components;
 using Robust.Client.GameObjects;
+using Robust.Client.Graphics;
+using Robust.Client.Player;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
-using Robust.Shared.Prototypes;
-using Robust.Shared.Utility;
 using Robust.Shared.GameObjects;
 using Robust.Shared.IoC;
-using System.Numerics;
+using Robust.Shared.Prototypes;
+using Robust.Shared.Utility;
 
 namespace Content.Pirate.Client._JustDecor.MartialArts;
 
@@ -17,8 +19,9 @@ public sealed class ComboHelperWidget : UIWidget
 {
     [Dependency] private readonly IPrototypeManager _proto = default!;
     [Dependency] private readonly IEntityManager _entManager = default!;
+    [Dependency] private readonly IPlayerManager _player = default!;
 
-    private SpriteSystem _spriteSystem = default!;
+    private readonly SpriteSystem _spriteSystem;
     private readonly BoxContainer _container;
 
     public ComboHelperWidget()
@@ -27,17 +30,14 @@ public sealed class ComboHelperWidget : UIWidget
         _spriteSystem = _entManager.System<SpriteSystem>();
 
         LayoutContainer.SetAnchorAndMarginPreset(this, LayoutContainer.LayoutPreset.CenterBottom, margin: 5);
-
-        // Встановлюємо віджет на весь екран, але він ігнорує миші
         MouseFilter = MouseFilterMode.Ignore;
 
-        // Контейнер для рядків комбо
         _container = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Vertical,
             HorizontalAlignment = HAlignment.Center,
             VerticalAlignment = VAlignment.Bottom,
-            Margin = new Thickness(0), // Відступ від нижнього правого кута
+            Margin = new Thickness(0),
             SeparationOverride = 5,
             MouseFilter = MouseFilterMode.Ignore
         };
@@ -47,48 +47,72 @@ public sealed class ComboHelperWidget : UIWidget
 
     public void UpdateFromComponent(ComboHelperComponent component)
     {
-        // Очищуємо попередній контент
         _container.DisposeAllChildren();
 
-        // Якщо віджет вимкнено або немає прототипу - ховаємо
-        if (!component.Enabled || component.Prototype == null)
+        if (!component.Enabled)
         {
             Visible = false;
             return;
         }
 
-        // Намагаємося отримати прототип helper
-        if (!_proto.TryIndex(component.Prototype.Value, out CqcComboHelperPrototype? helperProto))
+        if (TryRenderPrototypeCombos(component) || TryRenderMartialArtCombos())
         {
-            Visible = false;
+            Visible = true;
             return;
         }
 
-        // Якщо немає комбо - ховаємо
-        if (helperProto.Combos.Count == 0)
-        {
-            Visible = false;
-            return;
-        }
-
-        Visible = true;
-
-        // Створюємо UI для кожного комбо
-        foreach (var entry in helperProto.Combos)
-        {
-
-            if (!_proto.TryIndex(entry.ComboId, out ComboPrototype? comboProto))
-            {
-                continue;
-            }
-
-            CreateComboRow(entry, comboProto);
-        }
+        Visible = false;
     }
 
-    private void CreateComboRow(ComboHelperEntry entry, ComboPrototype comboProto)
+    private bool TryRenderPrototypeCombos(ComboHelperComponent component)
     {
-        // Створюємо горизонтальний рядок для комбо
+        if (component.Prototype == null)
+            return false;
+
+        if (!_proto.TryIndex(component.Prototype.Value, out CqcComboHelperPrototype? helperProto))
+            return false;
+
+        foreach (var entry in helperProto.Combos)
+        {
+            if (!_proto.TryIndex(entry.ComboId, out ComboPrototype? comboProto))
+                continue;
+
+            CreateComboRow(comboProto, entry.Name, entry.Icons);
+        }
+
+        return _container.ChildCount > 0;
+    }
+
+    private bool TryRenderMartialArtCombos()
+    {
+        if (_player.LocalEntity is not { } player)
+            return false;
+
+        if (!_entManager.TryGetComponent<MartialArtsKnowledgeComponent>(player, out var knowledge))
+            return false;
+
+        if (!_proto.TryIndex<MartialArtPrototype>(knowledge.MartialArtsForm.ToString(), out var martialArt))
+            return false;
+
+        if (!_proto.TryIndex(martialArt.RoundstartCombos, out ComboListPrototype? comboList))
+            return false;
+
+        foreach (var comboId in comboList.Combos)
+        {
+            if (!_proto.TryIndex(comboId, out ComboPrototype? comboProto))
+                continue;
+
+            CreateComboRow(comboProto);
+        }
+
+        return _container.ChildCount > 0;
+    }
+
+    private void CreateComboRow(
+        ComboPrototype comboProto,
+        string? customName = null,
+        List<SpriteSpecifier>? customIcons = null)
+    {
         var row = new BoxContainer
         {
             Orientation = BoxContainer.LayoutOrientation.Horizontal,
@@ -97,45 +121,36 @@ public sealed class ComboHelperWidget : UIWidget
             MouseFilter = MouseFilterMode.Ignore
         };
 
-        // Додаємо назву комбо
-        var labelText = string.IsNullOrEmpty(entry.Name)
+        var labelText = string.IsNullOrEmpty(customName)
             ? Loc.GetString(comboProto.Name)
-            : Loc.GetString(entry.Name);
+            : Loc.GetString(customName);
 
-        var label = new Label
+        row.AddChild(new Label
         {
             Text = labelText,
             Margin = new Thickness(0, 0, 5, 0),
             VerticalAlignment = VAlignment.Center,
             MouseFilter = MouseFilterMode.Ignore
-        };
-        row.AddChild(label);
+        });
 
-        // Використовуємо кастомні іконки якщо є, інакше генеруємо з типів атак
-        var icons = entry.Icons;
+        var icons = customIcons;
         if (icons == null || icons.Count == 0)
-        {
             icons = GetDefaultIcons(comboProto.AttackTypes);
-        }
 
-        // Додаємо іконки
         foreach (var icon in icons)
         {
             var texture = TryGetTexture(icon);
             if (texture == null)
-            {
                 continue;
-            }
 
-            var rect = new TextureRect
+            row.AddChild(new TextureRect
             {
                 TextureScale = new Vector2(0.5f, 0.5f),
                 Stretch = TextureRect.StretchMode.KeepAspectCentered,
                 MinSize = new Vector2(24, 24),
                 Texture = texture,
                 MouseFilter = MouseFilterMode.Ignore
-            };
-            row.AddChild(rect);
+            });
         }
 
         _container.AddChild(row);
@@ -154,7 +169,7 @@ public sealed class ComboHelperWidget : UIWidget
         }
     }
 
-    private List<SpriteSpecifier> GetDefaultIcons(List<ComboAttackType> attacks)
+    private static List<SpriteSpecifier> GetDefaultIcons(List<ComboAttackType> attacks)
     {
         var icons = new List<SpriteSpecifier>();
         var basePath = new ResPath("/Textures/_Goobstation/Interface/Misc/intents.rsi");

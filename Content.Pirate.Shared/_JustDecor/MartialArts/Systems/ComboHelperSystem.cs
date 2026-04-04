@@ -1,6 +1,9 @@
 using Content.Shared.Actions;
+using Content.Shared.Interaction.Events;
 using Content.Pirate.Shared._JustDecor.MartialArts.Components;
 using Content.Pirate.Shared._JustDecor.MartialArts.Events;
+using Content.Shared.Popups;
+using Robust.Shared.Audio.Systems;
 using Robust.Shared.GameStates;
 using Robust.Shared.Network;
 
@@ -14,6 +17,8 @@ public sealed class ComboHelperSystem : EntitySystem
 {
     [Dependency] private readonly SharedActionsSystem _actions = default!;
     [Dependency] private readonly INetManager _netManager = default!;
+    [Dependency] private readonly SharedPopupSystem _popup = default!;
+    [Dependency] private readonly SharedAudioSystem _audio = default!;
 
     public override void Initialize()
     {
@@ -21,7 +26,8 @@ public sealed class ComboHelperSystem : EntitySystem
 
         SubscribeLocalEvent<ComboHelperComponent, ComponentStartup>(OnStartup);
         SubscribeLocalEvent<ComboHelperComponent, ComponentShutdown>(OnShutdown);
-        SubscribeLocalEvent<ComboHelperComponent, CqcComboHelperToggleEvent>(OnToggle);
+        SubscribeLocalEvent<ComboHelperComponent, ComboHelperToggleEvent>(OnToggle);
+        SubscribeLocalEvent<GrantComboHelperComponent, UseInHandEvent>(OnGrantUse);
     }
 
     private void OnStartup(EntityUid uid, ComboHelperComponent component, ComponentStartup args)
@@ -45,7 +51,7 @@ public sealed class ComboHelperSystem : EntitySystem
         }
     }
 
-    private void OnToggle(EntityUid uid, ComboHelperComponent component, CqcComboHelperToggleEvent args)
+    private void OnToggle(EntityUid uid, ComboHelperComponent component, ComboHelperToggleEvent args)
     {
         if (!_netManager.IsServer)
             return;
@@ -54,6 +60,37 @@ public sealed class ComboHelperSystem : EntitySystem
 
         Dirty(uid, component);
         args.Handled = true;
+    }
+
+    private void OnGrantUse(EntityUid uid, GrantComboHelperComponent component, UseInHandEvent args)
+    {
+        if (args.Handled)
+            return;
+
+        args.Handled = true;
+
+        if (!_netManager.IsServer)
+            return;
+
+        if (HasComp<ComboHelperComponent>(args.User))
+        {
+            _popup.PopupEntity(Loc.GetString(component.AlreadyKnownMessage), args.User, args.User);
+            return;
+        }
+
+        EnsureComp<ComboHelperComponent>(args.User);
+        _popup.PopupEntity(Loc.GetString(component.LearnMessage), args.User, args.User);
+
+        var coords = Transform(args.User).Coordinates;
+        _audio.PlayPvs(component.SoundOnUse, coords);
+
+        if (component.MultiUse)
+            return;
+
+        QueueDel(uid);
+
+        if (component.SpawnedProto != null)
+            Spawn(component.SpawnedProto, coords);
     }
 
     /// <summary>
