@@ -24,20 +24,26 @@ public sealed class SmokeSensitivitySystem : EntitySystem
         var query = EntityQueryEnumerator<SmokeSensitivityComponent, TransformComponent>();
         while (query.MoveNext(out var uid, out var component, out var xform))
         {
+            if (component.CoughInterval <= 0f)
+            {
+                component.Accumulator = 0f;
+                continue;
+            }
+
             component.Accumulator += frameTime;
 
-            if (component.Accumulator < component.CoughInterval)
-                continue;
+            while (component.Accumulator >= component.CoughInterval)
+            {
+                component.Accumulator -= component.CoughInterval;
 
-            component.Accumulator -= component.CoughInterval;
+                if (IsProtected(uid))
+                    continue;
 
-            if (IsProtected(uid))
-                continue;
+                if (!HasWaterVapor(uid, xform))
+                    continue;
 
-            if (!HasWaterVapor(uid, xform))
-                continue;
-
-            _chat.TryEmoteWithChat(uid, CoughEmoteId, forceEmote: true);
+                _chat.TryEmoteWithChat(uid, CoughEmoteId, forceEmote: true);
+            }
         }
     }
 

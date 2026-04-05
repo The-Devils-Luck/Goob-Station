@@ -17,24 +17,24 @@ public sealed class WelderVaporSystem : EntitySystem
     public override void Update(float frameTime)
     {
         _accumulator += frameTime;
-        if (_accumulator < UpdateInterval)
-            return;
-
-        _accumulator -= UpdateInterval;
-
-        var query = EntityQueryEnumerator<WelderComponent, TransformComponent>();
-        while (query.MoveNext(out var uid, out var welder, out var xform))
+        while (_accumulator >= UpdateInterval)
         {
-            if (!welder.Enabled)
-                continue;
+            _accumulator -= UpdateInterval;
 
-            var parent = xform.ParentUid;
-            if (!IsWelding(uid, parent))
-                continue;
+            var query = EntityQueryEnumerator<WelderComponent, TransformComponent>();
+            while (query.MoveNext(out var uid, out var welder, out var xform))
+            {
+                if (!welder.Enabled)
+                    continue;
 
-            var mixture = _atmos.GetContainingMixture((uid, (TransformComponent?) xform), ignoreExposed: true, excite: true);
-            if (mixture != null)
-                mixture.AdjustMoles(Gas.WaterVapor, VaporAmountPerUpdate);
+                var parent = xform.ParentUid;
+                if (!IsWelding(uid, parent))
+                    continue;
+
+                var mixture = _atmos.GetContainingMixture((uid, (TransformComponent?) xform), ignoreExposed: true, excite: true);
+                if (mixture != null)
+                    mixture.AdjustMoles(Gas.WaterVapor, VaporAmountPerUpdate);
+            }
         }
     }
 
